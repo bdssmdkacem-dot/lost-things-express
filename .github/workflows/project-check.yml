@@ -17,6 +17,8 @@ jobs:
           test -f scenes/main.tscn
           test -f scripts/main.gd
           test -f docs/ART_DIRECTION.md
+          test -f docs/BLENDER_PIPELINE.md
+          test -f art/blender/create_train_carriage.py
           test -f docs/GAME_DESIGN.md
           echo "Required project files are present."
 
@@ -25,6 +27,12 @@ jobs:
           grep -q 'run/main_scene="res://scenes/main.tscn"' project.godot
           grep -q 'path="res://scripts/main.gd"' scenes/main.tscn
           echo "Main scene configuration looks valid."
+
+      - name: Validate Blender generator syntax
+        run: |
+          python -m py_compile art/blender/create_train_carriage.py
+          grep -q "TRAIN_CARRIAGE_ASSET_CREATED" art/blender/create_train_carriage.py
+          echo "Blender generator syntax and export marker look valid."
 
       - name: Install Godot 4.3
         uses: chickensoft-games/setup-godot@v1
