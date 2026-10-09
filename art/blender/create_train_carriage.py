@@ -299,6 +299,7 @@ def create_carriage():
         use_selection=False,
         export_apply=True,
         export_yup=True,
+        export_lights=True,
     )
     print("TRAIN_CARRIAGE_ASSET_CREATED: assets/models/train_carriage.glb")
 
