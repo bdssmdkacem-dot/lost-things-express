@@ -106,9 +106,11 @@ def uv_sphere(name, location, scale, mat):
     return obj
 
 def clear_scene():
+    # Remove the default scene objects but keep the materials created above.
+    # Deleting unused materials here invalidates the MATS references (RNA objects).
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete(use_global=False)
-    for datablocks in (bpy.data.meshes, bpy.data.curves, bpy.data.materials, bpy.data.cameras, bpy.data.lights):
+    for datablocks in (bpy.data.meshes, bpy.data.curves, bpy.data.cameras, bpy.data.lights):
         for datablock in list(datablocks):
             if datablock.users == 0:
                 datablocks.remove(datablock)
