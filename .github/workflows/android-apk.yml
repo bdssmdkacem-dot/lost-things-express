@@ -1,0 +1,49 @@
+name: Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "project.godot"
+      - "export_presets.cfg"
+      - "scenes/**"
+      - "scripts/**"
+      - "assets/**"
+      - ".github/workflows/android-apk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3.0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Android export tooling
+        run: |
+          godot --version
+          test -f project.godot
+          test -f export_presets.cfg
+          mkdir -p build
+
+      - name: Import project resources
+        run: godot --headless --editor --path . --quit
+
+      - name: Validate game scene
+        run: godot --headless --path . --quit-after 5
+
+      - name: Export Android APK
+        run: |
+          godot --headless --path . --export-debug "Android" build/TheLostThingsExpress.apk
+          test -s build/TheLostThingsExpress.apk
+
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: The-Lost-Things-Express-Android-APK
+          path: build/TheLostThingsExpress.apk
+          if-no-files-found: error
+          retention-days: 14
