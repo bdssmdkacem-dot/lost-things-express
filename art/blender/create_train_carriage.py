@@ -382,9 +382,9 @@ def create_carriage():
             bpy.data.objects.remove(obj, do_unlink=True)
     for idx, (pos, energy, color, size) in enumerate((
         ((-1.65, 2.85, -3.4), 260, (1.0, 0.57, 0.30), 2.0),
-        ((1.65, 2.85, 0.0), 300, (1.0, 0.68, 0.42), 2.2),
-        ((-1.65, 2.85, 3.4), 260, (1.0, 0.57, 0.30), 2.0),
-        ((0.0, 2.55, 0.0), 120, (0.48, 0.70, 1.0), 3.5),
+        ((1.65, 2.85, 0.0), 420, (1.0, 0.68, 0.42), 2.2),
+        ((-1.65, 2.85, 3.4), 360, (1.0, 0.57, 0.30), 2.0),
+        ((0.0, 2.55, 0.0), 220, (0.48, 0.70, 1.0), 3.5),
     ), 1):
         bpy.ops.object.light_add(type="AREA", location=pos)
         light = bpy.context.object
@@ -414,19 +414,9 @@ def create_carriage():
     world = bpy.context.scene.world
     world.use_nodes = True
     world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.16, 0.19, 0.24, 1)
-    world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.45
-    for obj in list(bpy.data.objects):
-        if obj.type == "LIGHT":
-            bpy.data.objects.remove(obj, do_unlink=True)
-    for idx, (x, z) in enumerate(((-1.8, -3.8), (1.8, -0.2), (-1.8, 3.6)), 1):
-        bpy.ops.object.light_add(type="AREA", location=(x, 2.72, z))
-        light = bpy.context.object
-        light.name = "Lighting | warm lantern bounce %d" % idx
-        light.data.energy = 170
-        light.data.color = (1.0, 0.57, 0.28)
-        light.data.shape = "DISK"
-        light.data.size = 2.1
-        light.rotation_euler = (math.radians(12), 0, 0)
+    world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.70
+    # Keep the correctly aimed cinematic area lights above; do not replace them with
+    # parallel lamps, which leave the aisle and upholstery underlit.
     bpy.context.scene.render.resolution_x = 1280
     bpy.context.scene.render.resolution_y = 720
     bpy.context.scene.render.resolution_percentage = 100
