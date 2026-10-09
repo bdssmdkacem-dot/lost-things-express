@@ -180,6 +180,26 @@ def create_carriage():
                 cube("Window brass stile", (x_frame, 2.05, zz), (0.13, 1.18, 0.075), MATS["brass_highlight"], 0.018, details)
             cube("Window center divider", (x_frame, 2.05, z), (0.14, 1.0, 0.035), MATS["brass"], 0.01, details)
 
+    # A small fantasy world sits outside the windows so the carriage never reads as a sealed box.
+    # These simple, low-poly silhouettes are intentionally outside the shell and visible through the glass.
+    sky_mat = material("Exterior | twilight blue", (0.025, 0.085, 0.16, 1), roughness=0.95)
+    island_mat = material("Exterior | floating island teal", (0.055, 0.19, 0.20, 1), roughness=0.9)
+    stone_mat = material("Exterior | old stone", (0.19, 0.22, 0.27, 1), roughness=0.88)
+    distant_gold = material("Exterior | clockwork gold", (0.68, 0.34, 0.09, 1), metallic=0.35, roughness=0.38, emission=0.25)
+    for side in (-1, 1):
+        # A continuous dusk backdrop, kept well beyond the window plane.
+        cube("Exterior | endless twilight", (side * 5.35, 2.0, 0.0), (0.08, 5.8, 13.5), sky_mat, 0.0, shell)
+        for idx, z in enumerate((-4.8, -2.0, 1.1, 4.3), 1):
+            # Floating landforms, distant castle towers and warm clock faces.
+            cube("Exterior | floating island %d" % idx, (side * (4.65 + (idx % 2) * 0.28), 0.85 + (idx % 2) * 0.22, z),
+                 (0.65, 0.24, 1.25), island_mat, 0.12, details)
+            cube("Exterior | castle tower %d" % idx, (side * 4.55, 1.55 + (idx % 2) * 0.24, z + 0.12),
+                 (0.25, 0.95 + (idx % 2) * 0.28, 0.28), stone_mat, 0.035, details)
+            cube("Exterior | tower roof %d" % idx, (side * 4.55, 2.12 + (idx % 2) * 0.24, z + 0.12),
+                 (0.34, 0.12, 0.36), distant_gold, 0.035, details)
+        for idx, z in enumerate((-3.0, 3.2), 1):
+            uv_sphere("Exterior | distant moon %d" % idx, (side * 4.95, 2.95, z), (0.10, 0.10, 0.10), distant_gold)
+
     # Paired upholstered benches, with cushions, piping and brass feet.
     for z in (-3.6, -0.5, 2.8):
         for side in (-1, 1):
