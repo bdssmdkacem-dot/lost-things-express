@@ -35,7 +35,7 @@ A premium fantasy train adventure where players explore strange stations, discov
 4. Export and test on the target Android devices before considering the prototype mobile-ready.
 
 ## Current state
-Repository foundation and art-direction contract are being established. Procedural prototype assets are temporary until replaced with production Blender assets.
+Repository foundation and art-direction contract are established. A repeatable Blender generator for the first passenger-carriage interior now lives at `art/blender/create_train_carriage.py`; see [docs/BLENDER_PIPELINE.md](docs/BLENDER_PIPELINE.md). The generated `.blend` and `.glb` outputs still need to be produced in Blender, visually reviewed, and imported into Godot. Procedural prototype assets remain temporary until that replacement is verified.
 
 ## Roadmap
 - [x] Lock visual direction in version-controlled documentation
@@ -43,7 +43,8 @@ Repository foundation and art-direction contract are being established. Procedur
 - [ ] Build and run the carriage prototype
 - [ ] Verify puzzle states and interaction feedback
 - [ ] Add pause/resume and persistent save data
-- [ ] Create Blender-to-GLB asset pipeline
+- [x] Add repeatable Blender-to-GLB generator and pipeline instructions
+- [ ] Generate, visually review, and integrate the first carriage asset
 - [ ] Replace placeholders with production art and animation
 - [ ] Add sound, subtitles, accessibility, and cinematic transitions
 - [ ] Add a second station only after the first slice passes playtests
