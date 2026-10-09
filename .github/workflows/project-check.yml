@@ -1,0 +1,25 @@
+name: Project checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  structure-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check required project files
+        run: |
+          test -f project.godot
+          test -f scenes/main.tscn
+          test -f scripts/main.gd
+          test -f docs/ART_DIRECTION.md
+          test -f docs/GAME_DESIGN.md
+          echo "Required project files are present."
+      - name: Check main scene wiring
+        run: |
+          grep -q 'run/main_scene="res://scenes/main.tscn"' project.godot
+          grep -q 'path="res://scripts/main.gd"' scenes/main.tscn
+          echo "Main scene configuration looks valid."
