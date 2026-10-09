@@ -23,7 +23,7 @@ It writes:
 - `assets/blender/train_carriage.blend` — editable Blender source;
 - `assets/models/train_carriage.glb` — Godot import asset.
 
-The generator is intentionally procedural and repeatable: adjust the script, rerun it, and review the result rather than hand-editing an output that will be overwritten. Do not claim the asset has been visually approved until the .blend is opened and checked in Blender.
+The generator is intentionally procedural and repeatable: adjust the script, rerun it, and review the result rather than hand-editing an output that will be overwritten. The GitHub Actions workflow now installs Blender, generates both files, and uploads them as the `lost-things-express-carriage-assets` workflow artifact when that job succeeds. Download that artifact from the successful workflow run for inspection. Do not claim the asset has been visually approved until the .blend is opened and checked in Blender.
 
 ### Godot integration checklist
 
