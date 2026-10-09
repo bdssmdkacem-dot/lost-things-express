@@ -42,8 +42,11 @@ def material(name, color, metallic=0.0, roughness=0.45, emission=0.0):
     bsdf.inputs["Metallic"].default_value = metallic
     bsdf.inputs["Roughness"].default_value = roughness
     if emission > 0:
-        bsdf.inputs["Emission Color"].default_value = color
-        bsdf.inputs["Emission Strength"].default_value = emission
+        # Blender 4.x renamed the Principled BSDF emission socket.
+        emission_socket = "Emission Color" if "Emission Color" in bsdf.inputs else "Emission"
+        bsdf.inputs[emission_socket].default_value = color
+        if "Emission Strength" in bsdf.inputs:
+            bsdf.inputs["Emission Strength"].default_value = emission
     return mat
 
 MATS = {
