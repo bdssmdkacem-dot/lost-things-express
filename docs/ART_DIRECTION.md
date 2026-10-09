@@ -40,6 +40,8 @@ Use physically based materials with restrained roughness variation, convincing b
 7. Preserve the art direction in future sessions and development locations; read this file before visual changes.
 
 ## Reference image archival
-Keep a lossless copy of the user's supplied image in the repository at:
-`art/reference/lost-things-express-primary-reference.png`
-The original attachment must be copied there when the binary upload workflow is available. Do not substitute a newly generated image and claim it is the user's original reference.
+The full reference inventory and intended repository paths are tracked in [`art/reference/README.md`](../art/reference/README.md). Preserve both source images unchanged:
+- `art/reference/lost-things-express-primary-reference.png` — primary concept board.
+- `art/reference/lost-things-express-concept-wide.png` — alternate wide capture of the concept board.
+
+Do not substitute a newly generated image and claim it is the user's original reference. The archive is incomplete until both original binary files are committed and verified. Build success alone never approves visual fidelity.
