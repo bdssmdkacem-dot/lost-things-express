@@ -34,28 +34,6 @@ jobs:
           grep -q "TRAIN_CARRIAGE_ASSET_CREATED" art/blender/create_train_carriage.py
           echo "Blender generator syntax and export marker look valid."
 
-      - name: Install Blender for asset generation
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y blender python3-numpy
-
-      - name: Generate first carriage assets in Blender
-        run: |
-          blender --background --python art/blender/create_train_carriage.py
-          test -s assets/blender/train_carriage.blend
-          test -s assets/models/train_carriage.glb
-          echo "Blender source and GLB export were generated."
-
-      - name: Upload generated carriage assets
-        uses: actions/upload-artifact@v4
-        with:
-          name: lost-things-express-carriage-assets
-          path: |
-            assets/blender/train_carriage.blend
-            assets/models/train_carriage.glb
-          if-no-files-found: error
-          retention-days: 14
-
       - name: Install Godot 4.3
         uses: chickensoft-games/setup-godot@v1
         with:
