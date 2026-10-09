@@ -27,7 +27,7 @@ COLORS = {
     "brass_highlight": (0.78, 0.48, 0.16, 1),
     "velvet": (0.24, 0.035, 0.045, 1),
     "velvet_dark": (0.12, 0.018, 0.026, 1),
-    "glass": (0.018, 0.095, 0.13, 1),
+    "glass": (0.018, 0.095, 0.13, 0.38),
     "iron": (0.035, 0.045, 0.05, 1),
     "parchment": (0.72, 0.59, 0.37, 1),
     "lantern": (1.0, 0.39, 0.075, 1),
@@ -39,6 +39,8 @@ def material(name, color, metallic=0.0, roughness=0.45, emission=0.0):
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes.get("Principled BSDF")
     bsdf.inputs["Base Color"].default_value = color
+    if name == "Glass" and hasattr(mat, "blend_method"):
+        mat.blend_method = "BLEND"
     bsdf.inputs["Metallic"].default_value = metallic
     bsdf.inputs["Roughness"].default_value = roughness
     if emission > 0:
@@ -132,8 +134,26 @@ def create_carriage():
         cube("Floor plank %02d" % (i + 1), (0, 0.012, z), (5.55, 0.035, 0.455),
              MATS["mahogany"] if i % 3 else MATS["wood_light"], 0.012, details)
     cube("Ceiling | inner canopy", (0, 3.48, 0), (5.8, 0.18, 12.0), MATS["dark_wood"], 0.045, shell)
-    cube("Left wall | mahogany", (-2.85, 1.65, 0), (0.18, 3.3, 12.0), MATS["mahogany"], 0.035, shell)
-    cube("Right wall | mahogany", (2.85, 1.65, 0), (0.18, 3.3, 12.0), MATS["mahogany"], 0.035, shell)
+    # Side walls are built around real window openings; full-height solid walls
+    # behind the glass made the windows look like painted teal panels.
+    window_centers = (-4.0, -1.8, 0.4, 2.6, 4.7)
+    for side in (-1, 1):
+        x = side * 2.85
+        cube("Side wall | lower mahogany", (x, 0.715, 0), (0.18, 1.43, 12.0), MATS["mahogany"], 0.025, shell)
+        cube("Side wall | upper mahogany", (x, 2.985, 0), (0.18, 0.63, 12.0), MATS["mahogany"], 0.025, shell)
+        cursor = -6.0
+        for window_z in window_centers:
+            opening_start = window_z - 0.75
+            if opening_start > cursor:
+                segment_length = opening_start - cursor
+                cube("Side wall | window pier", (x, 1.65, (cursor + opening_start) / 2),
+                     (0.18, 3.3, segment_length), MATS["mahogany"], 0.025, shell)
+            cursor = window_z + 0.75
+        if cursor < 6.0:
+            segment_length = 6.0 - cursor
+            cube("Side wall | end pier", (x, 1.65, (cursor + 6.0) / 2),
+                 (0.18, 3.3, segment_length), MATS["mahogany"], 0.025, shell)
+
     cube("Rear wall | end panel", (0, 1.65, -5.95), (5.8, 3.3, 0.18), MATS["dark_wood"], 0.04, shell)
     cube("Front wall | end panel", (0, 1.65, 5.95), (5.8, 3.3, 0.18), MATS["dark_wood"], 0.04, shell)
 
