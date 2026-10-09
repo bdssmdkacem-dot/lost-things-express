@@ -268,6 +268,24 @@ def create_carriage():
     bpy.context.scene.unit_settings.system = "METRIC"
     bpy.context.scene.unit_settings.scale_length = 1.0
     bpy.context.scene.render.engine = "CYCLES"
+    # Brighter warm interior illumination and an ambient fill are authored into the scene
+    # for the .blend preview; Godot will still use its own runtime lights/environment.
+    world = bpy.context.scene.world
+    world.use_nodes = True
+    world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.16, 0.19, 0.24, 1)
+    world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.45
+    for obj in list(bpy.data.objects):
+        if obj.type == "LIGHT":
+            bpy.data.objects.remove(obj, do_unlink=True)
+    for idx, (x, z) in enumerate(((-1.8, -3.8), (1.8, -0.2), (-1.8, 3.6)), 1):
+        bpy.ops.object.light_add(type="AREA", location=(x, 2.72, z))
+        light = bpy.context.object
+        light.name = "Lighting | warm lantern bounce %d" % idx
+        light.data.energy = 170
+        light.data.color = (1.0, 0.57, 0.28)
+        light.data.shape = "DISK"
+        light.data.size = 2.1
+        light.rotation_euler = (math.radians(12), 0, 0)
     bpy.context.scene.render.resolution_x = 1280
     bpy.context.scene.render.resolution_y = 720
     bpy.context.scene.render.resolution_percentage = 100
