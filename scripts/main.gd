@@ -369,14 +369,20 @@ func _create_interactable(label: String, pos: Vector3, color: Color, kind: Strin
 	item.add_child(visual)
 
 	if kind == "chest":
-		var lid := MeshInstance3D.new()
-		lid.name = "Lid"
+		# Rotate the lid around a real rear hinge instead of around its center.
+		var hinge := Node3D.new()
+		hinge.name = "Lid"
+		hinge.position = Vector3(0, size.y * 0.52, -size.z * 0.42)
+		item.add_child(hinge)
+
 		var lid_mesh := BoxMesh.new()
 		lid_mesh.size = Vector3(size.x, 0.16, size.z)
-		lid.mesh = lid_mesh
-		lid.position = Vector3(0, size.y * 0.52, -size.z * 0.42)
-		lid.material_override = material
-		item.add_child(lid)
+		var lid_visual := MeshInstance3D.new()
+		lid_visual.name = "LidVisual"
+		lid_visual.mesh = lid_mesh
+		lid_visual.position = Vector3(0, 0, size.z * 0.42)
+		lid_visual.material_override = material
+		hinge.add_child(lid_visual)
 
 	var glow := OmniLight3D.new()
 	glow.light_color = color
