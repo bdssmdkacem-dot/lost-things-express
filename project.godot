@@ -1,7 +1,7 @@
 config_version=5
 
 [application]
-config/name="قطار الأشياء المفقودة"
+config/name="The Lost Things Express"
 config/description="The Lost Things Express — a cinematic 3D mobile adventure"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
