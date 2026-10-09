@@ -31,6 +31,22 @@ jobs:
           test -s assets/models/train_carriage.glb
           echo "Generated carriage assets; visual approval is still required."
 
+      - name: Install Godot 4.3
+        uses: chickensoft-games/setup-godot@v1
+        with:
+          version: 4.3.0
+          use-dotnet: false
+          include-templates: false
+
+      - name: Import generated GLB and parse project in Godot
+        run: |
+          godot --headless --editor --path . --quit
+          test -d .godot/imported
+          echo "Godot import pass completed for the generated carriage asset."
+
+      - name: Launch the actual game scene with generated carriage
+        run: godot --headless --path . --quit-after 5
+
       - name: Commit generated assets for the playable game
         run: |
           git config user.name "github-actions[bot]"
