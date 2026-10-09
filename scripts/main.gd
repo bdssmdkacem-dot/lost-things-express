@@ -98,35 +98,35 @@ func _build_world() -> void:
 	_create_interactable("Memory Chest", Vector3(0.0, 0.45, -4.45), Color(0.33, 0.12, 0.055), "chest", Vector3(0.95, 0.75, 0.65))
 
 func _build_procedural_carriage() -> void:
-		# Carriage shell. These simple meshes validate scale and mechanics only.
-		_box("Floor", Vector3(0, -0.12, 0), Vector3(5.8, 0.24, 12.0), Color(0.16, 0.075, 0.045))
-		_box("Ceiling", Vector3(0, 3.5, 0), Vector3(5.8, 0.18, 12.0), Color(0.09, 0.045, 0.032))
-		_box("Left wall", Vector3(-2.85, 1.65, 0), Vector3(0.18, 3.3, 12.0), Color(0.12, 0.055, 0.035))
-		_box("Right wall", Vector3(2.85, 1.65, 0), Vector3(0.18, 3.3, 12.0), Color(0.12, 0.055, 0.035))
-		_box("Rear wall", Vector3(0, 1.65, -5.95), Vector3(5.8, 3.3, 0.18), Color(0.10, 0.045, 0.03))
-		_box("Front wall", Vector3(0, 1.65, 5.95), Vector3(5.8, 3.3, 0.18), Color(0.10, 0.045, 0.03))
+	# Carriage shell. These simple meshes validate scale and mechanics only.
+	_box("Floor", Vector3(0, -0.12, 0), Vector3(5.8, 0.24, 12.0), Color(0.16, 0.075, 0.045))
+	_box("Ceiling", Vector3(0, 3.5, 0), Vector3(5.8, 0.18, 12.0), Color(0.09, 0.045, 0.032))
+	_box("Left wall", Vector3(-2.85, 1.65, 0), Vector3(0.18, 3.3, 12.0), Color(0.12, 0.055, 0.035))
+	_box("Right wall", Vector3(2.85, 1.65, 0), Vector3(0.18, 3.3, 12.0), Color(0.12, 0.055, 0.035))
+	_box("Rear wall", Vector3(0, 1.65, -5.95), Vector3(5.8, 3.3, 0.18), Color(0.10, 0.045, 0.03))
+	_box("Front wall", Vector3(0, 1.65, 5.95), Vector3(5.8, 3.3, 0.18), Color(0.10, 0.045, 0.03))
 
-		for x in [-2.72, 2.72]:
-			for y in [0.2, 3.05]:
-				_box("Brass trim", Vector3(x, y, 0), Vector3(0.045, 0.045, 11.7), Color(0.70, 0.37, 0.10))
+	for x in [-2.72, 2.72]:
+		for y in [0.2, 3.05]:
+			_box("Brass trim", Vector3(x, y, 0), Vector3(0.045, 0.045, 11.7), Color(0.70, 0.37, 0.10))
 
-		for side in [-1.0, 1.0]:
-			for z in [-4.0, -1.8, 0.4, 2.6, 4.7]:
-				_box("Window glass", Vector3(side * 2.745, 2.05, z), Vector3(0.025, 1.05, 1.35), Color(0.055, 0.20, 0.28), false)
-				for y in [1.48, 2.62]:
-					_box("Window brass frame", Vector3(side * 2.70, y, z), Vector3(0.12, 0.07, 1.48), Color(0.63, 0.32, 0.09), false)
-				for zz in [z - 0.72, z + 0.72]:
-					_box("Window brass frame", Vector3(side * 2.70, 2.05, zz), Vector3(0.12, 1.18, 0.07), Color(0.63, 0.32, 0.09), false)
+	for side in [-1.0, 1.0]:
+		for z in [-4.0, -1.8, 0.4, 2.6, 4.7]:
+			_box("Window glass", Vector3(side * 2.745, 2.05, z), Vector3(0.025, 1.05, 1.35), Color(0.055, 0.20, 0.28), false)
+			for y in [1.48, 2.62]:
+				_box("Window brass frame", Vector3(side * 2.70, y, z), Vector3(0.12, 0.07, 1.48), Color(0.63, 0.32, 0.09), false)
+			for zz in [z - 0.72, z + 0.72]:
+				_box("Window brass frame", Vector3(side * 2.70, 2.05, zz), Vector3(0.12, 1.18, 0.07), Color(0.63, 0.32, 0.09), false)
 
-		for z in [-3.6, -0.5, 2.8]:
-			_box("Velvet seat", Vector3(-1.78, 0.58, z), Vector3(1.25, 0.65, 1.2), Color(0.30, 0.075, 0.065), false)
-			_box("Seat back", Vector3(-1.78, 1.12, z - 0.48), Vector3(1.25, 0.85, 0.20), Color(0.34, 0.09, 0.07), false)
-			_box("Velvet seat", Vector3(1.78, 0.58, z), Vector3(1.25, 0.65, 1.2), Color(0.30, 0.075, 0.065), false)
-			_box("Seat back", Vector3(1.78, 1.12, z - 0.48), Vector3(1.25, 0.85, 0.20), Color(0.34, 0.09, 0.07), false)
+	for z in [-3.6, -0.5, 2.8]:
+		_box("Velvet seat", Vector3(-1.78, 0.58, z), Vector3(1.25, 0.65, 1.2), Color(0.30, 0.075, 0.065), false)
+		_box("Seat back", Vector3(-1.78, 1.12, z - 0.48), Vector3(1.25, 0.85, 0.20), Color(0.34, 0.09, 0.07), false)
+		_box("Velvet seat", Vector3(1.78, 0.58, z), Vector3(1.25, 0.65, 1.2), Color(0.30, 0.075, 0.065), false)
+		_box("Seat back", Vector3(1.78, 1.12, z - 0.48), Vector3(1.25, 0.85, 0.20), Color(0.34, 0.09, 0.07), false)
 
-		_add_lantern(Vector3(-2.2, 2.85, -3.8))
-		_add_lantern(Vector3(2.2, 2.85, 0.0))
-		_add_lantern(Vector3(-2.2, 2.85, 3.7))
+	_add_lantern(Vector3(-2.2, 2.85, -3.8))
+	_add_lantern(Vector3(2.2, 2.85, 0.0))
+	_add_lantern(Vector3(-2.2, 2.85, 3.7))
 
 
 func _collision_box(label: String, pos: Vector3, size: Vector3) -> void:
