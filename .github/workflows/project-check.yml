@@ -37,7 +37,7 @@ jobs:
       - name: Install Blender for asset generation
         run: |
           sudo apt-get update
-          sudo apt-get install -y blender
+          sudo apt-get install -y blender python3-numpy
 
       - name: Generate first carriage assets in Blender
         run: |
