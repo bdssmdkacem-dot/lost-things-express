@@ -215,6 +215,39 @@ def create_carriage():
             for dx in (-0.34, 0.0, 0.34):
                 uv_sphere("Seat | brass upholstery stud", (x + dx, 1.10, z - 0.512), (0.025, 0.025, 0.018), MATS["brass_highlight"])
 
+    # A tailored runner makes the central aisle feel like a first-class sleeper carriage.
+    rug_mat = material("Interior | midnight teal runner", (0.018, 0.075, 0.085, 1), roughness=0.92)
+    rug_red = material("Interior | woven burgundy motif", (0.31, 0.045, 0.055, 1), roughness=0.88)
+    cube("Aisle | tailored teal runner", (0, 0.045, 0), (0.88, 0.035, 11.25), rug_mat, 0.025, details)
+    for z in [(-5.15 + i * 0.52) for i in range(20)]:
+        cube("Runner | woven burgundy lozenge", (0, 0.068, z), (0.24, 0.012, 0.24), rug_red, 0.018, details)
+    for x in (-0.40, 0.40):
+        cube("Runner | brass woven border", (x, 0.069, 0), (0.025, 0.012, 11.05), MATS["brass_highlight"], 0.008, details)
+
+    # Ceiling ribs and inset panels add a handcrafted, architectural silhouette.
+    for z in (-5.3, -3.5, -1.7, 0.1, 1.9, 3.7, 5.35):
+        cube("Ceiling | curved-look mahogany cross rib", (0, 3.345, z), (5.48, 0.11, 0.16), MATS["mahogany"], 0.045, details)
+        for x in (-2.35, -1.55, -0.75, 0.75, 1.55, 2.35):
+            uv_sphere("Ceiling rib | brass pin", (x, 3.275, z), (0.025, 0.018, 0.025), MATS["brass_highlight"])
+
+    # Brass wall sconces and framed vintage travel plaques between the windows.
+    for side in (-1, 1):
+        x = side * 2.52
+        for z in (-2.9, 1.5, 4.0):
+            cube("Wall | brass sconce backplate", (x, 2.28, z), (0.09, 0.28, 0.18), MATS["brass"], 0.025, details)
+            cube("Wall | amber sconce core", (x - side * 0.065, 2.28, z), (0.045, 0.16, 0.085), MATS["lantern"], 0.018, details)
+            cube("Wall | framed travel plaque", (side * 2.56, 1.78, z - 0.40), (0.045, 0.30, 0.40), MATS["brass_highlight"], 0.015, details)
+            cube("Wall | plaque enamel inset", (side * 2.525, 1.78, z - 0.40), (0.025, 0.24, 0.33), rug_mat, 0.01, details)
+
+    # Small travel trunks tucked at carriage ends, clear of the central aisle.
+    for side in (-1, 1):
+        z = side * 5.05
+        cube("Luggage | antique leather trunk", (side * 1.70, 0.34, z), (0.92, 0.55, 0.78), MATS["mahogany"], 0.07, details)
+        cube("Luggage | brass lid band", (side * 1.70, 0.62, z), (0.94, 0.045, 0.80), MATS["brass"], 0.018, details)
+        cube("Luggage | front clasp", (side * 1.70, 0.39, z - side * 0.405), (0.15, 0.19, 0.035), MATS["brass_highlight"], 0.02, details)
+        for dx in (-0.30, 0.30):
+            cylinder("Luggage | corner foot", (side * 1.70 + dx, 0.10, z), 0.04, 0.16, MATS["brass"], vertices=10)
+
     # Pendant lanterns with emissive cores and a warm glow when imported into Godot.
     for idx, (x, z) in enumerate(((-2.05, -3.8), (2.05, 0.0), (-2.05, 3.7)), 1):
         cylinder("Lantern %d | ceiling mount" % idx, (x, 3.26, z), 0.07, 0.24, MATS["brass"])
