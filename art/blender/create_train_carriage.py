@@ -25,8 +25,8 @@ COLORS = {
     "wood_light": (0.30, 0.105, 0.045, 1),
     "brass": (0.55, 0.27, 0.065, 1),
     "brass_highlight": (0.78, 0.48, 0.16, 1),
-    "velvet": (0.24, 0.035, 0.045, 1),
-    "velvet_dark": (0.12, 0.018, 0.026, 1),
+    "velvet": (0.035, 0.24, 0.115, 1),
+    "velvet_dark": (0.012, 0.095, 0.052, 1),
     "glass": (0.018, 0.095, 0.13, 0.38),
     "iron": (0.035, 0.045, 0.05, 1),
     "parchment": (0.72, 0.59, 0.37, 1),
@@ -205,8 +205,8 @@ def create_carriage():
         for side in (-1, 1):
             x = side * 1.78
             cube("Seat | carved mahogany plinth", (x, 0.36, z), (1.30, 0.30, 1.24), MATS["dark_wood"], 0.09, seating)
-            cube("Seat | deep crimson velvet cushion", (x, 0.56, z), (1.27, 0.24, 1.19), MATS["velvet"], 0.10, seating)
-            cube("Seat back | velvet upholstery", (x, 1.08, z - 0.49), (1.27, 0.88, 0.22), MATS["velvet"], 0.09, seating)
+            cube("Seat | deep crimson velvet cushion", (x, 0.56, z), (1.27, 0.24, 1.19), seat_leather, 0.10, seating)
+            cube("Seat back | velvet upholstery", (x, 1.08, z - 0.49), (1.27, 0.88, 0.22), seat_leather, 0.09, seating)
             cube("Seat back | dark wood surround", (x, 1.08, z - 0.62), (1.38, 0.98, 0.12), MATS["mahogany"], 0.07, seating)
             cube("Seat back | inset upholstery", (x, 1.08, z - 0.545), (1.15, 0.72, 0.045), MATS["velvet_dark"], 0.045, seating)
             for dx in (-0.52, 0.52):
@@ -216,13 +216,27 @@ def create_carriage():
                 uv_sphere("Seat | brass upholstery stud", (x + dx, 1.10, z - 0.512), (0.025, 0.025, 0.018), MATS["brass_highlight"])
 
     # A tailored runner makes the central aisle feel like a first-class sleeper carriage.
-    rug_mat = material("Interior | midnight teal runner", (0.018, 0.075, 0.085, 1), roughness=0.92)
-    rug_red = material("Interior | woven burgundy motif", (0.31, 0.045, 0.055, 1), roughness=0.88)
+    rug_mat = material("Interior | emerald velvet runner", (0.018, 0.19, 0.085, 1), roughness=0.92)
+    rug_red = material("Interior | woven antique gold motif", (0.72, 0.43, 0.12, 1), roughness=0.88)
     cube("Aisle | tailored teal runner", (0, 0.045, 0), (0.88, 0.035, 11.25), rug_mat, 0.025, details)
     for z in [(-5.15 + i * 0.52) for i in range(20)]:
         cube("Runner | woven burgundy lozenge", (0, 0.068, z), (0.24, 0.012, 0.24), rug_red, 0.018, details)
     for x in (-0.40, 0.40):
         cube("Runner | brass woven border", (x, 0.069, 0), (0.025, 0.012, 11.05), MATS["brass_highlight"], 0.008, details)
+
+    # Emerald upholstered ceiling panels and tailored velvet curtains establish the requested signature palette.
+    emerald_ceiling = material("Ceiling | emerald woven velvet", (0.012, 0.115, 0.058, 1), roughness=0.86)
+    for panel_z in (-4.4, -2.6, -0.8, 1.0, 2.8, 4.6):
+        cube("Ceiling | emerald upholstered inset", (0, 3.365, panel_z), (4.75, 0.035, 1.38), emerald_ceiling, 0.045, details)
+    curtain_mat = material("Curtains | deep emerald velvet", (0.012, 0.22, 0.095, 1), roughness=0.88)
+    curtain_fold = material("Curtains | raised emerald folds", (0.025, 0.34, 0.14, 1), roughness=0.84)
+    for side in (-1, 1):
+        for z in (-4.0, -1.8, 0.4, 2.6, 4.7):
+            for zz in (z - 0.66, z + 0.66):
+                cube("Curtain | hanging emerald panel", (side * 2.60, 2.03, zz), (0.12, 1.12, 0.20), curtain_mat, 0.045, details)
+                for fold in (-0.055, 0.0, 0.055):
+                    cube("Curtain | tailored fold", (side * 2.525, 2.03, zz + fold), (0.035, 1.02, 0.018), curtain_fold, 0.008, details)
+                cube("Curtain | brass tie-back", (side * 2.49, 1.88, zz), (0.07, 0.055, 0.24), MATS["brass_highlight"], 0.018, details)
 
     # Ceiling ribs and inset panels add a handcrafted, architectural silhouette.
     for z in (-5.3, -3.5, -1.7, 0.1, 1.9, 3.7, 5.35):
@@ -269,6 +283,7 @@ def create_carriage():
     velvet_highlight = material("Velvet | raised piping", (0.48, 0.075, 0.085, 1), roughness=0.72)
     inlay = material("Wood inlay | warm brass line", (0.82, 0.53, 0.22, 1), metallic=0.58, roughness=0.29)
     leather = material("Luggage | oxblood leather", (0.19, 0.035, 0.025, 1), roughness=0.58)
+    seat_leather = material("Seats | emerald green leather", (0.018, 0.16, 0.072, 1), roughness=0.34)
 
     # Multi-step window surrounds and lower sills make the windows feel architectural,
     # not like flat panes pasted onto the wall.
