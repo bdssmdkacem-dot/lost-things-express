@@ -28,7 +28,7 @@ func _ready() -> void:
 	_build_world()
 	_build_player()
 	_build_ui()
-	_set_status("وصل القطار إلى محطة لا تظهر على أي خريطة.")
+	_set_status("The train has arrived at a station that appears on no map.")
 
 func _setup_input_map() -> void:
 	_add_key_action("move_forward", KEY_W)
@@ -163,7 +163,7 @@ func _build_ui() -> void:
 	root.add_child(prompt_label)
 
 	interact_button = Button.new()
-	interact_button.text = "تفاعل"
+	interact_button.text = "INTERACT"
 	interact_button.anchor_left = 0.80
 	interact_button.anchor_top = 0.78
 	interact_button.anchor_right = 0.96
@@ -173,7 +173,7 @@ func _build_ui() -> void:
 	root.add_child(interact_button)
 
 	var hint := Label.new()
-	hint.text = "اسحب يسار الشاشة للحركة • اسحب يمينها للنظر"
+	hint.text = "Drag the left side to move • drag the right side to look"
 	hint.anchor_left = 0.15
 	hint.anchor_top = 0.94
 	hint.anchor_right = 0.80
@@ -187,7 +187,7 @@ func _process(_delta: float) -> void:
 	_update_nearby()
 	objective_label.text = _objective_text()
 	interact_button.disabled = nearby_object == null
-	prompt_label.text = "يمكنك فحص: " + str(nearby_object.get_meta("display_name", "غرض")) if nearby_object else ""
+	prompt_label.text = "Inspect: " + str(nearby_object.get_meta("display_name", "object")) if nearby_object else ""
 
 func _physics_process(_delta: float) -> void:
 	var input_vector := Vector2(
@@ -270,38 +270,38 @@ func _interact() -> void:
 			if not has_key:
 				has_key = true
 				nearby_object.queue_free()
-				_set_status("وجدت مفتاحًا نحاسيًا. من صاحبه؟")
+				_set_status("You found a brass key. Who does it belong to?")
 			else:
-				_set_status("المفتاح معك بالفعل.")
+				_set_status("You already have the key.")
 		"letter":
 			letter_read = true
-			nearby_object.set_meta("display_name", "رسالة مقروءة")
-			_set_status("الرسالة: «حين تدق الساعة ثلاث مرات، أعد ما نسيه المسافر.»")
+			nearby_object.set_meta("display_name", "Letter read")
+			_set_status("The letter reads: “When the clock strikes three times, return what the traveler forgot.”")
 		"chest":
 			if chest_open:
-				_set_status("داخل الصندوق ذكرى صغيرة: صورة محطة عند الغروب.")
+				_set_status("Inside the chest is a small memory: a photograph of a station at sunset.")
 			elif not has_key:
-				_set_status("الصندوق مقفل. ابحث عن مفتاح نحاسي.")
+				_set_status("The chest is locked. Find the brass key.")
 			elif not letter_read:
-				_set_status("تحتاج إلى فهم الرسالة قبل فتح الصندوق.")
+				_set_status("You need to understand the letter before opening the chest.")
 			else:
 				chest_open = true
-				nearby_object.set_meta("display_name", "صندوق مفتوح")
+				nearby_object.set_meta("display_name", "Open chest")
 				var lid := nearby_object.get_node_or_null("Lid") as Node3D
 				if lid:
 					lid.rotation.x = deg_to_rad(-72.0)
-				_set_status("انفتح الصندوق! وجدت صورة قديمة ووجهة جديدة: محطة الغروب.")
+				_set_status("The chest opens! Inside is an old photograph and a new destination: Sunset Station.")
 		_:
-			_set_status("لا يحدث شيء بعد.")
+			_set_status("Nothing happens here yet.")
 
 func _objective_text() -> String:
 	if chest_open:
-		return "المهمة مكتملة: استعدّ لمغادرة محطة الغروب."
+		return "Objective complete: Get ready to leave Sunset Station."
 	if not has_key:
-		return "المهمة: اعثر على المفتاح النحاسي قرب المقاعد."
+		return "Objective: Find the brass key near the seats."
 	if not letter_read:
-		return "المهمة: اقرأ الرسالة لتفهم سر الصندوق."
-	return "المهمة: افتح صندوق الذكريات بالمفتاح."
+		return "Objective: Read the letter to uncover the chest’s secret."
+	return "Objective: Unlock the memory chest with the key."
 
 func _set_status(message: String) -> void:
 	if is_instance_valid(status_label):
