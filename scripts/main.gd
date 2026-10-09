@@ -59,8 +59,8 @@ func _build_world() -> void:
 	sky.sky_material = sky_material
 	environment.sky = sky
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color(0.40, 0.46, 0.52)
-	environment.ambient_light_energy = 0.55
+	environment.ambient_light_color = Color(0.58, 0.52, 0.47)
+	environment.ambient_light_energy = 0.82
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	world.environment = environment
 	add_child(world)
@@ -71,6 +71,23 @@ func _build_world() -> void:
 	sun.light_energy = 0.65
 	sun.shadow_enabled = true
 	add_child(sun)
+
+	# Runtime practical lights guarantee readable velvet and wood on mobile renderers,
+	# even if a glTF importer drops Blender's authored area-light data.
+	for light_spec in [
+		[Vector3(-1.45, 2.65, -3.6), Color(1.0, 0.56, 0.30), 2.2, 5.6],
+		[Vector3(1.45, 2.65, 0.0), Color(1.0, 0.68, 0.43), 2.6, 6.0],
+		[Vector3(-1.45, 2.65, 3.5), Color(1.0, 0.56, 0.30), 2.2, 5.6],
+		[Vector3(0.0, 2.5, 0.0), Color(0.48, 0.70, 1.0), 0.7, 4.8],
+	]:
+		var fill := OmniLight3D.new()
+		fill.name = "CarriageLight_%02d" % get_child_count()
+		fill.position = light_spec[0]
+		fill.light_color = light_spec[1]
+		fill.light_energy = light_spec[2]
+		fill.omni_range = light_spec[3]
+		fill.shadow_enabled = false
+		add_child(fill)
 
 	# Prefer the reviewed Blender carriage asset; keep the procedural shell only as a safe fallback.
 	var carriage_path := "res://assets/models/train_carriage.glb"
