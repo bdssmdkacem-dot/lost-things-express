@@ -337,9 +337,9 @@ def create_carriage():
     # A signature brass carriage clock at the far end anchors the composition and
     # gives the compartment a memorable story object.
     clock_z = 5.78
-    cube("End wall | clock shadow mount", (0, 2.32, clock_z), (1.22, 1.02, 0.10),
+    cube("End wall | clock shadow mount", (0, 2.32, 5.80), (1.22, 1.02, 0.10),
          trim_shadow, 0.08, details)
-    cube("End wall | clock mahogany frame", (0, 2.32, 5.70), (1.12, 0.92, 0.12),
+    cube("End wall | clock mahogany frame", (0, 2.32, 5.73), (1.12, 0.92, 0.12),
          MATS["mahogany"], 0.07, details)
     cylinder("End wall | brass clock bezel", (0, 2.33, 5.61), 0.34, 0.10,
              MATS["brass_highlight"], rotation=(math.radians(90), 0, 0), vertices=48)
@@ -357,7 +357,7 @@ def create_carriage():
     for i in range(12):
         angle = (i / 12.0) * math.tau
         uv_sphere("End wall | clock hour marker",
-                  (math.sin(angle) * 0.235, 2.30, 5.515 + math.cos(angle) * 0.235),
+                  (math.sin(angle) * 0.235, 2.33 + math.cos(angle) * 0.235, 5.57),
                   (0.018, 0.012, 0.018), MATS["brass"],)
 
     # Bespoke trunk hardware: corner guards, parallel straps, and visible studs.
