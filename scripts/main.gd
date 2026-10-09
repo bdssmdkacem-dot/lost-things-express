@@ -8,6 +8,7 @@ const INTERACT_DISTANCE := 2.2
 var player: CharacterBody3D
 var camera: Camera3D
 var status_label: Label
+var objective_label: Label
 var prompt_label: Label
 var interact_button: Button
 var yaw := 0.0
@@ -142,6 +143,15 @@ func _build_ui() -> void:
 	status_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.58))
 	root.add_child(status_label)
 
+	objective_label = Label.new()
+	objective_label.anchor_left = 0.04
+	objective_label.anchor_top = 0.16
+	objective_label.anchor_right = 0.78
+	objective_label.anchor_bottom = 0.24
+	objective_label.add_theme_font_size_override("font_size", 17)
+	objective_label.add_theme_color_override("font_color", Color(0.91, 0.89, 0.82))
+	root.add_child(objective_label)
+
 	prompt_label = Label.new()
 	prompt_label.anchor_left = 0.18
 	prompt_label.anchor_top = 0.76
@@ -175,6 +185,7 @@ func _build_ui() -> void:
 
 func _process(_delta: float) -> void:
 	_update_nearby()
+	objective_label.text = _objective_text()
 	interact_button.disabled = nearby_object == null
 	prompt_label.text = "يمكنك فحص: " + str(nearby_object.get_meta("display_name", "غرض")) if nearby_object else ""
 
@@ -282,6 +293,15 @@ func _interact() -> void:
 				_set_status("انفتح الصندوق! وجدت صورة قديمة ووجهة جديدة: محطة الغروب.")
 		_:
 			_set_status("لا يحدث شيء بعد.")
+
+func _objective_text() -> String:
+	if chest_open:
+		return "المهمة مكتملة: استعدّ لمغادرة محطة الغروب."
+	if not has_key:
+		return "المهمة: اعثر على المفتاح النحاسي قرب المقاعد."
+	if not letter_read:
+		return "المهمة: اقرأ الرسالة لتفهم سر الصندوق."
+	return "المهمة: افتح صندوق الذكريات بالمفتاح."
 
 func _set_status(message: String) -> void:
 	if is_instance_valid(status_label):
