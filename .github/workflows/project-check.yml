@@ -6,10 +6,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  structure-check:
+  godot-validation:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Check required project files
         run: |
           test -f project.godot
@@ -18,8 +19,22 @@ jobs:
           test -f docs/ART_DIRECTION.md
           test -f docs/GAME_DESIGN.md
           echo "Required project files are present."
+
       - name: Check main scene wiring
         run: |
           grep -q 'run/main_scene="res://scenes/main.tscn"' project.godot
           grep -q 'path="res://scripts/main.gd"' scenes/main.tscn
           echo "Main scene configuration looks valid."
+
+      - name: Install Godot 4.3
+        uses: chickensoft-games/setup-godot@v1
+        with:
+          version: 4.3.0
+          use-dotnet: false
+          include-templates: false
+
+      - name: Import project and parse scripts
+        run: godot --headless --editor --path . --quit
+
+      - name: Launch main scene headlessly
+        run: godot --headless --path . --quit-after 5
