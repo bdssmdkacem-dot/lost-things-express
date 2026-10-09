@@ -9,13 +9,15 @@ on:
       - ".github/workflows/generate-carriage-assets.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   generate-carriage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Install Blender and export dependency
         run: |
@@ -28,6 +30,18 @@ jobs:
           test -s assets/blender/train_carriage.blend
           test -s assets/models/train_carriage.glb
           echo "Generated carriage assets; visual approval is still required."
+
+      - name: Commit generated assets for the playable game
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/blender/train_carriage.blend assets/models/train_carriage.glb
+          if git diff --cached --quiet; then
+            echo "Generated assets are unchanged."
+          else
+            git commit -m "art: publish generated carriage assets"
+            git push
+          fi
 
       - name: Upload generated carriage assets for review
         uses: actions/upload-artifact@v4
