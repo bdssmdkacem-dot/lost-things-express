@@ -263,6 +263,147 @@ def create_carriage():
         for z in [(-5.5 + i * 0.5) for i in range(23)]:
             uv_sphere("Brass rail rivet", (side * 2.655, 3.08, z), (0.025, 0.025, 0.025), MATS["brass_highlight"])
 
+    # Production pass: layered window casings, tailored upholstery, engraved trim,
+    # and focal storytelling props. Keep geometry readable at mobile camera distance.
+    trim_shadow = material("Carved trim | shadow", (0.045, 0.018, 0.012, 1), roughness=0.42)
+    velvet_highlight = material("Velvet | raised piping", (0.48, 0.075, 0.085, 1), roughness=0.72)
+    inlay = material("Wood inlay | warm brass line", (0.82, 0.53, 0.22, 1), metallic=0.58, roughness=0.29)
+    leather = material("Luggage | oxblood leather", (0.19, 0.035, 0.025, 1), roughness=0.58)
+
+    # Multi-step window surrounds and lower sills make the windows feel architectural,
+    # not like flat panes pasted onto the wall.
+    for side in (-1, 1):
+        for index, z in enumerate((-4.0, -1.8, 0.4, 2.6, 4.7), 1):
+            xf = side * 2.655
+            # Deep reveal, polished outer bead, and a broad sill with brass end caps.
+            for yy, thickness, depth, mat in ((1.42, 0.055, 1.52, trim_shadow),
+                                               (1.47, 0.035, 1.47, inlay),
+                                               (2.66, 0.055, 1.52, trim_shadow),
+                                               (2.61, 0.035, 1.47, inlay)):
+                cube("Window %d | layered horizontal casing" % index, (xf, yy, z),
+                     (0.095, thickness, depth), mat, 0.018, details)
+            for zz in (z - 0.75, z + 0.75):
+                cube("Window %d | layered vertical casing" % index,
+                     (xf, 2.04, zz), (0.095, 1.25, 0.055), MATS["brass_highlight"], 0.018, details)
+            cube("Window %d | deep polished sill" % index,
+                 (side * 2.59, 1.405, z), (0.24, 0.075, 1.57), MATS["mahogany"], 0.035, details)
+            for zz in (z - 0.64, z + 0.64):
+                uv_sphere("Window %d | sill end rosette" % index,
+                          (side * 2.47, 1.44, zz), (0.045, 0.035, 0.045), inlay)
+
+    # Fine double-line inlay on every wall panel gives the woodwork a bespoke,
+    # joinery-made finish instead of large uninterrupted brown surfaces.
+    for side in (-1, 1):
+        x = side * 2.625
+        for z in (-5.25, -2.8, -0.35, 2.1, 4.55):
+            for zz in (z - 0.76, z + 0.76):
+                cube("Panel | fine vertical brass inlay", (x, 1.48, zz),
+                     (0.026, 1.50, 0.025), inlay, 0.009, details)
+            for yy in (0.73, 2.23):
+                cube("Panel | fine horizontal brass inlay", (x, yy, z),
+                     (0.026, 0.025, 1.52), inlay, 0.009, details)
+            # A central diamond medallion in each mahogany panel.
+            diamond = cube("Panel | ornamental diamond", (side * 2.605, 1.48, z),
+                           (0.035, 0.25, 0.25), MATS["brass"], 0.018, details)
+            diamond.rotation_euler[1] = math.radians(45)
+            uv_sphere("Panel | medallion center", (side * 2.575, 1.48, z),
+                      (0.026, 0.055, 0.055), MATS["brass_highlight"])
+
+    # Tailored upholstery: inset piping, repeated tuft buttons, and softly raised
+    # bolster rolls make the benches read as padded first-class seating.
+    for z in (-3.6, -0.5, 2.8):
+        for side in (-1, 1):
+            x = side * 1.78
+            # Seat cushion piping on the visible perimeter.
+            for xx in (x - 0.58, x + 0.58):
+                cube("Seat | cushion piping side", (xx, 0.686, z),
+                     (0.025, 0.018, 1.08), velvet_highlight, 0.008, seating)
+            for zz in (z - 0.54, z + 0.54):
+                cube("Seat | cushion piping end", (x, 0.686, zz),
+                     (1.12, 0.018, 0.025), velvet_highlight, 0.008, seating)
+            # Upholstery buttons on a 3x3 grid on each seat back.
+            for dx in (-0.36, 0.0, 0.36):
+                for dy in (0.84, 1.08, 1.32):
+                    uv_sphere("Seat back | deep button tuft",
+                              (x + dx, dy, z - 0.515),
+                              (0.028, 0.028, 0.022), MATS["brass"])
+            # Low sculpted arm caps, with bright metal end pins.
+            for dx in (-0.67, 0.67):
+                cube("Seat | carved armrest", (x + dx, 0.79, z - 0.05),
+                     (0.16, 0.16, 1.03), MATS["mahogany"], 0.065, seating)
+                cube("Seat | armrest brass cap", (x + dx, 0.875, z - 0.05),
+                     (0.17, 0.025, 0.90), inlay, 0.012, seating)
+
+    # A signature brass carriage clock at the far end anchors the composition and
+    # gives the compartment a memorable story object.
+    clock_z = 5.78
+    cube("End wall | clock shadow mount", (0, 2.32, clock_z), (1.22, 1.02, 0.10),
+         trim_shadow, 0.08, details)
+    cube("End wall | clock mahogany frame", (0, 2.32, 5.70), (1.12, 0.92, 0.12),
+         MATS["mahogany"], 0.07, details)
+    cylinder("End wall | brass clock bezel", (0, 2.33, 5.61), 0.34, 0.10,
+             MATS["brass_highlight"], rotation=(math.radians(90), 0, 0), vertices=48)
+    cylinder("End wall | clock face", (0, 2.33, 5.545), 0.285, 0.035,
+             MATS["parchment"], rotation=(math.radians(90), 0, 0), vertices=48)
+    cylinder("End wall | clock center pin", (0, 2.33, 5.515), 0.035, 0.025,
+             MATS["brass"], rotation=(math.radians(90), 0, 0), vertices=20)
+    # Clock hands are thin, raised brass bars.
+    hand_minute = cube("End wall | clock minute hand", (0, 2.33, 5.495),
+                       (0.018, 0.018, 0.22), MATS["brass"], 0.006, details)
+    hand_minute.rotation_euler[1] = math.radians(-22)
+    hand_hour = cube("End wall | clock hour hand", (0.035, 2.33, 5.49),
+                     (0.018, 0.018, 0.15), MATS["brass"], 0.006, details)
+    hand_hour.rotation_euler[1] = math.radians(48)
+    for i in range(12):
+        angle = (i / 12.0) * math.tau
+        uv_sphere("End wall | clock hour marker",
+                  (math.sin(angle) * 0.235, 2.30, 5.515 + math.cos(angle) * 0.235),
+                  (0.018, 0.012, 0.018), MATS["brass"],)
+
+    # Bespoke trunk hardware: corner guards, parallel straps, and visible studs.
+    for side in (-1, 1):
+        z = side * 5.05
+        x = side * 1.70
+        for dx in (-0.42, 0.42):
+            cube("Luggage | leather strap", (x + dx, 0.355, z),
+                 (0.065, 0.50, 0.79), leather, 0.015, details)
+            for zz in (z - 0.31, z + 0.31):
+                uv_sphere("Luggage | strap brass stud", (x + dx, 0.37, zz),
+                          (0.026, 0.026, 0.026), inlay)
+        for dx in (-0.43, 0.43):
+            for zz in (z - 0.34, z + 0.34):
+                cube("Luggage | brass corner protector", (x + dx, 0.52, zz),
+                     (0.10, 0.12, 0.045), inlay, 0.018, details)
+
+    # Correctly aimed, multi-temperature area lights: warm practical pools on wood
+    # and velvet, with a restrained cool fill so dark materials retain their detail.
+    for obj in list(bpy.data.objects):
+        if obj.type == "LIGHT":
+            bpy.data.objects.remove(obj, do_unlink=True)
+    for idx, (pos, energy, color, size) in enumerate((
+        ((-1.65, 2.85, -3.4), 260, (1.0, 0.57, 0.30), 2.0),
+        ((1.65, 2.85, 0.0), 300, (1.0, 0.68, 0.42), 2.2),
+        ((-1.65, 2.85, 3.4), 260, (1.0, 0.57, 0.30), 2.0),
+        ((0.0, 2.55, 0.0), 120, (0.48, 0.70, 1.0), 3.5),
+    ), 1):
+        bpy.ops.object.light_add(type="AREA", location=pos)
+        light = bpy.context.object
+        light.name = "Lighting | cinematic bounce %d" % idx
+        light.data.energy = energy
+        light.data.color = color
+        light.data.shape = "DISK"
+        light.data.size = size
+        target = Vector((0.0, 1.0, 0.0))
+        direction = target - light.location
+        light.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
+
+    # Slightly more legible physically based response in the authoring scene.
+    bpy.context.scene.view_settings.view_transform = "AgX"
+    bpy.context.scene.view_settings.look = "AgX - Medium High Contrast"
+    bpy.context.scene.render.resolution_x = 1600
+    bpy.context.scene.render.resolution_y = 900
+    bpy.context.scene.render.resolution_percentage = 100
+
     # Export root: keep asset origin at carriage center and floor at y=0.
     bpy.ops.object.select_all(action="SELECT")
     bpy.context.scene.unit_settings.system = "METRIC"
