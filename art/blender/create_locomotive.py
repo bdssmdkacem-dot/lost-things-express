@@ -282,9 +282,8 @@ for obj in bpy.context.scene.objects:
     if obj.type == "MESH" or obj.type == "CURVE":
         obj.select_set(True)
 bpy.context.view_layer.objects.active = next((o for o in bpy.context.scene.objects if o.select_get()), None)
-# The model is deliberately authored in Godot-style Y-up coordinates (Y vertical,
-# Z along the rails). Do not rotate the mesh vertices: doing so tips the boiler,
-# cab, and wheelsets into a standing/sideways pose. Disable Blender's automatic
-# Z-up to Y-up basis conversion so the GLB preserves the authored train geometry.
+# After the scene-space correction above, Blender sees a conventional Z-up train.
+# Use the standard glTF basis conversion so the exported GLB returns to Godot's
+# Y-up coordinates without tipping the boiler, cab, or wheelsets.
 bpy.ops.export_scene.gltf(filepath=os.path.join(MODEL_DIR, "lost_things_locomotive.glb"), export_format="GLB", use_selection=True, export_apply=True, export_yup=True)
 print("LOCOMOTIVE_ASSET_GENERATED: blend, GLB and preview")
