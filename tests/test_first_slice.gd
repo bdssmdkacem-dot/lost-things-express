@@ -27,6 +27,8 @@ func _run_first_slice() -> void:
 		return
 	if not _check(key != null and letter != null and chest != null, "one or more story props are missing"):
 		return
+	if not _check(chest.get_node_or_null("ChestFrontPanel_L") != null and chest.get_node_or_null("ChestFrontPanel_R") != null and chest.find_child("LidSealMedallion", true, false) != null, "the memory chest is missing its crafted panel and lid details"):
+		return
 	if not _check(station_clock != null and station_clock.is_in_group("interactables"), "the next carriage clock interaction is missing"):
 		return
 	var window_vista := game.get_node_or_null("WindowVista") as Node3D
