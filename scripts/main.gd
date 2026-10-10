@@ -1027,10 +1027,10 @@ func _build_world_intro() -> void:
 	world_intro_camera.name = "WorldsIntroCamera"
 	# A three-quarter front view reveals the locomotive face, running gear,
 	# continuous rails, and the connected world behind it in one readable frame.
-	world_intro_camera.position = Vector3(27.0, 5.2, -11.5)
+	world_intro_camera.position = Vector3(19.5, 5.6, -7.5)
 	world_intro_root.add_child(world_intro_camera)
-	world_intro_camera.look_at(Vector3(30.0, 1.8, 1.6), Vector3.UP)
-	world_intro_camera.fov = 46.0
+	world_intro_camera.look_at(Vector3(30.0, 1.9, 2.5), Vector3.UP)
+	world_intro_camera.fov = 50.0
 	world_intro_camera.current = true
 
 	var warm := OmniLight3D.new()
@@ -1565,10 +1565,10 @@ func _close_story_card() -> void:
 		letter_inspecting = false
 		if is_instance_valid(first_person_hands):
 			first_person_hands.visible = false
-	_set_gameplay_hud_visible(true)
-	prompt_label.visible = nearby_object != null or letter_inspecting
-	inventory_label.visible = inventory_open
-	pause_button.visible = not inventory_open and not game_paused
+	_set_gameplay_hud_visible(not world_intro_active)
+	prompt_label.visible = not world_intro_active and (nearby_object != null or letter_inspecting)
+	inventory_label.visible = not world_intro_active and inventory_open
+	pause_button.visible = not world_intro_active and not inventory_open and not game_paused
 
 func _process(_delta: float) -> void:
 	_update_nearby()
