@@ -56,6 +56,7 @@ jobs:
           test -f "$ANDROID_HOME/platforms/android-34/android.jar"
           test -x "$ANDROID_HOME/build-tools/34.0.0/zipalign"
           test -x "$ANDROID_HOME/build-tools/34.0.0/apksigner"
+          test -x "$ANDROID_HOME/build-tools/34.0.0/aapt"
           mkdir -p build "$HOME/.android"
           if [ ! -s "$HOME/.android/debug.keystore" ]; then
             keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" \
@@ -88,12 +89,29 @@ jobs:
           echo "Configured Java SDK: $JAVA_HOME"
           cat "$HOME/.config/godot/editor_settings-4.tres"
 
-      - name: Export Android APK
+      - name: Export signed Android APK
         run: |
+          set -euxo pipefail
+          export GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$HOME/.android/debug.keystore"
+          export GODOT_ANDROID_KEYSTORE_DEBUG_USER="androiddebugkey"
+          export GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD="android"
           godot --headless --path . --export-debug "Android" build/TheLostThingsExpress.apk --verbose
           test -s build/TheLostThingsExpress.apk
 
-      - name: Upload installable APK
+      - name: Validate APK signature, alignment, package and native library
+        run: |
+          set -euxo pipefail
+          APK="build/TheLostThingsExpress.apk"
+          "$ANDROID_HOME/build-tools/34.0.0/zipalign" -c -v 4 "$APK"
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs "$APK"
+          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK" | tee build/apk-badging.txt
+          grep -F "package: name='com.lostthingsexpress.game'" build/apk-badging.txt
+          unzip -l "$APK" > build/apk-contents.txt
+          grep -F 'AndroidManifest.xml' build/apk-contents.txt
+          grep -F 'lib/arm64-v8a/libgodot_android.so' build/apk-contents.txt
+          sha256sum "$APK" | tee build/apk-sha256.txt
+
+      - name: Upload verified installable APK
         uses: actions/upload-artifact@v4
         with:
           name: The-Lost-Things-Express-Android-APK
