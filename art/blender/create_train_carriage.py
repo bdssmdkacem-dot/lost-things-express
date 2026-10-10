@@ -348,6 +348,42 @@ def create_carriage():
             cube("Seat back | velvet upholstery", (x, 1.08, z - 0.49), (1.27, 0.88, 0.22), seat_leather, 0.09, seating)
             cube("Seat back | dark wood surround", (x, 1.08, z - 0.62), (1.38, 0.98, 0.12), MATS["mahogany"], 0.07, seating)
             cube("Seat back | inset upholstery", (x, 1.08, z - 0.545), (1.15, 0.72, 0.045), MATS["velvet_dark"], 0.045, seating)
+
+            # Tailored double piping traces the cushion silhouette and makes the upholstery
+            # read as padded leather rather than a single hard-edged green block.
+            cushion_y = 0.685
+            for edge_x in (-0.55, 0.55):
+                tube_curve("Seat cushion | raised leather piping", [
+                    (x + edge_x, cushion_y, z - 0.49),
+                    (x + edge_x, cushion_y + 0.006, z - 0.25),
+                    (x + edge_x, cushion_y + 0.008, z),
+                    (x + edge_x, cushion_y + 0.006, z + 0.25),
+                    (x + edge_x, cushion_y, z + 0.49),
+                ], 0.012, velvet_highlight, seating)
+            for edge_z in (-0.49, 0.49):
+                tube_curve("Seat cushion | front and rear piping", [
+                    (x - 0.55, cushion_y, z + edge_z),
+                    (x - 0.28, cushion_y + 0.006, z + edge_z),
+                    (x, cushion_y + 0.008, z + edge_z),
+                    (x + 0.28, cushion_y + 0.006, z + edge_z),
+                    (x + 0.55, cushion_y, z + edge_z),
+                ], 0.012, velvet_highlight, seating)
+
+            # Recessed tufting buttons and stitched channels add a premium rail-car finish.
+            for button_x in (-0.38, 0.0, 0.38):
+                for button_y in (0.86, 1.08, 1.30):
+                    uv_sphere("Seat back | inset brass tuft button",
+                              (x + button_x, button_y, z - 0.578),
+                              (0.022, 0.022, 0.012), MATS["brass_highlight"])
+            for seam_x in (-0.48, -0.16, 0.16, 0.48):
+                tube_curve("Seat back | fine vertical stitched seam", [
+                    (x + seam_x, 0.76, z - 0.574),
+                    (x + seam_x, 0.92, z - 0.578),
+                    (x + seam_x, 1.08, z - 0.579),
+                    (x + seam_x, 1.24, z - 0.578),
+                    (x + seam_x, 1.40, z - 0.574),
+                ], 0.0045, velvet_highlight, seating)
+
             for dx in (-0.52, 0.52):
                 for dz in (-0.47, 0.47):
                     cylinder("Seat | brass foot", (x + dx, 0.13, z + dz), 0.045, 0.22, MATS["brass"], vertices=12)
