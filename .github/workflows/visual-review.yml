@@ -1,0 +1,55 @@
+name: First-stage visual review
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/**"
+      - "assets/models/**"
+      - "assets/blender/**"
+      - "tests/capture_first_stage.gd"
+      - ".github/workflows/visual-review.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot 4.3
+        uses: chickensoft-games/setup-godot@v1
+        with:
+          version: 4.3.0
+          use-dotnet: false
+          include-templates: false
+
+      - name: Install software-rendering display support
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgl1-mesa-dri libegl1
+
+      - name: Import project resources
+        run: timeout --signal=TERM --kill-after=30s 10m godot --headless --editor --path . --quit
+
+      - name: Capture real Godot scene states
+        run: |
+          set -euxo pipefail
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --script tests/capture_first_stage.gd
+          test -s build/visual_review/01_train_intro.png
+          test -s build/visual_review/02_carriage_opening.png
+          test -s build/visual_review/03_physical_letter.png
+          test -s build/visual_review/04_chest_reveal.png
+          test -s build/visual_review/05_pause_settings.png
+          file build/visual_review/*.png
+
+      - name: Upload Godot visual review images
+        uses: actions/upload-artifact@v4
+        with:
+          name: lost-things-express-first-stage-visual-review
+          path: build/visual_review/*.png
+          if-no-files-found: error
+          retention-days: 14
