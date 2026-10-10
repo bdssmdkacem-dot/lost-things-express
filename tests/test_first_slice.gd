@@ -42,6 +42,11 @@ func _run_first_slice() -> void:
 		return
 	if not _check(game.get("world_intro_camera") is Camera3D, "the worlds arrival camera is missing"):
 		return
+	var intro_root := game.get("world_intro_root") as Node3D
+	if not _check(intro_root.get_node_or_null("LocomotiveConnectingRod_L") != null and intro_root.get_node_or_null("LocomotiveConnectingRod_R") != null, "the establishing locomotive is missing its wheel connecting rods"):
+		return
+	if not _check(intro_root.find_children("Soft steam plume", "MeshInstance3D", true, false).size() == 3, "the establishing locomotive is missing its restrained steam plume"):
+		return
 	game.call("_enter_stage_one")
 	if not _check(not bool(game.get("world_intro_active")) and camera.current, "entering stage one did not switch to the carriage camera"):
 		return
