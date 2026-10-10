@@ -315,8 +315,11 @@ func _build_first_person_hands() -> void:
 	camera.add_child(first_person_hands)
 
 	var sleeve_material := StandardMaterial3D.new()
-	sleeve_material.albedo_color = Color(0.035, 0.13, 0.15)
+	sleeve_material.albedo_color = Color(0.055, 0.22, 0.23)
 	sleeve_material.roughness = 0.78
+	sleeve_material.emission_enabled = true
+	sleeve_material.emission = Color(0.012, 0.045, 0.048)
+	sleeve_material.emission_energy_multiplier = 0.35
 	var cuff_material := StandardMaterial3D.new()
 	cuff_material.albedo_color = Color(0.67, 0.43, 0.17)
 	cuff_material.metallic = 0.35
@@ -356,7 +359,7 @@ func _build_first_person_hands() -> void:
 		palm_mesh.height = 0.105
 		palm.mesh = palm_mesh
 		palm.material_override = skin_material
-		palm.position = Vector3(side * 0.27, -0.17, -0.68)
+		palm.position = Vector3(side * 0.27, -0.17, -0.58)
 		palm.scale = Vector3(1.08, 0.86, 0.68)
 		first_person_hands.add_child(palm)
 
@@ -369,7 +372,7 @@ func _build_first_person_hands() -> void:
 			finger_mesh.height = [0.060, 0.070, 0.068, 0.056][finger_index]
 			finger.mesh = finger_mesh
 			finger.material_override = skin_material
-			finger.position = Vector3(side * 0.255 + (finger_index - 1.5) * 0.032, -0.205, -0.75)
+			finger.position = Vector3(side * 0.255 + (finger_index - 1.5) * 0.032, -0.205, -0.59)
 			finger.rotation_degrees.x = -18.0
 			first_person_hands.add_child(finger)
 
@@ -381,7 +384,7 @@ func _build_first_person_hands() -> void:
 		thumb_mesh.height = 0.066
 		thumb.mesh = thumb_mesh
 		thumb.material_override = skin_material
-		thumb.position = Vector3(side * 0.255 + side * 0.065, -0.17, -0.72)
+		thumb.position = Vector3(side * 0.255 + side * 0.065, -0.17, -0.57)
 		thumb.rotation_degrees = Vector3(-12.0, 0.0, side * 34.0)
 		first_person_hands.add_child(thumb)
 
@@ -414,7 +417,7 @@ func _play_hand_action(action: String) -> void:
 			hand_action_tween.tween_property(first_person_hands, "rotation:x", deg_to_rad(-7.0), 0.28)
 			for part in first_person_hands.get_children():
 				if part.name.begins_with("Thumb_"):
-					hand_action_tween.tween_property(part, "position:x", -0.28 if part.name.ends_with("L") else 0.28, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+					hand_action_tween.tween_property(part, "position:x", -0.23 if part.name.ends_with("L") else 0.23, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		"open":
 			hand_action_tween.tween_property(first_person_hands, "position", Vector3(0.0, 0.16, -0.40), 0.32).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 			hand_action_tween.tween_property(first_person_hands, "rotation:x", deg_to_rad(-14.0), 0.32)
