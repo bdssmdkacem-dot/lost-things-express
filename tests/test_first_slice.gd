@@ -139,7 +139,7 @@ func _run_first_slice() -> void:
 	var physical_message := held_letter.get_node_or_null("LetterMessage") as Label3D
 	if not _check(physical_message != null and physical_message.text.contains("DO NOT LET IT FINISH"), "the fresh clock warning is missing from the physical paper"):
 		return
-	if not _check(str(interact_button.text).contains("CLOSE LETTER"), "the physical letter has no clear close action"):
+	if not _check(str((game.get("interact_button") as Button).text).contains("CLOSE LETTER"), "the physical letter has no clear close action"):
 		return
 	game.call("_interact")
 	if not _check(not bool(game.get("letter_inspecting")) and not hands.visible and game.get("held_letter_prop") == null, "closing the letter did not restore normal exploration")
