@@ -266,8 +266,10 @@ scene.render.image_settings.color_mode = "RGBA"
 godot_to_blender = Matrix.Rotation(math.radians(90.0), 4, 'X')
 for obj in list(bpy.context.scene.objects):
     obj.location = godot_to_blender @ obj.location
+    # Preserve the authored Euler orientation before changing Blender's rotation mode.
+    current_rotation = obj.rotation_quaternion.copy() if obj.rotation_mode == 'QUATERNION' else obj.rotation_euler.to_quaternion()
     obj.rotation_mode = 'QUATERNION'
-    obj.rotation_quaternion = godot_to_blender.to_quaternion() @ obj.rotation_quaternion
+    obj.rotation_quaternion = godot_to_blender.to_quaternion() @ current_rotation
 
 # Render first, then remove camera/lights from the exported runtime asset.
 bpy.ops.render.render(write_still=True)
