@@ -47,3 +47,6 @@ jobs:
 
       - name: Launch main scene headlessly (2 minute limit)
         run: timeout --signal=TERM --kill-after=15s 2m godot --headless --path . --quit-after 5 --verbose
+
+      - name: Test first playable puzzle sequence (2 minute limit)
+        run: timeout --signal=TERM --kill-after=15s 2m godot --headless --path . --script tests/test_first_slice.gd
