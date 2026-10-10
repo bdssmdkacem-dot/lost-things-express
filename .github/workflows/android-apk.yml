@@ -32,12 +32,6 @@ jobs:
         with:
           packages: "platform-tools platforms;android-34 build-tools;34.0.0"
 
-      - name: Install Blender for .blend resource import
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y blender
-          blender --version
-
       - name: Install Godot 4.3 and export templates
         uses: chickensoft-games/setup-godot@v1
         with:
