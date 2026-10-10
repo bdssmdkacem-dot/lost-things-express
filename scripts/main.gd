@@ -119,7 +119,8 @@ func _build_world() -> void:
 		_build_procedural_carriage()
 
 	_create_interactable("Brass Key", Vector3(-0.45, 0.55, -1.1), Color(0.95, 0.62, 0.16), "key")
-	_create_interactable("Torn Letter", Vector3(0.55, 0.48, 1.0), Color(0.82, 0.72, 0.52), "letter")
+	# Place the letter visibly on the aisle-side edge of an ivory-marble table.
+	_create_interactable("Torn Letter", Vector3(1.95, 0.83, 1.15), Color(0.86, 0.77, 0.59), "letter")
 	_create_interactable("Memory Chest", Vector3(0.0, 0.45, -4.45), Color(0.33, 0.12, 0.055), "chest", Vector3(0.95, 0.75, 0.65))
 
 func _build_procedural_carriage() -> void:
@@ -421,7 +422,7 @@ func _objective_text() -> String:
 	if not has_key:
 		return "Objective: Find the brass key near the seats."
 	if not letter_read:
-		return "Objective: Read the letter to uncover the chest’s secret."
+		return "Objective: Read the letter on the side table."
 	return "Objective: Unlock the memory chest with the key."
 
 func _set_status(message: String) -> void:
@@ -466,35 +467,103 @@ func _create_interactable(label: String, pos: Vector3, color: Color, kind: Strin
 	item.add_to_group("interactables")
 	add_child(item)
 
-	var visual := MeshInstance3D.new()
-	var mesh: Mesh
-	if kind == "key":
-		var ring := TorusMesh.new()
-		ring.inner_radius = 0.07
-		ring.outer_radius = 0.12
-		mesh = ring
-	elif kind == "letter":
-		var paper := BoxMesh.new()
-		paper.size = Vector3(0.36, 0.025, 0.25)
-		mesh = paper
-	else:
-		var chest_mesh := BoxMesh.new()
-		chest_mesh.size = size
-		mesh = chest_mesh
-	visual.mesh = mesh
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
-	material.metallic = 0.65 if kind == "key" else 0.12
-	material.roughness = 0.3
-	visual.material_override = material
-	item.add_child(visual)
+	material.metallic = 0.78 if kind == "key" else (0.12 if kind == "letter" else 0.32)
+	material.roughness = 0.24 if kind == "key" else (0.82 if kind == "letter" else 0.34)
 
-	if kind == "chest":
-		# Brass straps and a front clasp make the central suitcase readable at mobile scale.
+	if kind == "key":
+		# Build an unmistakable three-dimensional brass key, not a floating ring icon.
+		var ring_mesh := TorusMesh.new()
+		ring_mesh.inner_radius = 0.055
+		ring_mesh.outer_radius = 0.105
+		var ring := MeshInstance3D.new()
+		ring.name = "KeyRing"
+		ring.mesh = ring_mesh
+		ring.material_override = material
+		ring.position = Vector3(-0.14, 0.02, 0.0)
+		ring.rotation_degrees = Vector3(90.0, 0.0, 22.0)
+		item.add_child(ring)
+
+		var shaft_mesh := BoxMesh.new()
+		shaft_mesh.size = Vector3(0.27, 0.035, 0.035)
+		var shaft := MeshInstance3D.new()
+		shaft.name = "KeyShaft"
+		shaft.mesh = shaft_mesh
+		shaft.material_override = material
+		shaft.position = Vector3(0.09, 0.02, 0.0)
+		item.add_child(shaft)
+
+		for tooth_spec in [Vector2(0.16, -0.025), Vector2(0.245, -0.025)]:
+			var tooth_mesh := BoxMesh.new()
+			tooth_mesh.size = Vector3(0.04, 0.075, 0.042)
+			var tooth := MeshInstance3D.new()
+			tooth.mesh = tooth_mesh
+			tooth.material_override = material
+			tooth.position = Vector3(tooth_spec.x, tooth_spec.y, 0.0)
+			item.add_child(tooth)
+
+		var key_glow := OmniLight3D.new()
+		key_glow.name = "BrassKeyWarmth"
+		key_glow.light_color = Color(1.0, 0.68, 0.25)
+		key_glow.light_energy = 0.22
+		key_glow.omni_range = 0.9
+		key_glow.position = Vector3(-0.1, 0.08, 0.0)
+		key_glow.shadow_enabled = false
+		item.add_child(key_glow)
+
+	elif kind == "letter":
+		# Slightly tilt the parchment toward the player and add visible ink strokes.
+		item.rotation_degrees.x = -10.0
+		var paper_mesh := BoxMesh.new()
+		paper_mesh.size = Vector3(0.40, 0.025, 0.29)
+		var paper := MeshInstance3D.new()
+		paper.name = "Parchment"
+		paper.mesh = paper_mesh
+		paper.material_override = material
+		item.add_child(paper)
+
+		var ink := StandardMaterial3D.new()
+		ink.albedo_color = Color(0.20, 0.12, 0.075)
+		ink.roughness = 0.9
+		var ink_widths := [0.27, 0.32, 0.24, 0.18]
+		for line_index in range(4):
+			var ink_mesh := BoxMesh.new()
+			ink_mesh.size = Vector3(ink_widths[line_index], 0.003, 0.007)
+			var ink_line := MeshInstance3D.new()
+			ink_line.name = "LetterInkLine_%d" % (line_index + 1)
+			ink_line.mesh = ink_mesh
+			ink_line.material_override = ink
+			ink_line.position = Vector3(-0.015, 0.014, -0.075 + line_index * 0.045)
+			item.add_child(ink_line)
+
+		var folded_corner_mesh := BoxMesh.new()
+		folded_corner_mesh.size = Vector3(0.055, 0.004, 0.045)
+		var folded_corner := MeshInstance3D.new()
+		folded_corner.name = "FoldedCorner"
+		folded_corner.mesh = folded_corner_mesh
+		var folded_material := StandardMaterial3D.new()
+		folded_material.albedo_color = Color(0.72, 0.61, 0.43)
+		folded_material.roughness = 0.9
+		folded_corner.material_override = folded_material
+		folded_corner.position = Vector3(0.16, 0.015, -0.115)
+		folded_corner.rotation_degrees.y = 10.0
+		item.add_child(folded_corner)
+
+	else:
+		# The body has real brass straps, a front clasp, feet and a hinged lid.
+		var chest_mesh := BoxMesh.new()
+		chest_mesh.size = size
+		var chest_body := MeshInstance3D.new()
+		chest_body.name = "ChestBody"
+		chest_body.mesh = chest_mesh
+		chest_body.material_override = material
+		item.add_child(chest_body)
+
 		var trim_material := StandardMaterial3D.new()
 		trim_material.albedo_color = Color(0.78, 0.48, 0.16)
-		trim_material.metallic = 0.78
-		trim_material.roughness = 0.24
+		trim_material.metallic = 0.82
+		trim_material.roughness = 0.22
 		for band_x in [-size.x * 0.32, size.x * 0.32]:
 			var band_mesh := BoxMesh.new()
 			band_mesh.size = Vector3(0.04, size.y * 0.82, 0.025)
@@ -503,15 +572,26 @@ func _create_interactable(label: String, pos: Vector3, color: Color, kind: Strin
 			band.material_override = trim_material
 			band.position = Vector3(band_x, 0.0, size.z * 0.5 + 0.015)
 			item.add_child(band)
+
 		var clasp_mesh := BoxMesh.new()
 		clasp_mesh.size = Vector3(0.15, 0.14, 0.04)
 		var clasp := MeshInstance3D.new()
+		clasp.name = "BrassClasp"
 		clasp.mesh = clasp_mesh
 		clasp.material_override = trim_material
 		clasp.position = Vector3(0.0, -0.02, size.z * 0.5 + 0.025)
 		item.add_child(clasp)
 
-		# Rotate the lid around a real rear hinge instead of around its center.
+		for foot_x in [-size.x * 0.38, size.x * 0.38]:
+			for foot_z in [-size.z * 0.38, size.z * 0.38]:
+				var foot_mesh := BoxMesh.new()
+				foot_mesh.size = Vector3(0.09, 0.08, 0.09)
+				var foot := MeshInstance3D.new()
+				foot.mesh = foot_mesh
+				foot.material_override = trim_material
+				foot.position = Vector3(foot_x, -size.y * 0.5 - 0.015, foot_z)
+				item.add_child(foot)
+
 		var hinge := Node3D.new()
 		hinge.name = "Lid"
 		hinge.position = Vector3(0, size.y * 0.52, -size.z * 0.42)
@@ -525,6 +605,7 @@ func _create_interactable(label: String, pos: Vector3, color: Color, kind: Strin
 		lid_visual.position = Vector3(0, 0, size.z * 0.42)
 		lid_visual.material_override = material
 		hinge.add_child(lid_visual)
+
 		var lid_trim_mesh := BoxMesh.new()
 		lid_trim_mesh.size = Vector3(size.x * 0.90, 0.025, 0.025)
 		var lid_trim := MeshInstance3D.new()
@@ -534,10 +615,12 @@ func _create_interactable(label: String, pos: Vector3, color: Color, kind: Strin
 		hinge.add_child(lid_trim)
 
 	var glow := OmniLight3D.new()
-	glow.light_color = color
-	glow.light_energy = 0.35
-	glow.omni_range = 1.5
+	glow.name = "InteractionGlow"
+	glow.light_color = Color(1.0, 0.72, 0.36) if kind == "chest" else color
+	glow.light_energy = 0.18 if kind == "letter" else 0.30
+	glow.omni_range = 1.35
 	glow.position.y = 0.25
+	glow.shadow_enabled = false
 	item.add_child(glow)
 	return item
 
