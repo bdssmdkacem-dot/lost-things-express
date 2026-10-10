@@ -160,6 +160,22 @@ def uv_sphere(name, location, scale, mat):
     assign(obj, mat)
     return obj
 
+def tube_curve(name, points, radius, mat, collection=None):
+    """Create a rounded bevelled curve from authored control points (Godot Y-up coordinates)."""
+    curve_data = bpy.data.curves.new(name + " | curve", "CURVE")
+    curve_data.dimensions = "3D"
+    curve_data.resolution_u = 2
+    curve_data.bevel_depth = radius
+    curve_data.bevel_resolution = 3
+    spline = curve_data.splines.new("POLY")
+    spline.points.add(len(points) - 1)
+    for point, coords in zip(spline.points, points):
+        point.co = (coords[0], coords[1], coords[2], 1.0)
+    obj = bpy.data.objects.new(name, curve_data)
+    (collection or bpy.context.scene.collection).objects.link(obj)
+    assign(obj, mat)
+    return obj
+
 def clear_scene():
     # Remove the default scene objects but keep the materials created above.
     # Deleting unused materials here invalidates the MATS references (RNA objects).
@@ -407,8 +423,14 @@ def create_carriage():
         for z in (-4.0, -1.8, 0.4, 2.6, 4.7):
             for zz in (z - 0.66, z + 0.66):
                 cube("Curtain | hanging emerald panel", (side * 2.60, 2.03, zz), (0.12, 1.12, 0.20), curtain_mat, 0.045, details)
+                # Rounded, gently undulating velvet pleats catch highlights instead of reading as square bars.
                 for fold in (-0.055, 0.0, 0.055):
-                    cube("Curtain | tailored fold", (side * 2.525, 2.03, zz + fold), (0.035, 1.02, 0.018), curtain_fold, 0.008, details)
+                    pleat_points = []
+                    for step in range(7):
+                        y = 1.53 + step * 0.165
+                        z_fold = zz + fold + math.sin(step * math.pi / 3.0) * 0.010
+                        pleat_points.append((side * 2.525, y, z_fold))
+                    tube_curve("Curtain | sculpted velvet pleat", pleat_points, 0.014, curtain_fold, details)
                 cube("Curtain | brass tie-back", (side * 2.49, 1.88, zz), (0.07, 0.055, 0.24), MATS["brass_highlight"], 0.018, details)
 
         for z in (-11.15, -9.5, -7.5):
@@ -416,14 +438,29 @@ def create_carriage():
                 cube("Next carriage | emerald curtain", (side * 2.58, 2.03, zz),
                      (0.10, 1.08, 0.16), curtain_mat, 0.035, details)
                 for fold in (-0.045, 0.0, 0.045):
-                    cube("Next carriage | curtain fold", (side * 2.52, 2.03, zz + fold),
-                         (0.025, 1.00, 0.014), curtain_fold, 0.006, details)
+                    pleat_points = []
+                    for step in range(7):
+                        y = 1.55 + step * 0.16
+                        z_fold = zz + fold + math.sin(step * math.pi / 3.0) * 0.008
+                        pleat_points.append((side * 2.52, y, z_fold))
+                    tube_curve("Next carriage | sculpted velvet pleat", pleat_points, 0.011, curtain_fold, details)
 
-    # Ceiling ribs and inset panels add a handcrafted, architectural silhouette.
+    # Real curved cross-arches replace the former flat beams; the arch profile reads clearly from the aisle.
     for z in (-5.3, -3.5, -1.7, 0.1, 1.9, 3.7, 5.35):
-        cube("Ceiling | curved-look mahogany cross rib", (0, 3.345, z), (5.48, 0.11, 0.16), MATS["mahogany"], 0.045, details)
+        arch_points = []
+        for step in range(25):
+            x = -2.72 + step * (5.44 / 24.0)
+            normalized_x = x / 2.72
+            y = 2.91 + 0.43 * math.sqrt(max(0.0, 1.0 - normalized_x * normalized_x))
+            arch_points.append((x, y, z))
+        tube_curve("Ceiling | curved carved walnut arch", arch_points, 0.075, MATS["mahogany"], details)
+        # A thin brass reveal follows the same arch, creating a crafted inlay rather than a flat stripe.
+        brass_points = [(x, y - 0.075, zz) for x, y, zz in arch_points]
+        tube_curve("Ceiling | curved brass arch inlay", brass_points, 0.010, MATS["brass_highlight"], details)
         for x in (-2.35, -1.55, -0.75, 0.75, 1.55, 2.35):
-            uv_sphere("Ceiling rib | brass pin", (x, 3.275, z), (0.025, 0.018, 0.025), MATS["brass_highlight"])
+            normalized_x = x / 2.72
+            y = 2.91 + 0.43 * math.sqrt(max(0.0, 1.0 - normalized_x * normalized_x))
+            uv_sphere("Ceiling rib | brass pin", (x, y - 0.075, z), (0.025, 0.018, 0.025), MATS["brass_highlight"])
 
     # Brass wall sconces and framed vintage travel plaques between the windows.
     for side in (-1, 1):
