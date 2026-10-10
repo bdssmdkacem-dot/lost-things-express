@@ -451,9 +451,9 @@ def create_carriage():
     # Small first-class marble tables and brass reading lamps, placed between seating rows.
     marble = material("Tables | warm ivory marble", (0.66, 0.64, 0.57, 1), roughness=0.27)
     table_gold = material("Tables | polished brass", (0.64, 0.36, 0.095, 1), metallic=0.78, roughness=0.22)
-    lamp_glass = material("Reading lamps | amber glass", (0.92, 0.31, 0.055, 1), roughness=0.30, emission=0.65)
-    lamp_bulb = material("Reading lamps | warm filament", (1.0, 0.56, 0.19, 1), roughness=0.28, emission=0.95)
-    luggage_leather = material("Overhead luggage | oxblood leather", (0.22, 0.045, 0.028, 1), roughness=0.42)
+    lamp_glass = material("Reading lamps | amber glass", (0.72, 0.20, 0.035, 1), roughness=0.36, emission=0.32)
+    lamp_bulb = material("Reading lamps | warm filament", (1.0, 0.48, 0.14, 1), roughness=0.32, emission=0.58)
+    luggage_leather = material("Overhead luggage | oxblood leather", (0.095, 0.018, 0.010, 1), roughness=0.56)
     luggage_inlay = material("Overhead luggage | brass straps", (0.72, 0.43, 0.14, 1), metallic=0.68, roughness=0.26)
     # Keep side tables on the aisle-facing edge, in the gaps between benches.
     # The previous wall-side placement hid the marble tops and lamps behind seat backs
@@ -489,7 +489,7 @@ def create_carriage():
             cube("Luggage | brass handle", (suitcase_x, 2.91, z), (0.12, 0.022, 0.030), table_gold, 0.008, details)
 
     # Emerald upholstered ceiling panels and tailored velvet curtains establish the requested signature palette.
-    emerald_ceiling = material("Ceiling | emerald woven velvet", (0.012, 0.115, 0.058, 1), roughness=0.86)
+    emerald_ceiling = material("Ceiling | emerald woven velvet", (0.018, 0.155, 0.078, 1), roughness=0.90)
     for panel_z in (-4.4, -2.6, -0.8, 1.0, 2.8, 4.6):
         cube("Ceiling | emerald upholstered inset", (0, 3.365, panel_z), (4.75, 0.035, 1.38), emerald_ceiling, 0.045, details)
     curtain_mat = material("Curtains | deep emerald velvet", (0.006, 0.105, 0.042, 1), roughness=0.86)
@@ -694,14 +694,14 @@ def create_carriage():
         if obj.type == "LIGHT":
             bpy.data.objects.remove(obj, do_unlink=True)
     for idx, (pos, energy, color, size) in enumerate((
-        ((-1.65, 2.85, -3.4), 260, (1.0, 0.57, 0.30), 2.0),
-        ((1.65, 2.85, 0.0), 420, (1.0, 0.68, 0.42), 2.2),
-        ((-1.65, 2.85, 3.4), 360, (1.0, 0.57, 0.30), 2.0),
-        ((0.0, 2.55, 0.0), 220, (0.48, 0.70, 1.0), 3.5),
+        ((-1.65, 2.85, -3.4), 200, (1.0, 0.57, 0.30), 2.0),
+        ((1.65, 2.85, 0.0), 320, (1.0, 0.68, 0.42), 2.2),
+        ((-1.65, 2.85, 3.4), 275, (1.0, 0.57, 0.30), 2.0),
+        ((0.0, 2.55, 0.0), 160, (0.48, 0.70, 1.0), 3.5),
         # Warm practical light spills through the open portal into the next carriage.
-        ((-1.45, 2.85, -7.7), 500, (1.0, 0.52, 0.28), 2.4),
-        ((1.45, 2.85, -10.25), 460, (1.0, 0.66, 0.38), 2.4),
-        ((0.0, 2.55, -8.9), 190, (0.48, 0.70, 1.0), 3.0),
+        ((-1.45, 2.85, -7.7), 360, (1.0, 0.52, 0.28), 2.4),
+        ((1.45, 2.85, -10.25), 330, (1.0, 0.66, 0.38), 2.4),
+        ((0.0, 2.55, -8.9), 140, (0.48, 0.70, 1.0), 3.0),
     ), 1):
         bpy.ops.object.light_add(type="AREA", location=pos)
         light = bpy.context.object
@@ -731,7 +731,7 @@ def create_carriage():
     world = scene.world
     world.use_nodes = True
     world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.16, 0.19, 0.24, 1)
-    world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.70
+    world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.82
     scene.world.color = (0.018, 0.035, 0.052)
 
     # Match the game's eye-level opening shot so the preview checks the central aisle,
