@@ -41,6 +41,7 @@ var touch_move_vector := Vector2.ZERO
 var mouse_look := false
 var has_key := false
 var letter_read := false
+var letter_inspecting := false
 var chest_open := false
 var nearby_object: Node3D
 
@@ -437,7 +438,7 @@ func _create_held_letter_prop() -> void:
 	var sheet := MeshInstance3D.new()
 	sheet.name = "AgedParchment"
 	var sheet_mesh := BoxMesh.new()
-	sheet_mesh.size = Vector3(0.39, 0.012, 0.29)
+	sheet_mesh.size = Vector3(0.44, 0.012, 0.32)
 	sheet.mesh = sheet_mesh
 	sheet.material_override = parchment
 	held_letter_prop.add_child(sheet)
@@ -446,12 +447,12 @@ func _create_held_letter_prop() -> void:
 	ink.albedo_color = Color(0.16, 0.075, 0.035)
 	ink.roughness = 0.9
 	for line_spec in [
-		[Vector3(-0.015, 0.009, -0.075), Vector3(0.27, 0.003, 0.006)],
-		[Vector3(0.015, 0.009, -0.043), Vector3(0.29, 0.003, 0.006)],
-		[Vector3(-0.005, 0.009, -0.011), Vector3(0.25, 0.003, 0.006)],
-		[Vector3(0.0, 0.009, 0.021), Vector3(0.28, 0.003, 0.006)],
-		[Vector3(-0.015, 0.009, 0.053), Vector3(0.26, 0.003, 0.006)],
-		[Vector3(-0.045, 0.009, 0.085), Vector3(0.18, 0.003, 0.006)]
+		[Vector3(-0.015, 0.009, -0.105), Vector3(0.30, 0.003, 0.006)],
+		[Vector3(0.015, 0.009, -0.073), Vector3(0.32, 0.003, 0.006)],
+		[Vector3(-0.005, 0.009, -0.041), Vector3(0.28, 0.003, 0.006)],
+		[Vector3(0.0, 0.009, -0.009), Vector3(0.31, 0.003, 0.006)],
+		[Vector3(-0.015, 0.009, 0.023), Vector3(0.29, 0.003, 0.006)],
+		[Vector3(-0.045, 0.009, 0.055), Vector3(0.22, 0.003, 0.006)]
 	]:
 		var stroke := MeshInstance3D.new()
 		var stroke_mesh := BoxMesh.new()
@@ -463,9 +464,9 @@ func _create_held_letter_prop() -> void:
 
 	var message := Label3D.new()
 	message.name = "LetterMessage"
-	message.text = "WHEN THE CLOCK\nSTRIKES THREE TIMES,\nRETURN WHAT THE\nTRAVELER FORGOT."
-	message.font_size = 32
-	message.pixel_size = 0.0017
+	message.text = "WHEN THE CLOCK\nSTRIKES THREE TIMES,\nRETURN WHAT THE\nTRAVELER FORGOT.\nDO NOT LET IT FINISH."
+	message.font_size = 20
+	message.pixel_size = 0.00135
 	message.modulate = Color(0.19, 0.075, 0.028)
 	message.position = Vector3(0.0, 0.011, -0.005)
 	message.rotation_degrees.x = -90.0
@@ -1196,16 +1197,18 @@ func _close_story_card() -> void:
 	if is_instance_valid(held_letter_prop):
 		held_letter_prop.queue_free()
 		held_letter_prop = null
+		letter_inspecting = false
 		if is_instance_valid(first_person_hands):
 			first_person_hands.visible = false
 
 func _process(_delta: float) -> void:
 	_update_nearby()
 	objective_label.text = _objective_text()
-	interact_button.disabled = nearby_object == null
+	interact_button.disabled = nearby_object == null and not letter_inspecting
+	interact_button.text = "CLOSE LETTER" if letter_inspecting else "✦  INTERACT"
+	prompt_label.text = "Read the physical letter · tap CLOSE LETTER when finished" if letter_inspecting else ("Inspect: " + str(nearby_object.get_meta("display_name", "object")) if nearby_object else "")
 	if is_instance_valid(pause_button):
 		pause_button.visible = not inventory_open and not story_card_open and not game_paused
-	prompt_label.text = "Inspect: " + str(nearby_object.get_meta("display_name", "object")) if nearby_object else ""
 	inventory_button.text = "BAG · %d" % _inventory_count()
 	inventory_label.visible = inventory_open
 	inventory_label.text = _inventory_text()
@@ -1217,7 +1220,10 @@ func _physics_process(_delta: float) -> void:
 		Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
 		Input.get_action_strength("move_forward") - Input.get_action_strength("move_back")
 	)
-	input_vector += touch_move_vector
+	if letter_inspecting:
+		input_vector = Vector2.ZERO
+	else:
+		input_vector += touch_move_vector
 	input_vector = input_vector.limit_length(1.0)
 	var direction := (player.transform.basis * Vector3(input_vector.x, 0, -input_vector.y)).normalized()
 	player.velocity.x = direction.x * WALK_SPEED
@@ -1295,7 +1301,19 @@ func _update_nearby() -> void:
 			nearest = distance
 			nearby_object = node
 
-func _interact() -> void:
+	if letter_inspecting:
+		letter_inspecting = false
+		if is_instance_valid(held_letter_prop):
+			held_letter_prop.queue_free()
+			held_letter_prop = null
+		if is_instance_valid(first_person_hands):
+			first_person_hands.visible = false
+		touch_move_id = -1
+		touch_look_id = -1
+		touch_move_vector = Vector2.ZERO
+		interact_button.text = "✦  INTERACT"
+		_set_status("You fold the letter away. The warning stays with you: do not let the clock finish.")
+		return
 	# Refresh at tap time so the button never acts on a stale target between frames.
 	_update_nearby()
 	if nearby_object == null:
@@ -1318,10 +1336,10 @@ func _interact() -> void:
 			_create_held_letter_prop()
 			_play_hand_action("read")
 			letter_read = true
+			letter_inspecting = true
 			nearby_object.set_meta("display_name", "Letter read")
-			_set_status("The ink shifts in the lamplight. The final line was written recently.")
 			_trigger_mystery_beat("A lamp flickers once. The letter smells faintly of rain, though every window is closed.")
-			_show_story_card("A MESSAGE LEFT BEHIND", "“When the clock strikes three times, return what the traveler forgot.”\n\nAs you read, fresh ink appears beneath the old words: “Do not let the clock finish.”\n\nCLUE 02 · The chest is not merely locked — it is waiting.", "CLOSE LETTER")
+			_set_status("The final line is fresh ink. Read the paper in your hands, then tap CLOSE LETTER.")
 		"photograph":
 			_show_story_card("SUNSET STATION", "The photograph is worn at the corners, but the copper sunset is impossibly vivid. A station name is stamped beneath the horizon: SUNSET STATION. On the back, your own name is written in unfamiliar handwriting.\n\nNEW LEAD · Find the station that does not appear on any map.", "KEEP THE PHOTOGRAPH")
 		"clock":
