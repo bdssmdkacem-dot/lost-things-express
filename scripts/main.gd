@@ -229,7 +229,7 @@ func _build_ui() -> void:
 	status_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
 	status_label.add_theme_constant_override("shadow_offset_x", 1)
 	status_label.add_theme_constant_override("shadow_offset_y", 2)
-	status_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.018, 0.012, 0.88), Color(0.72, 0.47, 0.19, 0.95), 12, 12))
+	status_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.96), Color(0.72, 0.47, 0.19, 0.98), 12, 12))
 	root.add_child(status_label)
 
 	objective_label = Label.new()
@@ -243,7 +243,7 @@ func _build_ui() -> void:
 	objective_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
 	objective_label.add_theme_constant_override("shadow_offset_x", 1)
 	objective_label.add_theme_constant_override("shadow_offset_y", 1)
-	objective_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.018, 0.032, 0.031, 0.88), Color(0.36, 0.53, 0.43, 0.9), 10, 10))
+	objective_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.075, 0.078, 0.96), Color(0.30, 0.55, 0.43, 0.98), 10, 10))
 	root.add_child(objective_label)
 
 	prompt_label = Label.new()
@@ -257,7 +257,7 @@ func _build_ui() -> void:
 	prompt_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
 	prompt_label.add_theme_constant_override("shadow_offset_x", 1)
 	prompt_label.add_theme_constant_override("shadow_offset_y", 2)
-	prompt_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.018, 0.012, 0.78), Color(0.67, 0.43, 0.17, 0.9), 12, 8))
+	prompt_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.94), Color(0.72, 0.47, 0.19, 0.96), 12, 8))
 	root.add_child(prompt_label)
 
 	interact_button = Button.new()
@@ -271,7 +271,7 @@ func _build_ui() -> void:
 	interact_button.add_theme_color_override("font_color", Color(1.0, 0.91, 0.70))
 	interact_button.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.86))
 	interact_button.add_theme_color_override("font_pressed_color", Color(0.15, 0.08, 0.025))
-	interact_button.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.10, 0.055, 0.022, 0.96), Color(0.91, 0.62, 0.24, 1.0), 16, 8))
+	interact_button.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.10, 0.055, 0.022, 0.98), Color(0.72, 0.47, 0.19, 1.0), 16, 8))
 	interact_button.add_theme_stylebox_override("hover", _ui_panel_style(Color(0.24, 0.13, 0.035, 0.98), Color(1.0, 0.78, 0.35, 1.0), 16, 8))
 	interact_button.add_theme_stylebox_override("pressed", _ui_panel_style(Color(0.85, 0.56, 0.18, 1.0), Color(1.0, 0.85, 0.48, 1.0), 16, 8))
 	interact_button.add_theme_stylebox_override("disabled", _ui_panel_style(Color(0.045, 0.035, 0.025, 0.80), Color(0.28, 0.23, 0.16, 0.8), 16, 8))
@@ -287,7 +287,7 @@ func _build_ui() -> void:
 	inventory_button.add_theme_font_size_override("font_size", 16)
 	inventory_button.add_theme_color_override("font_color", Color(1.0, 0.89, 0.67))
 	inventory_button.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.86))
-	inventory_button.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.018, 0.012, 0.90), Color(0.68, 0.46, 0.22, 0.95), 12, 7))
+	inventory_button.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.96), Color(0.72, 0.47, 0.19, 0.98), 12, 7))
 	inventory_button.add_theme_stylebox_override("hover", _ui_panel_style(Color(0.12, 0.075, 0.025, 0.97), Color(0.93, 0.69, 0.31, 1.0), 12, 7))
 	inventory_button.add_theme_stylebox_override("pressed", _ui_panel_style(Color(0.40, 0.24, 0.07, 1.0), Color(1.0, 0.80, 0.38, 1.0), 12, 7))
 	inventory_button.pressed.connect(_toggle_inventory)
@@ -305,7 +305,7 @@ func _build_ui() -> void:
 	inventory_label.add_theme_color_override("font_shadow_color", Color(0.02, 0.015, 0.01, 0.9))
 	inventory_label.add_theme_constant_override("shadow_offset_x", 2)
 	inventory_label.add_theme_constant_override("shadow_offset_y", 2)
-	inventory_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.018, 0.014, 0.009, 0.90), Color(0.61, 0.40, 0.17, 0.92), 10, 10))
+	inventory_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.055, 0.068, 0.97), Color(0.55, 0.38, 0.20, 0.96), 10, 10))
 	inventory_label.visible = false
 	root.add_child(inventory_label)
 
@@ -319,7 +319,7 @@ func _build_ui() -> void:
 	hint.autowrap_mode = TextServer.AUTOWRAP_OFF
 	hint.add_theme_font_size_override("font_size", 12)
 	hint.add_theme_color_override("font_color", Color(0.95, 0.91, 0.81))
-	hint.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.015, 0.012, 0.009, 0.78), Color(0.40, 0.31, 0.20, 0.75), 8, 5))
+	hint.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.055, 0.068, 0.94), Color(0.42, 0.34, 0.23, 0.88), 8, 5))
 	root.add_child(hint)
 	_build_story_overlay(root)
 
@@ -353,7 +353,7 @@ func _build_story_overlay(root: Control) -> void:
 	card.anchor_top = 0.23
 	card.anchor_right = 0.88
 	card.anchor_bottom = 0.75
-	card.add_theme_stylebox_override("panel", _ui_panel_style(Color(0.025, 0.045, 0.052, 0.98), Color(0.76, 0.48, 0.20, 1.0), 18, 18))
+	card.add_theme_stylebox_override("panel", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.99), Color(0.72, 0.47, 0.19, 1.0), 18, 18))
 	story_overlay.add_child(card)
 
 	var content := VBoxContainer.new()
@@ -385,7 +385,7 @@ func _build_story_overlay(root: Control) -> void:
 	story_continue.custom_minimum_size = Vector2(0, 54)
 	story_continue.add_theme_font_size_override("font_size", 18)
 	story_continue.add_theme_color_override("font_color", Color(1.0, 0.90, 0.66))
-	story_continue.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.24, 0.12, 0.035, 1.0), Color(0.94, 0.66, 0.25, 1.0), 12, 10))
+	story_continue.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.12, 0.22, 0.20, 1.0), Color(0.72, 0.47, 0.19, 1.0), 12, 10))
 	story_continue.add_theme_stylebox_override("pressed", _ui_panel_style(Color(0.78, 0.48, 0.12, 1.0), Color(1.0, 0.84, 0.42, 1.0), 12, 10))
 	story_continue.pressed.connect(_close_story_card)
 	content.add_child(story_continue)
