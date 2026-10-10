@@ -77,9 +77,62 @@ func _run_first_slice() -> void:
 	game.call("_close_story_card")
 	if not _check(status_hud.visible and interact_hud.visible, "closing the story card did not restore the gameplay HUD"):
 		return
+
+	# Exercise the same multi-touch path used on Android: left-side movement,
+	# right-side camera look, and release cleanup.
+	var viewport_width := get_viewport().get_visible_rect().size.x
+	var viewport_height := get_viewport().get_visible_rect().size.y
+	var yaw_before_touch := float(game.get("yaw"))
+	var pitch_before_touch := float(game.get("pitch"))
+	var look_press := InputEventScreenTouch.new()
+	look_press.index = 4
+	look_press.position = Vector2(viewport_width * 0.58, viewport_height * 0.52)
+	look_press.pressed = true
+	game.call("_input", look_press)
+	if not _check(int(game.get("touch_look_id")) == 4, "right-side Android touch did not begin camera look"):
+		return
+	var look_drag := InputEventScreenDrag.new()
+	look_drag.index = 4
+	look_drag.position = look_press.position + Vector2(36.0, -18.0)
+	look_drag.relative = Vector2(36.0, -18.0)
+	game.call("_input", look_drag)
+	if not _check(not is_equal_approx(float(game.get("yaw")), yaw_before_touch) and not is_equal_approx(float(game.get("pitch")), pitch_before_touch), "right-side touch drag did not rotate the camera"):
+		return
+	var look_release := InputEventScreenTouch.new()
+	look_release.index = 4
+	look_release.position = look_drag.position
+	look_release.pressed = false
+	game.call("_input", look_release)
+	if not _check(int(game.get("touch_look_id")) == -1, "camera touch remained latched after finger release"):
+		return
+
+	var move_press := InputEventScreenTouch.new()
+	move_press.index = 5
+	move_press.position = Vector2(viewport_width * 0.20, viewport_height * 0.58)
+	move_press.pressed = true
+	game.call("_input", move_press)
+	var move_drag := InputEventScreenDrag.new()
+	move_drag.index = 5
+	move_drag.position = move_press.position + Vector2(0.0, -72.0)
+	move_drag.relative = Vector2(0.0, -72.0)
+	game.call("_input", move_drag)
+	if not _check(int(game.get("touch_move_id")) == 5 and (game.get("touch_move_vector") as Vector2).y > 0.5, "left-side Android touch did not drive the movement control"):
+		return
+	var move_release := InputEventScreenTouch.new()
+	move_release.index = 5
+	move_release.position = move_drag.position
+	move_release.pressed = false
+	game.call("_input", move_release)
+	if not _check(int(game.get("touch_move_id")) == -1 and (game.get("touch_move_vector") as Vector2).is_zero_approx(), "movement touch did not reset cleanly after release"):
+		return
+
 	if not _check(hands.get_child_count() >= 16, "first-person hands are missing sleeves, cuffs, palms, fingers, or thumbs"):
 		return
 	if not _check(hands.get_node_or_null("Thumb_L") != null and hands.get_node_or_null("Thumb_R") != null, "both visible thumbs must be present for a readable hand silhouette"):
+		return
+	var left_sleeve := hands.get_node_or_null("Sleeve_L") as MeshInstance3D
+	var left_sleeve_mesh := left_sleeve.mesh as CapsuleMesh if left_sleeve != null else null
+	if not _check(left_sleeve_mesh != null and left_sleeve_mesh.radius <= 0.065, "first-person sleeves are too bulky for the physical letter pose"):
 		return
 	if not _check(hands.get_parent() == camera, "first-person hands are not attached to the camera view"):
 		return
@@ -151,6 +204,8 @@ func _run_first_slice() -> void:
 		return
 	var physical_message := held_letter.get_node_or_null("LetterMessage") as Label3D
 	if not _check(physical_message != null and physical_message.text.contains("DO NOT LET THE CLOCK") and physical_message.text.contains("FINISH."), "the fresh clock warning is missing from the physical paper"):
+		return
+	if not _check(physical_message.position.z > 0.0, "letter ink is on the hidden back face instead of the camera-facing paper surface"):
 		return
 	if not _check(str((game.get("interact_button") as Button).text).contains("CLOSE LETTER"), "the physical letter has no clear close action"):
 		return
