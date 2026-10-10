@@ -1206,16 +1206,37 @@ func _build_world_intro() -> void:
 	boiler.position = Vector3(30.0, 1.85, -1.1)
 	boiler.rotation_degrees.x = 90.0
 	var boiler_mat := StandardMaterial3D.new()
-	boiler_mat.albedo_color = Color(0.025, 0.14, 0.105)
-	boiler_mat.metallic = 0.52
-	boiler_mat.roughness = 0.28
+	boiler_mat.albedo_color = Color(0.055, 0.235, 0.145)
+	boiler_mat.metallic = 0.38
+	boiler_mat.roughness = 0.34
 	boiler.material_override = boiler_mat
 	world_intro_root.add_child(boiler)
-	_intro_box("Locomotive cab", Vector3(30.0, 2.05, 2.55), Vector3(2.5, 2.0, 1.8), Color(0.035, 0.11, 0.085), 0.35)
+	_intro_box("Locomotive cab", Vector3(30.0, 2.05, 2.55), Vector3(2.5, 2.0, 1.8), Color(0.055, 0.17, 0.115), 0.28)
 	_intro_box("Cab window", Vector3(30.0, 2.38, 1.61), Vector3(1.6, 0.9, 0.06), Color(0.055, 0.20, 0.27), 0.15)
 	_intro_box("Brass boiler band", Vector3(30.0, 1.85, -2.2), Vector3(1.63, 1.40, 0.11), Color(0.70, 0.42, 0.13), 0.78)
-	_intro_box("Front buffer beam", Vector3(30.0, 0.95, -3.25), Vector3(2.45, 0.34, 0.35), Color(0.38, 0.055, 0.04), 0.25)
+	_intro_box("Front buffer beam", Vector3(30.0, 0.95, -3.25), Vector3(2.45, 0.34, 0.35), Color(0.46, 0.075, 0.045), 0.25)
 	_intro_box("Cowcatcher", Vector3(30.0, 0.55, -3.65), Vector3(2.0, 0.12, 0.85), Color(0.18, 0.20, 0.20), 0.7)
+	# Individual sloped steel bars and red marker lamps make the front pilot
+	# read as railway hardware instead of one flat plank.
+	for slat_index in range(7):
+		var slat_x := 29.25 + float(slat_index) * 0.25
+		var slat := _intro_box("Cowcatcher steel slat", Vector3(slat_x, 0.60, -3.98), Vector3(0.075, 0.66, 0.10), Color(0.24, 0.27, 0.28), 0.78)
+		slat.rotation.z = -0.40
+	for marker_side in [-1.0, 1.0]:
+		var marker := MeshInstance3D.new()
+		marker.name = "Amber locomotive marker lamp"
+		var marker_mesh := SphereMesh.new()
+		marker_mesh.radius = 0.09
+		marker_mesh.height = 0.16
+		marker.mesh = marker_mesh
+		marker.position = Vector3(30.0 + marker_side * 0.88, 1.10, -3.58)
+		var marker_mat := StandardMaterial3D.new()
+		marker_mat.albedo_color = Color(1.0, 0.24, 0.045)
+		marker_mat.emission_enabled = true
+		marker_mat.emission = Color(1.0, 0.12, 0.025)
+		marker_mat.emission_energy_multiplier = 0.8
+		marker.material_override = marker_mat
+		world_intro_root.add_child(marker)
 
 	# A proper circular smokebox door and fittings give the engine a readable
 	# front instead of presenting the boiler as a plain cylinder.
@@ -1266,6 +1287,12 @@ func _build_world_intro() -> void:
 	var door_handle := _intro_box("Smokebox door handle", Vector3(30.0, 1.85, -3.56), Vector3(0.36, 0.07, 0.07), Color(0.74, 0.48, 0.15), 0.82)
 	door_handle.rotation.z = -0.25
 	for pipe_side in [-1.0, 1.0]:
+		# Continuous handrails follow the boiler curve with evenly spaced
+		# brackets, adding readable manufactured detail at the establishing scale.
+		var handrail := _intro_box("Boiler brass handrail", Vector3(30.0 + pipe_side * 0.80, 2.05, -0.95), Vector3(0.055, 0.055, 2.75), Color(0.72, 0.47, 0.17), 0.82)
+		handrail.rotation.y = pipe_side * -0.06
+		for bracket_index in range(5):
+			_intro_box("Boiler handrail bracket", Vector3(30.0 + pipe_side * 0.80, 1.91, -2.1 + float(bracket_index) * 0.58), Vector3(0.045, 0.24, 0.045), Color(0.60, 0.39, 0.14), 0.76)
 		var steam_pipe := _intro_box("Boiler side pipe", Vector3(30.0 + pipe_side * 0.70, 1.68, -0.9), Vector3(0.10, 0.10, 3.25), Color(0.56, 0.33, 0.12), 0.8)
 		steam_pipe.rotation.y = pipe_side * -0.08
 		var pipe_joint := MeshInstance3D.new()
