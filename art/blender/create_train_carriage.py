@@ -71,10 +71,10 @@ def material(name, color, metallic=0.0, roughness=0.45, emission=0.0):
         ramp = nodes.new("ShaderNodeValToRGB")
         ramp.location = (-250, 80)
         dark_factor, light_factor = ((0.70, 1.20) if is_wood else ((0.84, 1.10) if is_leather else (0.90, 1.06)))
-        ramp.elements[0].position = 0.16
-        ramp.elements[0].color = tuple(max(0.0, min(1.0, channel * dark_factor)) for channel in color[:3]) + (1.0,)
-        ramp.elements[1].position = 0.84
-        ramp.elements[1].color = tuple(max(0.0, min(1.0, channel * light_factor)) for channel in color[:3]) + (1.0,)
+        ramp.color_ramp.elements[0].position = 0.16
+        ramp.color_ramp.elements[0].color = tuple(max(0.0, min(1.0, channel * dark_factor)) for channel in color[:3]) + (1.0,)
+        ramp.color_ramp.elements[1].position = 0.84
+        ramp.color_ramp.elements[1].color = tuple(max(0.0, min(1.0, channel * light_factor)) for channel in color[:3]) + (1.0,)
         links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
         links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
 
