@@ -45,3 +45,33 @@ The full reference inventory and intended repository paths are tracked in [`art/
 - `art/reference/lost-things-express-concept-wide.png` — alternate wide capture of the concept board.
 
 Do not substitute a newly generated image and claim it is the user's original reference. The archive is incomplete until both original binary files are committed and verified. Build success alone never approves visual fidelity.
+
+
+## First-stage carriage reference — approved by the user (2026-10-10)
+
+The user's newly supplied carriage photograph is the definitive reference for the **playable opening compartment**. Keep the same centered, eye-level view down a clear central aisle into a second warmly lit compartment. The cabin should read as a real, premium vintage sleeper carriage rather than a box-shaped prototype.
+
+### Non-negotiable visual cues
+- Polished dark walnut/mahogany joinery with layered, beveled panel frames and fine brass inlay.
+- Deep emerald-green leather bench seats facing each other across the aisle; sculpted wood armrests and subtle upholstery seams.
+- Tall side windows with substantial dark wood/brass surrounds; pleated deep-green curtains and brass tie-backs.
+- A cream/ivory ceiling with repeated arched-looking walnut ribs, recessed panels, and warm brass ceiling lamps.
+- Emerald patterned aisle carpet with antique-gold borders and small repeating woven motifs.
+- Warm golden pools of light and visible material detail in shadows; cool blue twilight scenery outside windows.
+- Marble-topped small tables beside the seats, brass reading lamps, overhead luggage racks with leather suitcases, and a central discoverable brass-trimmed suitcase.
+- A far-end doorway framing a second carriage section with depth, chairs, and a small focal clock; avoid a flat dead-end wall.
+- Cinematic symmetry and a readable walkable aisle. Decorative objects must not block movement or hide quest items.
+
+### First playable stage — independent component checklist
+1. **Carriage shell** — openings, wall/ceiling/floor, modular collision, doorway into the next compartment.
+2. **Joinery kit** — walnut panels, carved borders, brass rails, rivets, window casings and arch ribs.
+3. **Windows & curtains** — dark-blue exterior view, window reflections kept subtle, green pleats and tie-backs.
+4. **Seating kit** — emerald leather upholstery, piping/tuft details, walnut armrests and brass feet.
+5. **Tables & lamps** — dark polished marble tops, brass supports and small warm practical lights.
+6. **Ceiling & lighting** — ivory inset panels, walnut arches, warm ceiling fixtures plus low-cost ambient fill.
+7. **Carpet & trim** — patterned emerald runner with restrained gold details, not a noisy high-contrast texture.
+8. **Luggage & story props** — overhead racks, leather bags, a brass-edged suitcase and readable interactive lost objects.
+9. **Far doorway & next compartment** — layered framing and a strong depth cue.
+10. **Playable interactions** — reliable touch movement/look, visible interaction prompt, key/letter/chest sequence and objective feedback.
+
+Build these as separately named, reusable Blender collections and Godot scene/components where practical. Test the full opening sequence in the actual Godot scene at mobile aspect ratio and performance settings. The uploaded photograph is the quality target; a successful import/export or CI run alone is not visual approval.
