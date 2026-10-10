@@ -35,12 +35,6 @@ jobs:
           grep -q "TRAIN_CARRIAGE_ASSET_CREATED" art/blender/create_train_carriage.py
           echo "Blender generator syntax and export marker look valid."
 
-      - name: Install Blender for .blend resource import
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y blender
-          blender --version
-
       - name: Install Godot 4.3
         uses: chickensoft-games/setup-godot@v1
         with:
