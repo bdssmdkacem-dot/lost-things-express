@@ -1000,6 +1000,127 @@ func _on_story_continue_pressed() -> void:
 	else:
 		_close_story_card()
 
+func _build_intro_passenger_cars() -> void:
+	# A real train consist needs multiple linked coaches, not a lone engine beside
+	# a disconnected box. Each coach has its own silhouette, livery and fittings.
+	var coach_z_positions := [8.2, 17.0, 25.8]
+	var coach_liveries := [
+		{"body": Color(0.075, 0.105, 0.085), "trim": Color(0.63, 0.37, 0.12), "roof": Color(0.035, 0.045, 0.052), "window": Color(1.0, 0.57, 0.22)},
+		{"body": Color(0.19, 0.045, 0.045), "trim": Color(0.76, 0.48, 0.19), "roof": Color(0.055, 0.035, 0.04), "window": Color(1.0, 0.66, 0.31)},
+		{"body": Color(0.035, 0.09, 0.13), "trim": Color(0.55, 0.42, 0.23), "roof": Color(0.025, 0.04, 0.055), "window": Color(0.46, 0.74, 0.91)}
+	]
+	for coach_index in range(coach_z_positions.size()):
+		var z := float(coach_z_positions[coach_index])
+		var livery: Dictionary = coach_liveries[coach_index]
+		var body_color: Color = livery["body"]
+		var trim_color: Color = livery["trim"]
+		var roof_color: Color = livery["roof"]
+		var window_color: Color = livery["window"]
+		var coach_type := ["LUXURY SLEEPER", "OBSERVATION SALOON", "POST & LUGGAGE"][coach_index]
+		_intro_box(coach_type + " underframe", Vector3(30.0, 0.83, z), Vector3(2.62, 0.36, 7.7), Color(0.025, 0.03, 0.034), 0.62)
+		_intro_box(coach_type + " lower brass sill", Vector3(30.0, 1.12, z), Vector3(2.66, 0.10, 7.62), trim_color, 0.76)
+		_intro_box(coach_type + " enamel body", Vector3(30.0, 1.94, z), Vector3(2.48, 1.62, 7.35), body_color, 0.38)
+		_intro_box(coach_type + " upper brass belt", Vector3(30.0, 2.61, z), Vector3(2.54, 0.055, 7.40), trim_color, 0.78)
+		_intro_box(coach_type + " lower brass belt", Vector3(30.0, 1.27, z), Vector3(2.54, 0.055, 7.40), trim_color, 0.78)
+		# Rounded roof cap: smooth sphere proportions avoid the square shipping-box look.
+		var roof := MeshInstance3D.new()
+		roof.name = coach_type + " rounded roof"
+		var roof_mesh := SphereMesh.new()
+		roof_mesh.radius = 1.0
+		roof_mesh.height = 1.0
+		roof.mesh = roof_mesh
+		roof.scale = Vector3(1.31, 0.48, 3.92)
+		roof.position = Vector3(30.0, 2.83, z)
+		var roof_mat := StandardMaterial3D.new()
+		roof_mat.albedo_color = roof_color
+		roof_mat.metallic = 0.28
+		roof_mat.roughness = 0.32
+		roof.material_override = roof_mat
+		world_intro_root.add_child(roof)
+		# Longitudinal roof seams and end caps catch the cool sky fill.
+		for side in [-1.0, 1.0]:
+			var roof_seam := _intro_box(coach_type + " roof brass seam", Vector3(30.0 + side * 0.82, 3.03, z), Vector3(0.035, 0.035, 7.25), trim_color, 0.7)
+			roof_seam.rotation.z = side * -0.04
+		# Windows are recessed-looking luminous panes framed by individual brass stiles.
+		var window_offsets := [-2.72, -1.36, 0.0, 1.36, 2.72]
+		if coach_index == 2:
+			window_offsets = [-2.58, -0.86, 0.86, 2.58]
+		for side in [-1.0, 1.0]:
+			for window_index in range(window_offsets.size()):
+				var wz := z + float(window_offsets[window_index])
+				var pane_width := 1.12 if coach_index == 1 else 0.88
+				var pane_height := 0.76 if coach_index != 1 else 0.91
+				var pane := _intro_box(coach_type + " warm window", Vector3(30.0 + side * 1.251, 2.02, wz), Vector3(0.035, pane_height, pane_width), window_color, 0.12)
+				var pane_mat := pane.material_override as StandardMaterial3D
+				pane_mat.emission_enabled = true
+				pane_mat.emission = window_color * 0.36
+				pane_mat.emission_energy_multiplier = 0.8
+				for edge_y in [-1.0, 1.0]:
+					_intro_box(coach_type + " window brass rail", Vector3(30.0 + side * 1.29, 2.02 + edge_y * (pane_height * 0.5 + 0.055), wz), Vector3(0.055, 0.045, pane_width + 0.14), trim_color, 0.78)
+				for edge_z in [-1.0, 1.0]:
+					_intro_box(coach_type + " window brass stile", Vector3(30.0 + side * 1.29, 2.02, wz + edge_z * (pane_width * 0.5 + 0.055)), Vector3(0.055, pane_height + 0.13, 0.045), trim_color, 0.78)
+				if coach_index == 1:
+					_intro_box("Observation saloon window mullion", Vector3(30.0 + side * 1.32, 2.02, wz), Vector3(0.06, pane_height, 0.045), trim_color, 0.72)
+			# Each coach has two two-axle bogies, visible wheel discs, and a separate frame.
+			for axle_z in [-2.72, -1.98, 1.98, 2.72]:
+				var wheel := MeshInstance3D.new()
+				wheel.name = coach_type + " iron wheel"
+				var wheel_mesh := CylinderMesh.new()
+				wheel_mesh.top_radius = 0.37
+				wheel_mesh.bottom_radius = 0.37
+				wheel_mesh.height = 0.18
+				wheel_mesh.radial_segments = 24
+				wheel.mesh = wheel_mesh
+				wheel.rotation.z = PI / 2.0
+				wheel.position = Vector3(30.0 + side * 1.30, 0.57, z + axle_z)
+				var wheel_mat := StandardMaterial3D.new()
+			wheel_mat.albedo_color = Color(0.025, 0.03, 0.035)
+			wheel_mat.metallic = 0.72
+			wheel_mat.roughness = 0.36
+			wheel.material_override = wheel_mat
+			world_intro_root.add_child(wheel)
+			var hub := MeshInstance3D.new()
+			hub.name = coach_type + " brass wheel hub"
+			var hub_mesh := CylinderMesh.new()
+			hub_mesh.top_radius = 0.105
+			hub_mesh.bottom_radius = 0.105
+			hub_mesh.height = 0.205
+			hub.mesh = hub_mesh
+			hub.rotation.z = PI / 2.0
+			hub.position = Vector3(30.0 + side * 1.39, 0.57, z + axle_z)
+			var hub_mat := StandardMaterial3D.new()
+			hub_mat.albedo_color = trim_color
+			hub_mat.metallic = 0.8
+			hub_mat.roughness = 0.24
+			hub.material_override = hub_mat
+			world_intro_root.add_child(hub)
+			var bogie := _intro_box(coach_type + " bogie frame", Vector3(30.0 + side * 1.27, 0.61, z + (axle_z / abs(axle_z)) * 2.35), Vector3(0.16, 0.18, 1.12), Color(0.07, 0.075, 0.08), 0.62)
+		# Brass end lamps and a short visible coupling bridge tie the carriages together.
+		for end_sign in [-1.0, 1.0]:
+			var end_z := z + end_sign * 3.72
+			for side in [-1.0, 1.0]:
+				var end_lamp := MeshInstance3D.new()
+				end_lamp.name = coach_type + " end marker lamp"
+				var lamp_mesh := SphereMesh.new()
+				lamp_mesh.radius = 0.075
+				lamp_mesh.height = 0.12
+				end_lamp.mesh = lamp_mesh
+				end_lamp.position = Vector3(30.0 + side * 0.92, 1.45, end_z)
+				var lamp_mat := StandardMaterial3D.new()
+				lamp_mat.albedo_color = Color(1.0, 0.47, 0.17)
+				lamp_mat.emission_enabled = true
+				lamp_mat.emission = Color(1.0, 0.22, 0.06)
+				lamp_mat.emission_energy_multiplier = 0.9
+				end_lamp.material_override = lamp_mat
+				world_intro_root.add_child(end_lamp)
+			if coach_index < 2:
+				_intro_box("Flexible inter-car gangway", Vector3(30.0, 1.67, z + end_sign * 4.2), Vector3(1.45, 1.55, 0.24), Color(0.025, 0.03, 0.03), 0.28)
+		# The luggage coach gets louvered side panels instead of a fifth identical window.
+		if coach_index == 2:
+			for vent_index in range(7):
+				var vent_z := z - 2.35 + float(vent_index) * 0.78
+				_intro_box("Post coach brass ventilation slat", Vector3(28.70, 1.55, vent_z), Vector3(0.06, 0.045, 0.46), trim_color, 0.7)
+
 func _build_world_intro() -> void:
 	world_intro_active = true
 	world_intro_root = Node3D.new()
@@ -1298,6 +1419,7 @@ func _build_world_intro() -> void:
 		production_locomotive.name = "ProductionLocomotive"
 		production_locomotive.position = Vector3(30.0, 0.0, 0.0)
 		world_intro_root.add_child(production_locomotive)
+		_build_intro_passenger_cars()
 		var production_nameplate := Label3D.new()
 		production_nameplate.name = "Production locomotive nameplate text"
 		production_nameplate.text = "LOST & FOUND"
