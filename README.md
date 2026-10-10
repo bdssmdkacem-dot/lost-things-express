@@ -26,7 +26,7 @@ A premium fantasy train adventure where players explore strange stations, discov
 - A story reward that points to Sunset Station.
 - Touch-first movement and camera controls, with desktop controls for development.
 - Collision around seating and carriage boundaries, readable mobile UI, and an APK that passes signature/package checks.
-- Puzzle progress is now saved automatically to the app's user data and restored on relaunch; the automated first-slice test checks the save/resume path. Pause/resume controls and a persistent look-sensitivity setting are now implemented and covered by automated tests; physical-device behavior and visual quality remain release gates.
+- Puzzle progress is now saved automatically to the app's user data and restored on relaunch; the automated first-slice test checks the save/resume path. Pause/resume controls and a persistent look-sensitivity setting are now implemented and covered by automated tests. The physical letter stays visible between the player's hands while reading, with a close action and a printed clock warning; automated tests cover this interaction and persistent key state. Physical-device behavior and visual quality remain release gates.
 
 ## Tech stack
 
