@@ -214,19 +214,20 @@ func _build_ui() -> void:
 	status_label.anchor_left = 0.04
 	status_label.anchor_top = 0.04
 	status_label.anchor_right = 0.78
-	status_label.anchor_bottom = 0.19
+	status_label.anchor_bottom = 0.18
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	status_label.add_theme_font_size_override("font_size", 20)
+	status_label.add_theme_font_size_override("font_size", 16)
+	status_label.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	status_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.58))
 	root.add_child(status_label)
 
 	objective_label = Label.new()
 	objective_label.anchor_left = 0.04
-	objective_label.anchor_top = 0.19
+	objective_label.anchor_top = 0.20
 	objective_label.anchor_right = 0.78
 	objective_label.anchor_bottom = 0.29
 	objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	objective_label.add_theme_font_size_override("font_size", 17)
+	objective_label.add_theme_font_size_override("font_size", 15)
 	objective_label.add_theme_color_override("font_color", Color(0.91, 0.89, 0.82))
 	root.add_child(objective_label)
 
@@ -276,13 +277,14 @@ func _build_ui() -> void:
 	root.add_child(inventory_label)
 
 	var hint := Label.new()
-	hint.text = "Drag the left side to move • drag the right side to look"
-	hint.anchor_left = 0.15
+	hint.text = "LEFT: MOVE  •  RIGHT: LOOK"
+	hint.anchor_left = 0.03
 	hint.anchor_top = 0.94
-	hint.anchor_right = 0.80
+	hint.anchor_right = 0.68
 	hint.anchor_bottom = 0.99
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_font_size_override("font_size", 14)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	hint.autowrap_mode = TextServer.AUTOWRAP_OFF
+	hint.add_theme_font_size_override("font_size", 12)
 	hint.add_theme_color_override("font_color", Color(0.84, 0.84, 0.81))
 	root.add_child(hint)
 
