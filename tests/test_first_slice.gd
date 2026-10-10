@@ -79,6 +79,8 @@ func _run_first_slice() -> void:
 	game.call("_interact")
 	if not _check(bool(game.get("has_key")), "interacting with the brass key did not collect it"):
 		return
+	if not _check(int(game.get("mystery_beat_count")) == 1, "key pickup did not trigger the first suspense beat"):
+		return
 	await process_frame
 
 	# The key alone is insufficient: the letter must be read first.
@@ -93,12 +95,22 @@ func _run_first_slice() -> void:
 	game.call("_interact")
 	if not _check(bool(game.get("letter_read")), "interacting with the torn letter did not mark it read"):
 		return
+	if not _check(int(game.get("mystery_beat_count")) == 2, "reading the letter did not trigger the second suspense beat"):
+		return
+	var letter_story := str(game.get("story_body").text)
+	if not _check(letter_story.contains("Do not let the clock finish"), "letter reveal did not display the new clock warning"):
+		return
 
 	# With both prerequisites met, the chest should open and its lid should move.
 	player.global_position = chest.global_position + Vector3(0.0, 0.0, 0.35)
 	# _interact must refresh proximity itself, as it does on a real button tap.
 	game.call("_interact")
 	if not _check(bool(game.get("chest_open")), "chest did not open after key and letter"):
+		return
+	if not _check(int(game.get("mystery_beat_count")) == 3, "opening the chest did not trigger the final suspense beat"):
+		return
+	var chest_story := str(game.get("story_body").text)
+	if not _check(chest_story.contains("MEMORY RECOVERED"), "chest reveal did not reward the player with the recovered-memory story card"):
 		return
 	# The chest lid now opens with a short cinematic tween.
 	await create_timer(0.85).timeout
