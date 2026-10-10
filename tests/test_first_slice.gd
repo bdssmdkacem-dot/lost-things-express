@@ -63,6 +63,7 @@ func _run_first_slice() -> void:
 	game.call("_enter_stage_one")
 	if not _check(not bool(game.get("world_intro_active")) and camera.current, "entering stage one did not switch to the carriage camera"):
 		return
+	game.call("_close_story_card")
 	if not _check(hands.get_child_count() >= 16, "first-person hands are missing sleeves, cuffs, palms, fingers, or thumbs"):
 		return
 	if not _check(hands.get_node_or_null("Thumb_L") != null and hands.get_node_or_null("Thumb_R") != null, "both visible thumbs must be present for a readable hand silhouette"):
@@ -93,6 +94,7 @@ func _run_first_slice() -> void:
 	game.call("_interact")
 	if not _check(not bool(game.get("chest_open")), "chest opened without the brass key"):
 		return
+	game.call("_close_story_card")
 
 	# Find the key on the floor.
 	player.global_position = key.global_position + Vector3(0.0, 0.0, 0.35)
@@ -102,6 +104,7 @@ func _run_first_slice() -> void:
 		return
 	if not _check(int(game.get("mystery_beat_count")) == 1, "key pickup did not trigger the first suspense beat"):
 		return
+	game.call("_close_story_card")
 	await create_timer(0.80).timeout
 	var held_key := game.get("held_key_prop") as Node3D
 	if not _check(held_key != null and is_instance_valid(held_key), "picked-up brass key vanished after the hand animation"):
@@ -117,6 +120,7 @@ func _run_first_slice() -> void:
 	game.call("_interact")
 	if not _check(not bool(game.get("chest_open")), "chest opened before the letter was read"):
 		return
+	game.call("_close_story_card")
 
 	player.global_position = letter.global_position + Vector3(0.0, 0.0, 0.20)
 	# _interact must refresh proximity itself, as it does on a real button tap.
@@ -125,8 +129,20 @@ func _run_first_slice() -> void:
 		return
 	if not _check(int(game.get("mystery_beat_count")) == 2, "reading the letter did not trigger the second suspense beat"):
 		return
-	var letter_story := str(game.get("story_body").text)
-	if not _check(letter_story.contains("Do not let the clock finish"), "letter reveal did not display the new clock warning"):
+	if not _check(bool(game.get("letter_inspecting")), "reading the letter did not enter physical inspection mode"):
+		return
+	if not _check(not bool(game.get("story_card_open")), "reading the letter replaced the physical paper with a story overlay"):
+		return
+	var held_letter := game.get("held_letter_prop") as Node3D
+	if not _check(held_letter != null and held_letter.get_parent() == hands and hands.visible, "the readable letter is not visible between the player's hands"):
+		return
+	var physical_message := held_letter.get_node_or_null("LetterMessage") as Label3D
+	if not _check(physical_message != null and physical_message.text.contains("DO NOT LET IT FINISH"), "the fresh clock warning is missing from the physical paper"):
+		return
+	if not _check(str(interact_button.text).contains("CLOSE LETTER"), "the physical letter has no clear close action"):
+		return
+	game.call("_interact")
+	if not _check(not bool(game.get("letter_inspecting")) and not hands.visible and game.get("held_letter_prop") == null, "closing the letter did not restore normal exploration")
 		return
 
 	# With both prerequisites met, the chest should open and its lid should move.
