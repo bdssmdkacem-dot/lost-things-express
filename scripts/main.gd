@@ -1482,9 +1482,9 @@ func _build_world_intro() -> void:
 		steam.material_override = smoke_material
 		world_intro_root.add_child(steam)
 
-	_intro_box("Passenger carriage body", Vector3(30.0, 2.0, 7.6), Vector3(3.8, 2.7, 7.0), Color(0.035, 0.12, 0.085), 0.38)
-	_intro_box("Passenger carriage roof", Vector3(30.0, 3.45, 7.6), Vector3(4.0, 0.25, 7.2), Color(0.07, 0.045, 0.035), 0.3)
-	for z in [5.0, 6.8, 8.6, 10.4]:
+	_intro_box("Passenger carriage body", Vector3(30.0, 2.0, 7.1), Vector3(3.8, 2.7, 7.0), Color(0.035, 0.12, 0.085), 0.38)
+	_intro_box("Passenger carriage roof", Vector3(30.0, 3.45, 7.1), Vector3(4.0, 0.25, 7.2), Color(0.07, 0.045, 0.035), 0.3)
+	for z in [4.5, 6.3, 8.1, 9.9]:
 		for x in [28.02, 31.98]:
 			_intro_box("Carriage window brass frame", Vector3(x, 2.25, z), Vector3(0.08, 0.95, 0.72), Color(0.67, 0.40, 0.13), 0.78)
 			_intro_box("Carriage window glass", Vector3(x + (0.05 if x > 30.0 else -0.05), 2.25, z), Vector3(0.035, 0.72, 0.53), Color(0.06, 0.18, 0.25), 0.12)
