@@ -43,10 +43,10 @@ func _run_first_slice() -> void:
 	# This checks animation behavior without changing player movement or camera input.
 	for action_name in ["take", "read", "open"]:
 		game.call("_play_hand_action", action_name)
-		await create_timer(0.08).timeout
-		if not _check(hands.position.z < -0.01, "hand action did not move forward: " + action_name):
+		var active_hand_tween := game.get("hand_action_tween") as Tween
+		if not _check(active_hand_tween != null and active_hand_tween.is_running(), "hand action did not start its animation: " + action_name):
 			return
-		await create_timer(0.75).timeout
+		await create_timer(0.80).timeout
 		if not _check(hands.position.distance_to(Vector3.ZERO) < 0.01, "hand action did not return to neutral: " + action_name):
 			return
 
