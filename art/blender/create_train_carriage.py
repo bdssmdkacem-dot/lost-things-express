@@ -500,6 +500,18 @@ def create_carriage():
     camera.rotation_euler = (look_at - camera.location).to_track_quat("-Z", "Y").to_euler()
     scene.camera = camera
 
+    # The generator's design coordinates deliberately match Godot (Y is up,
+    # the aisle runs along Z). Blender itself is Z-up. Rotate the whole authored
+    # scene—including preview camera and lights—into Blender's native Z-up frame
+    # before rendering/exporting. The glTF Y-up conversion then restores the intended
+    # Godot orientation instead of exporting a sideways carriage.
+    coordinate_root = bpy.data.objects.new("Coordinate Root | Godot Y-up authoring", None)
+    scene.collection.objects.link(coordinate_root)
+    for authored_obj in list(scene.objects):
+        if authored_obj is not coordinate_root:
+            authored_obj.parent = coordinate_root
+    coordinate_root.rotation_euler.x = math.radians(90.0)
+
     # Ubuntu runner packages may provide Blender 3.x (BLENDER_EEVEE) while
     # newer workstations provide Blender 4.x (BLENDER_EEVEE_NEXT). Choose the
     # installed renderer instead of failing the asset pipeline on a version mismatch.
