@@ -67,7 +67,6 @@ func _capture_first_stage() -> void:
 	quit(0)
 
 func _save_viewport_image(filename: String) -> bool:
-	await process_frame
 	var image := root.get_texture().get_image()
 	if image == null or image.is_empty():
 		push_error("VISUAL_CAPTURE_FAILED: viewport image is empty for " + filename)
