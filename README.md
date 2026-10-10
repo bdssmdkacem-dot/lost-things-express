@@ -26,7 +26,7 @@ A premium fantasy train adventure where players explore strange stations, discov
 - A story reward that points to Sunset Station.
 - Touch-first movement and camera controls, with desktop controls for development.
 - Collision around seating and carriage boundaries, readable mobile UI, and an APK that passes signature/package checks.
-- Save/load, pause/resume, settings, and full device QA remain release gates, not features to assume complete.
+- Puzzle progress is now saved automatically to the app's user data and restored on relaunch; the automated first-slice test checks the save/resume path. Pause/resume controls, settings, and full device QA remain release gates until implemented and tested.
 
 ## Tech stack
 
@@ -51,7 +51,7 @@ The repository contains the Godot first-person puzzle foundation, a Blender carr
 
 The Android export preset previously had `package/signed=false`, even though the workflow called an APK export successful. Signing is enabled; version **0.1.3 (version code 4)** is the current test target. The workflow gates publishing on the signature, alignment, package/version and native-library checks. It runs an emulator install-and-launch smoke test only when KVM hardware acceleration is available; otherwise that step is explicitly skipped. A successful CI artifact is still not proof of graphics or interaction quality on the target phone.
 
-**Visual approval is still pending.** The carriage must be rendered/imported and reviewed at a phone aspect ratio against [docs/ART_DIRECTION.md](docs/ART_DIRECTION.md), followed by a real Android install and a complete key → letter → chest play-through. Do not treat the CI result as visual or device approval.
+**Visual and device approval are still pending.** The current work adds persistent first-stage puzzle progress and an automated resume assertion, but it does not replace visual inspection. Review the generated carriage preview and the actual Godot opening view at a phone aspect ratio against [docs/ART_DIRECTION.md](docs/ART_DIRECTION.md), then install the latest APK on a real Android phone and complete the key → letter → chest play-through. Do not treat the CI result as visual or device approval.
 
 ## Roadmap
 
