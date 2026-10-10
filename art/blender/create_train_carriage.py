@@ -356,28 +356,38 @@ def create_carriage():
     lamp_glass = material("Reading lamps | amber glass", (1.0, 0.47, 0.12, 1), roughness=0.24, emission=1.4)
     luggage_leather = material("Overhead luggage | oxblood leather", (0.22, 0.045, 0.028, 1), roughness=0.42)
     luggage_inlay = material("Overhead luggage | brass straps", (0.72, 0.43, 0.14, 1), metallic=0.68, roughness=0.26)
+    # Keep side tables on the aisle-facing edge, in the gaps between benches.
+    # The previous wall-side placement hid the marble tops and lamps behind seat backs
+    # in the actual first-person camera composition.
     for z in (-2.05, 1.15, 4.30):
         for side in (-1, 1):
-            x = side * 2.08
-            cube("Table | ivory marble top", (x, 0.76, z), (0.62, 0.085, 0.62), marble, 0.035, details)
-            cylinder("Table | brass pedestal", (x, 0.46, z), 0.055, 0.54, table_gold, vertices=20)
-            cube("Table | brass foot", (x, 0.18, z), (0.42, 0.055, 0.42), table_gold, 0.025, details)
-            cylinder("Reading lamp | brass base", (x, 0.825, z), 0.105, 0.035, table_gold, vertices=24)
-            cylinder("Reading lamp | brass stem", (x, 0.93, z), 0.022, 0.19, table_gold, vertices=16)
-            cube("Reading lamp | amber shade", (x, 1.045, z), (0.18, 0.12, 0.18), lamp_glass, 0.045, details)
+            x = side * 1.20
+            cube("Table | ivory marble top", (x, 0.76, z), (0.50, 0.085, 0.50), marble, 0.035, details)
+            cylinder("Table | brass pedestal", (x, 0.46, z), 0.045, 0.54, table_gold, vertices=20)
+            cube("Table | brass foot", (x, 0.18, z), (0.34, 0.055, 0.34), table_gold, 0.025, details)
+            cylinder("Reading lamp | brass base", (x, 0.825, z), 0.085, 0.035, table_gold, vertices=24)
+            cylinder("Reading lamp | brass stem", (x, 0.93, z), 0.018, 0.19, table_gold, vertices=16)
+            bpy.ops.mesh.primitive_cone_add(vertices=24, radius1=0.095, radius2=0.040, depth=0.12, location=(x, 1.045, z))
+            lamp_shade = bpy.context.object
+            lamp_shade.name = "Reading lamp | sculpted amber shade"
+            assign(lamp_shade, lamp_glass)
+            bevel(lamp_shade, 0.012, 2)
+            uv_sphere("Reading lamp | glowing bulb", (x, 1.105, z), (0.038, 0.045, 0.038), lamp_glass)
 
-    # Overhead racks with compact leather cases; keep them above head height and out of the aisle.
+    # Slimmer overhead racks keep the eye-line and emerald ceiling visible while
+    # retaining period-train luggage as a readable detail at phone size.
     for z in (-3.6, -0.5, 2.8):
         for side in (-1, 1):
-            x = side * 2.03
-            cube("Luggage rack | walnut shelf", (x, 2.62, z), (0.70, 0.075, 2.18), MATS["mahogany"], 0.035, details)
-            cube("Luggage rack | brass outer rail", (side * 2.34, 2.72, z), (0.045, 0.16, 2.12), MATS["brass_highlight"], 0.018, details)
-            for dz in (-0.92, 0.92):
-                cube("Luggage rack | brass support", (side * 2.28, 2.48, z + dz), (0.07, 0.28, 0.07), table_gold, 0.018, details)
-            cube("Luggage | leather suitcase", (side * 1.90, 2.82, z), (0.56, 0.30, 0.78), luggage_leather, 0.055, details)
-            for dx in (-0.12, 0.12):
-                cube("Luggage | brass suitcase band", (side * 1.90 + dx * 1.25, 2.82, z), (0.045, 0.31, 0.80), luggage_inlay, 0.012, details)
-            cube("Luggage | brass handle", (side * 1.90, 2.99, z), (0.17, 0.03, 0.04), table_gold, 0.012, details)
+            x = side * 2.20
+            cube("Luggage rack | walnut shelf", (x, 2.62, z), (0.48, 0.060, 1.95), MATS["mahogany"], 0.028, details)
+            cube("Luggage rack | brass outer rail", (side * 2.42, 2.70, z), (0.035, 0.12, 1.88), MATS["brass_highlight"], 0.014, details)
+            for dz in (-0.82, 0.82):
+                cube("Luggage rack | brass support", (side * 2.32, 2.48, z + dz), (0.055, 0.24, 0.055), table_gold, 0.014, details)
+            suitcase_x = side * 2.08
+            cube("Luggage | leather suitcase", (suitcase_x, 2.80, z), (0.40, 0.23, 0.62), luggage_leather, 0.045, details)
+            for dx in (-0.095, 0.095):
+                cube("Luggage | brass suitcase band", (suitcase_x + dx, 2.80, z), (0.035, 0.24, 0.64), luggage_inlay, 0.010, details)
+            cube("Luggage | brass handle", (suitcase_x, 2.94, z), (0.14, 0.025, 0.035), table_gold, 0.010, details)
 
     # Emerald upholstered ceiling panels and tailored velvet curtains establish the requested signature palette.
     emerald_ceiling = material("Ceiling | emerald woven velvet", (0.012, 0.115, 0.058, 1), roughness=0.86)
