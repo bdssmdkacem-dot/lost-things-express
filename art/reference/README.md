@@ -17,3 +17,46 @@ A generated model or successful CI build is not proof of visual fidelity. Review
 
 ## Archival status
 The original images have been located in the ChatGPT Library, but their binary files have not yet been committed into this repository. Do not mark the archive complete until both image files exist at the paths above and have been verified.
+
+
+## Permanent interaction and scene reference standard (added 2026-10-10)
+
+Treat the five illustrative image examples shown in the project conversation as a permanent visual target for implementation and review. They are guidance for the desired realism and composition, not screenshots of the current game and not substitutes for the two original concept-board files above.
+
+### A. Letter held in both hands — highest priority
+- The actual in-world letter must be held visibly between the player's hands, not replaced by a floating UI panel.
+- Its paper surface must display the readable letter text. Keep the text attached to the paper as it moves with the hands and camera.
+- Reading/inspection may add controls, but must not hide the physical letter while it is being read.
+- Use believable paper thickness, folds, edge wear, perspective, hand contact and warm carriage lighting.
+
+### B. Brass key pickup and hold
+- Keep the key as a persistent 3D object while held; do not make it vanish when the pickup animation ends.
+- Animate reach, finger/thumb closure, contact and lift as one continuous action. Align the key with the grip and camera perspective.
+- Hide the hands during ordinary exploration; show them only for relevant interactions, consistent with the existing design.
+
+### C. Wooden chest opening
+- The key/lock interaction must visibly connect to the lock. Animate the lid rotating around its hinge with a natural easing curve.
+- Keep the chest, lock, hands and lid spatially consistent; reveal the contents only after the lid opens.
+- The photo must be a physical, inspectable object, with a clear pickup/inspection transition.
+
+### D. Passage into the clock carriage
+- The doorway must be visibly open and wide enough for the existing player collider and camera.
+- Check walls, thresholds, collision shapes and player limits together; no invisible blocker, snagging, teleport-like jump or forced control change.
+- The clock must be in the reachable next carriage and have a clear interaction point.
+
+### E. Pre-entry train scene
+- Review the entire establishing shot before stage one: locomotive silhouette and proportions, rounded boiler, wheels and rods, brass details, passenger carriage, connected curved rails, floating cloud islands, depth, lighting and composition.
+- Aim for a coherent, cinematic vintage train scene with grounded materials and consistent scale, matching the original concept board when it is available.
+- Do not accept a box-built placeholder merely because it compiles. Compare an actual render/screenshot against the reference and log remaining differences.
+
+## Permanent acceptance checklist
+- [ ] Original concept-board images are committed and verified at the paths listed above.
+- [ ] The physical letter and its text are visible between the hands during reading.
+- [ ] Key pickup and held-key pose look continuous and believable.
+- [ ] Chest lid, lock, hands and photo behave as one coherent interaction.
+- [ ] Player traverses the doorway into the clock carriage without collision blockage.
+- [ ] Pre-entry train scene has been inspected in an actual render and compared side by side with the original concept.
+- [ ] Android build and project tests pass.
+- [ ] Real-device screenshots/video confirm the visual and interaction checks; CI success alone is insufficient.
+
+Do not check an item above until it has been verified. Preserve the original concept images unchanged. The illustrative image examples are a permanent direction for all future scene and asset revisions, not permission to claim visual validation without an actual render.
