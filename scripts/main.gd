@@ -1193,7 +1193,7 @@ func _close_story_card() -> void:
 		return
 	story_overlay.visible = false
 	story_card_open = false
-	# Keep the physical parchment in view until the player closes the letter.
+	# If a story card interrupts inspection, release the physical letter safely.
 	if is_instance_valid(held_letter_prop):
 		held_letter_prop.queue_free()
 		held_letter_prop = null
@@ -1338,6 +1338,9 @@ func _update_nearby() -> void:
 			letter_read = true
 			letter_inspecting = true
 			nearby_object.set_meta("display_name", "Letter read")
+			interact_button.text = "CLOSE LETTER"
+			interact_button.disabled = false
+			prompt_label.text = "Read the physical letter · tap CLOSE LETTER when finished"
 			_trigger_mystery_beat("A lamp flickers once. The letter smells faintly of rain, though every window is closed.")
 			_set_status("The final line is fresh ink. Read the paper in your hands, then tap CLOSE LETTER.")
 		"photograph":
