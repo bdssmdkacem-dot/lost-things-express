@@ -65,7 +65,7 @@ func _run_first_slice() -> void:
 	if not _check(int(game.get("touch_look_id")) == -1 and int(game.get("touch_move_id")) == -1, "touch input leaked through the opening story card"):
 		return
 	var intro_root := game.get("world_intro_root") as Node3D
-	if not _check(intro_root.get_node_or_null("LocomotiveConnectingRod_L") != null and intro_root.get_node_or_null("LocomotiveConnectingRod_R") != null, "the establishing locomotive is missing its wheel connecting rods"):
+	if not _check(intro_root.find_child("LocomotiveConnectingRod_L", true, false) != null and intro_root.find_child("LocomotiveConnectingRod_R", true, false) != null, "the establishing locomotive is missing its wheel connecting rods"):
 		return
 	if not _check(intro_root.find_children("SoftSteamPuff_*", "MeshInstance3D", true, false).size() == 3, "the establishing locomotive is missing its restrained steam plume"):
 		return
