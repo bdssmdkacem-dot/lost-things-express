@@ -1117,6 +1117,31 @@ func _build_world_intro() -> void:
 			cliff.material_override = cliff_mat
 			world_intro_root.add_child(cliff)
 
+			# A short stone approach physically joins each land shelf to the
+			# viaduct, so the railway appears to continue into the world.
+			var approach := _intro_box("World railway stone approach",
+				Vector3(world_x + side * 3.25, -0.22, world_z),
+				Vector3(2.65, 0.38, 1.75), Color(0.28, 0.29, 0.30), 0.08)
+			approach.rotation.y = cos(world_z * 0.072) * 0.145
+
+			# Thin, broken waterfalls fall from the island strata into the
+			# cloud layer; alpha blending keeps them subtle rather than neon.
+			var waterfall := MeshInstance3D.new()
+			waterfall.name = "World waterfall ribbon"
+			var waterfall_mesh := BoxMesh.new()
+			waterfall_mesh.size = Vector3(0.20, 3.0, 0.045)
+			waterfall.mesh = waterfall_mesh
+			waterfall.position = Vector3(land.position.x + side * 2.3, -2.45, world_z + 1.6)
+			var waterfall_mat := StandardMaterial3D.new()
+			waterfall_mat.albedo_color = Color(0.20, 0.52, 0.68, 0.42)
+			waterfall_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			waterfall_mat.emission_enabled = true
+			waterfall_mat.emission = Color(0.04, 0.16, 0.24)
+			waterfall_mat.emission_energy_multiplier = 0.32
+			waterfall_mat.roughness = 0.22
+			waterfall.material_override = waterfall_mat
+			world_intro_root.add_child(waterfall)
+
 			# Tree clusters use tapered trunks and layered crowns rather than
 			# identical spheres; silhouettes remain legible at mobile scale.
 			for tree_index in range(4):
