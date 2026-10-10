@@ -1138,9 +1138,11 @@ func _build_world_intro() -> void:
 				for crown_level in range(3):
 					var crown := MeshInstance3D.new()
 					crown.name = "Layered evergreen crown"
-					var crown_mesh := SphereMesh.new()
-					crown_mesh.radius = 0.65 - float(crown_level) * 0.11
-					crown_mesh.height = 1.1 - float(crown_level) * 0.12
+					var crown_mesh := CylinderMesh.new()
+					crown_mesh.top_radius = 0.015
+					crown_mesh.bottom_radius = 0.58 - float(crown_level) * 0.12
+					crown_mesh.height = 0.95 - float(crown_level) * 0.10
+					crown_mesh.radial_segments = 9
 					crown.mesh = crown_mesh
 					crown.position = Vector3(tree_x, land.position.y + 1.25 + float(crown_level) * 0.38, tree_z)
 					var crown_mat := StandardMaterial3D.new()
