@@ -83,7 +83,8 @@ Do not generate a replacement station image. Use the supplied station photograph
 - Fixed a real inventory/view-model bug: the brass key was deleted when the generic hand-action tween finished. It now remains attached to the first-person view model while hands are hidden during normal exploration, and it is rebuilt when saved key progress is restored.
 - Gameplay touch and keyboard input now stop behind story cards. Showing a modal releases any captured move/look touch so a swipe on dialogue cannot rotate the hidden camera or leave movement latched.
 - Added a pause overlay with Resume, movement/look guidance, and a look-sensitivity slider. The chosen sensitivity is saved to `user://first_stage_settings.cfg` and restored on relaunch.
-- Added automated assertions for key persistence, key reconstruction on resume, modal touch blocking, pause movement freeze, sensitivity updates, and settings persistence.
+- The letter-reading interaction no longer opens a full-screen story card over the paper. The player holds a physical parchment between both hands, the complete clock warning is printed on it, both thumbs move inward to grip its edges, movement pauses while reading, and the INTERACT button becomes CLOSE LETTER.
+- Added automated assertions for key persistence, key reconstruction on resume, physical letter readability and grip pose, modal touch blocking, pause movement freeze, sensitivity updates, and settings persistence.
 
 ### Visual comparison result — not approved
 
@@ -96,3 +97,8 @@ The committed Blender preview `assets/blender/train_carriage_preview.png` was in
 - The current preview is a Blender asset render, not proof that the imported GLB and Godot mobile scene look the same.
 
 A new generator pass brings the island silhouettes closer to the window plane, gives them tapered rocky undersides, and enlarges the distant tower shapes. Its regenerated preview must be inspected before accepting that fix. The scene remains **not visually approved** until a new render is compared side by side and the first-stage interactions are tested on a physical Android device.
+
+
+### Latest physical-letter implementation — automated pass pending device review
+
+The physical letter now carries the complete clue text, including “DO NOT LET THE CLOCK / FINISH.” Fake horizontal ink strokes were removed from the held copy so they cannot compete with the printed words. Reading keeps the parchment in view instead of replacing it with a centered dialogue card; the player can still look around but cannot walk until closing the letter. Automated first-slice tests now assert the letter node, printed warning, inward thumb pose and close action. This is a meaningful interaction fix, not final approval of hand anatomy or text legibility on a phone.
