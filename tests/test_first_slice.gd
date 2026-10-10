@@ -141,6 +141,11 @@ func _run_first_slice() -> void:
 		return
 	if not _check(str((game.get("interact_button") as Button).text).contains("CLOSE LETTER"), "the physical letter has no clear close action"):
 		return
+	await create_timer(0.80).timeout
+	var thumb_left := hands.get_node_or_null("Thumb_L") as MeshInstance3D
+	var thumb_right := hands.get_node_or_null("Thumb_R") as MeshInstance3D
+	if not _check(thumb_left != null and thumb_right != null and absf(thumb_left.position.x) < 0.26 and absf(thumb_right.position.x) < 0.26, "both thumbs did not move inward to grip the letter edges"):
+		return
 	game.call("_interact")
 	if not _check(not bool(game.get("letter_inspecting")) and not hands.visible and game.get("held_letter_prop") == null, "closing the letter did not restore normal exploration")
 		return
