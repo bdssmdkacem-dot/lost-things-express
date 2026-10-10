@@ -146,7 +146,7 @@ func _create_clock_interactable() -> void:
 	clock.set_meta("display_name", "Station Clock")
 	clock.add_to_group("interactables")
 	add_child(clock)
-	if ResourceLoader.exists("res://assets/models/train_carriage.glb"):
+	if get_node_or_null("ProductionCarriage") != null:
 		var rim := MeshInstance3D.new()
 		rim.name = "ClockBrassRim"
 		var rim_mesh := CylinderMesh.new()
