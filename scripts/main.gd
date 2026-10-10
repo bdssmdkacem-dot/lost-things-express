@@ -1425,6 +1425,39 @@ func _build_world_intro() -> void:
 		if is_instance_valid(control):
 			control.visible = false
 
+func _build_terrain_crown(seed_index: int) -> ArrayMesh:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var segments := 20
+	var rings := 7
+	var center := Vector3(0.0, 0.10, 0.0)
+	for segment in range(segments):
+		var angle_a := TAU * float(segment) / float(segments)
+		var angle_b := TAU * float(segment + 1) / float(segments)
+		var radius_a := 1.0 + 0.09 * sin(angle_a * 3.0 + float(seed_index)) + 0.045 * cos(angle_a * 5.0 - float(seed_index))
+		var radius_b := 1.0 + 0.09 * sin(angle_b * 3.0 + float(seed_index)) + 0.045 * cos(angle_b * 5.0 - float(seed_index))
+		var outer_a := Vector3(cos(angle_a) * radius_a, 0.08 + 0.11 * sin(angle_a * 4.0 + float(seed_index)), sin(angle_a) * radius_a)
+		var outer_b := Vector3(cos(angle_b) * radius_b, 0.08 + 0.11 * sin(angle_b * 4.0 + float(seed_index)), sin(angle_b) * radius_b)
+		surface.add_vertex(center)
+		surface.add_vertex(outer_b)
+		surface.add_vertex(outer_a)
+		for ring_index in range(1, rings):
+			var r0 := float(ring_index) / float(rings)
+			var r1 := float(ring_index + 1) / float(rings)
+			var a0 := Vector3(cos(angle_a) * radius_a * r0, 0.10 + 0.11 * sin(angle_a * 4.0 + float(seed_index)) * r0 - 0.13 * r0 * r0, sin(angle_a) * radius_a * r0)
+			var b0 := Vector3(cos(angle_b) * radius_b * r0, 0.10 + 0.11 * sin(angle_b * 4.0 + float(seed_index)) * r0 - 0.13 * r0 * r0, sin(angle_b) * radius_b * r0)
+			var a1 := Vector3(cos(angle_a) * radius_a * r1, 0.10 + 0.11 * sin(angle_a * 4.0 + float(seed_index)) * r1 - 0.13 * r1 * r1, sin(angle_a) * radius_a * r1)
+			var b1 := Vector3(cos(angle_b) * radius_b * r1, 0.10 + 0.11 * sin(angle_b * 4.0 + float(seed_index)) * r1 - 0.13 * r1 * r1, sin(angle_b) * radius_b * r1)
+			surface.add_vertex(a0)
+			surface.add_vertex(b1)
+			surface.add_vertex(a1)
+			surface.add_vertex(a0)
+			surface.add_vertex(b0)
+			surface.add_vertex(b1)
+	surface.generate_normals()
+	return surface.commit()
+
+
 func _intro_box(label: String, pos: Vector3, size: Vector3, color: Color, metallic := 0.12) -> MeshInstance3D:
 	var visual := MeshInstance3D.new()
 	visual.name = label
