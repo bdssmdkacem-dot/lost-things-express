@@ -61,6 +61,8 @@ func _run_first_slice() -> void:
 	game.call("_interact")
 	if not _check(bool(game.get("chest_open")), "chest did not open after key and letter"):
 		return
+	# The chest lid now opens with a short cinematic tween.
+	await create_timer(0.85).timeout
 	var lid := chest.get_node_or_null("Lid") as Node3D
 	if not _check(lid != null and is_equal_approx(lid.rotation.x, deg_to_rad(-72.0)), "chest lid did not reach the open position"):
 		return
