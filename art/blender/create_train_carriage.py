@@ -181,11 +181,13 @@ def create_carriage():
 
     # Coordinates: X across the carriage, Y up, Z along its 12m length.
     cube("Floor | dark oak foundation", (0, -0.12, 0), (5.8, 0.24, 12.0), MATS["dark_wood"], 0.06, shell)
-    # Separate inset planks give the floor readable craftsmanship.
+    # Smoked dark-walnut floor planks: warm brown, never the pink/orange tone of pale mahogany.
+    floor_wood = material("Floor | smoked dark walnut", (0.055, 0.014, 0.006, 1), roughness=0.32)
+    floor_wood_alt = material("Floor | dark walnut variation", (0.078, 0.021, 0.008, 1), roughness=0.35)
     for i in range(24):
         z = -5.72 + i * 0.49
         cube("Floor plank %02d" % (i + 1), (0, 0.012, z), (5.55, 0.035, 0.455),
-             MATS["mahogany"] if i % 3 else MATS["wood_light"], 0.012, details)
+             floor_wood_alt if i % 4 == 0 else floor_wood, 0.012, details)
     cube("Ceiling | inner canopy", (0, 3.48, 0), (5.8, 0.18, 12.0), MATS["dark_wood"], 0.045, shell)
     # Side walls are built around real window openings; full-height solid walls
     # behind the glass made the windows look like painted teal panels.
@@ -260,15 +262,17 @@ def create_carriage():
                  (1.20, 0.88, 0.20), seat_leather, 0.08, seating)
     cube("Front wall | end panel", (0, 1.65, 5.95), (5.8, 3.3, 0.18), MATS["dark_wood"], 0.04, shell)
 
-    # Long brass rails and repeating inset wall panels.
+    # Slim inset panels are placed only in the solid piers between windows.
+    # Earlier full-width decorative panels overlapped the glazing and made windows look painted.
     for x in (-2.70, 2.70):
         for y in (0.22, 0.42, 2.92, 3.08):
             cube("Continuous brass wall rail", (x, y, 0), (0.075, 0.045, 11.7), MATS["brass"], 0.018, details)
-        for z in (-5.25, -2.8, -0.35, 2.1, 4.55):
-            cube("Wall inset | mahogany panel", (x, 1.48, z), (0.055, 1.62, 1.95), MATS["dark_wood"], 0.035, details)
-            for y in (0.68, 2.28):
-                cube("Panel brass bead", (x + (0.035 if x > 0 else -0.035), y, z),
-                     (0.025, 0.035, 1.72), MATS["brass_highlight"], 0.01, details)
+        for panel_index, z in enumerate((-2.90, -0.70, 1.50, 3.65), 1):
+            cube("Wall inset | pier panel %d" % panel_index, (x, 1.50, z),
+                 (0.055, 1.48, 0.70), MATS["dark_wood"], 0.025, details)
+            for y in (0.78, 2.23):
+                cube("Panel brass bead | pier", (x + (0.035 if x > 0 else -0.035), y, z),
+                     (0.025, 0.025, 0.58), MATS["brass_highlight"], 0.008, details)
 
     # Five tall windows on each side, dark teal glass with substantial brass frames.
     for side in (-1, 1):
