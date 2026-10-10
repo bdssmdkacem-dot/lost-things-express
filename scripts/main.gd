@@ -325,7 +325,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventScreenDrag:
 		if event.index == touch_move_id:
 			var drag := (event.position - touch_move_origin) / 90.0
-			touch_move_vector = Vector2(clampf(drag.x, -1.0, 1.0), clampf(drag.y, -1.0, 1.0))
+			touch_move_vector = Vector2(clampf(drag.x, -1.0, 1.0), clampf(-drag.y, -1.0, 1.0))
 		elif event.index == touch_look_id:
 			_apply_look(event.relative)
 
