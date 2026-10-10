@@ -31,7 +31,7 @@ jobs:
 
       - name: Generate carriage source and GLB
         run: |
-          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a blender --background --python art/blender/create_train_carriage.py
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a blender --background --python-exit-code 1 --python art/blender/create_train_carriage.py
           test -s assets/blender/train_carriage.blend
           test -s assets/models/train_carriage.glb
           test -s assets/blender/train_carriage_preview.png
