@@ -18,13 +18,18 @@ func _capture_first_stage() -> void:
 	await process_frame
 	await process_frame
 	await create_timer(0.35).timeout
-	if not _save_viewport_image("01_train_intro.png"):
+	if not _save_viewport_image("01_title_card.png"):
+		return
+
+	game.call("_close_story_card")
+	await create_timer(0.35).timeout
+	if not _save_viewport_image("02_train_intro.png"):
 		return
 
 	game.call("_enter_stage_one")
 	game.call("_close_story_card")
 	await create_timer(0.35).timeout
-	if not _save_viewport_image("02_carriage_opening.png"):
+	if not _save_viewport_image("03_carriage_opening.png"):
 		return
 
 	var player := game.get("player") as CharacterBody3D
@@ -44,24 +49,29 @@ func _capture_first_stage() -> void:
 	player.global_position = letter.global_position + Vector3(0.0, 0.0, 0.20)
 	game.call("_interact")
 	await create_timer(0.85).timeout
-	if not _save_viewport_image("03_physical_letter.png"):
+	if not _save_viewport_image("04_physical_letter.png"):
 		return
 	game.call("_interact")
 
-	player.global_position = chest.global_position + Vector3(0.0, 0.0, 0.35)
+	player.global_position = chest.global_position + Vector3(0.0, 0.0, 1.25)
 	game.call("_interact")
 	await create_timer(1.0).timeout
 	game.call("_close_story_card")
+	var camera := game.get("camera") as Camera3D
+	player.rotation.y = 0.0
+	camera.current = true
+	camera.rotation.x = -0.55
+	camera.rotation.y = 0.0
 	await create_timer(0.25).timeout
-	if not _save_viewport_image("04_chest_reveal.png"):
+	if not _save_viewport_image("05_chest_reveal.png"):
 		return
 
 	game.call("_toggle_pause_menu")
 	await create_timer(0.2).timeout
-	if not _save_viewport_image("05_pause_settings.png"):
+	if not _save_viewport_image("06_pause_settings.png"):
 		return
 
-	print("VISUAL_CAPTURE_COMPLETE: intro, carriage, physical letter, chest reveal, pause/settings")
+	print("VISUAL_CAPTURE_COMPLETE: title card, train intro, carriage, physical letter, chest reveal, pause/settings")
 	game.queue_free()
 	await process_frame
 	quit(0)
