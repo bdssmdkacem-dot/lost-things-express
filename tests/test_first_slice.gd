@@ -39,6 +39,17 @@ func _run_first_slice() -> void:
 	if not _check(hands.get_parent() == camera, "first-person hands are not attached to the camera view"):
 		return
 
+	# Each interaction gesture must visibly move the view model and then restore it.
+	# This checks animation behavior without changing player movement or camera input.
+	for action_name in ["take", "read", "open"]:
+		game.call("_play_hand_action", action_name)
+		await create_timer(0.08).timeout
+		if not _check(hands.position.z < -0.01, "hand action did not move forward: " + action_name):
+			return
+		await create_timer(0.75).timeout
+		if not _check(hands.position.distance_to(Vector3.ZERO) < 0.01, "hand action did not return to neutral: " + action_name):
+			return
+
 	# A chest must not open until both clues have been found and understood.
 	player.global_position = chest.global_position + Vector3(0.0, 0.0, 0.35)
 	# _interact must refresh proximity itself, as it does on a real button tap.
