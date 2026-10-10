@@ -20,11 +20,11 @@ os.makedirs(BLEND_DIR, exist_ok=True)
 
 # Locked project palette.
 COLORS = {
-    "mahogany": (0.18, 0.055, 0.028, 1),
-    "dark_wood": (0.075, 0.026, 0.016, 1),
-    "wood_light": (0.30, 0.105, 0.045, 1),
-    "brass": (0.55, 0.27, 0.065, 1),
-    "brass_highlight": (0.78, 0.48, 0.16, 1),
+    "mahogany": (0.105, 0.028, 0.013, 1),
+    "dark_wood": (0.034, 0.009, 0.005, 1),
+    "wood_light": (0.165, 0.043, 0.016, 1),
+    "brass": (0.43, 0.19, 0.045, 1),
+    "brass_highlight": (0.62, 0.35, 0.095, 1),
     "velvet": (0.035, 0.24, 0.115, 1),
     "velvet_dark": (0.012, 0.095, 0.052, 1),
     "glass": (0.018, 0.095, 0.13, 0.38),
@@ -39,10 +39,52 @@ def material(name, color, metallic=0.0, roughness=0.45, emission=0.0):
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes.get("Principled BSDF")
     bsdf.inputs["Base Color"].default_value = color
-    if name == "Glass" and hasattr(mat, "blend_method"):
-        mat.blend_method = "BLEND"
+    if "glass" in name.lower():
+        bsdf.inputs["Alpha"].default_value = color[3]
+        if "Transmission" in bsdf.inputs:
+            bsdf.inputs["Transmission"].default_value = 0.06
+        if hasattr(mat, "blend_method"):
+            mat.blend_method = "BLEND"
+        elif hasattr(mat, "surface_render_method"):
+            mat.surface_render_method = "BLENDED"
     bsdf.inputs["Metallic"].default_value = metallic
     bsdf.inputs["Roughness"].default_value = roughness
+
+    # Subtle procedural breakup removes the flat plastic look from large surfaces.
+    # Generated coordinates keep this dependency-free and exportable in glTF.
+    lower_name = name.lower()
+    is_wood = any(token in lower_name for token in ("mahogany", "dark wood", "wood light", "walnut"))
+    is_leather = "leather" in lower_name
+    is_fabric = any(token in lower_name for token in ("velvet", "curtain", "upholstery", "emerald woven"))
+    if is_wood or is_leather or is_fabric:
+        nodes = mat.node_tree.nodes
+        links = mat.node_tree.links
+        coordinates = nodes.new("ShaderNodeTexCoord")
+        coordinates.location = (-720, 40)
+        noise = nodes.new("ShaderNodeTexNoise")
+        noise.location = (-500, 40)
+        noise.inputs["Scale"].default_value = 13.0 if is_wood else (32.0 if is_leather else 24.0)
+        noise.inputs["Detail"].default_value = 2.5
+        noise.inputs["Roughness"].default_value = 0.68
+        links.new(coordinates.outputs["Generated"], noise.inputs["Vector"])
+
+        ramp = nodes.new("ShaderNodeValToRGB")
+        ramp.location = (-250, 80)
+        dark_factor, light_factor = ((0.70, 1.20) if is_wood else ((0.84, 1.10) if is_leather else (0.90, 1.06)))
+        ramp.elements[0].position = 0.16
+        ramp.elements[0].color = tuple(max(0.0, min(1.0, channel * dark_factor)) for channel in color[:3]) + (1.0,)
+        ramp.elements[1].position = 0.84
+        ramp.elements[1].color = tuple(max(0.0, min(1.0, channel * light_factor)) for channel in color[:3]) + (1.0,)
+        links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+        links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
+
+        bump = nodes.new("ShaderNodeBump")
+        bump.location = (-20, -160)
+        bump.inputs["Strength"].default_value = 0.055 if is_wood else (0.045 if is_leather else 0.035)
+        bump.inputs["Distance"].default_value = 0.018 if is_wood else 0.008
+        links.new(noise.outputs["Fac"], bump.inputs["Height"])
+        links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+
     if emission > 0:
         # Blender 4.x renamed the Principled BSDF emission socket.
         emission_socket = "Emission Color" if "Emission Color" in bsdf.inputs else "Emission"
@@ -63,7 +105,7 @@ MATS = {
 }
 
 # Define seat upholstery before any seat geometry references it.
-seat_leather = material("Seats | emerald green leather", (0.018, 0.16, 0.072, 1), roughness=0.34)
+seat_leather = material("Seats | emerald green leather", (0.012, 0.105, 0.043, 1), roughness=0.40)
 
 def assign(obj, mat):
     obj.data.materials.append(mat)
@@ -171,20 +213,51 @@ def create_carriage():
     cube("Doorway | left carved walnut jamb", (-1.74, 1.34, -5.80), (0.13, 2.68, 0.16), MATS["mahogany"], 0.025, details)
     cube("Doorway | right carved walnut jamb", (1.74, 1.34, -5.80), (0.13, 2.68, 0.16), MATS["mahogany"], 0.025, details)
     cube("Doorway | brass lintel inlay", (0, 2.68, -5.80), (3.42, 0.075, 0.16), MATS["brass_highlight"], 0.018, details)
+    cube("Doorway | left inner brass bead", (-1.64, 1.34, -5.72), (0.035, 2.46, 0.085), MATS["brass_highlight"], 0.01, details)
+    cube("Doorway | right inner brass bead", (1.64, 1.34, -5.72), (0.035, 2.46, 0.085), MATS["brass_highlight"], 0.01, details)
+    cube("Doorway | brass threshold", (0, 0.075, -5.72), (3.25, 0.045, 0.22), MATS["brass"], 0.012, details)
     # A second carriage section sits beyond the open doorway to establish real depth.
     cube("Next carriage | walnut floor", (0, -0.10, -9.15), (5.56, 0.20, 6.35), MATS["dark_wood"], 0.035, shell)
     cube("Next carriage | ceiling canopy", (0, 3.38, -9.15), (5.56, 0.18, 6.35), MATS["dark_wood"], 0.035, shell)
-    cube("Next carriage | left wall", (-2.78, 1.62, -9.15), (0.16, 3.24, 6.35), MATS["mahogany"], 0.025, shell)
-    cube("Next carriage | right wall", (2.78, 1.62, -9.15), (0.16, 3.24, 6.35), MATS["mahogany"], 0.025, shell)
+    cube("Next carriage | left lower wall", (-2.78, 0.715, -9.15), (0.16, 1.43, 6.35), MATS["mahogany"], 0.025, shell)
+    cube("Next carriage | right lower wall", (2.78, 0.715, -9.15), (0.16, 1.43, 6.35), MATS["mahogany"], 0.025, shell)
+    cube("Next carriage | left upper wall", (-2.78, 2.985, -9.15), (0.16, 0.63, 6.35), MATS["mahogany"], 0.025, shell)
+    cube("Next carriage | right upper wall", (2.78, 2.985, -9.15), (0.16, 0.63, 6.35), MATS["mahogany"], 0.025, shell)
     cube("Next carriage | distant end wall", (0, 1.62, -12.32), (5.56, 3.24, 0.18), MATS["dark_wood"], 0.035, shell)
     for side in (-1, 1):
-        x = side * 2.685
-        for idx, z in enumerate((-7.5, -9.5, -11.15), 1):
-            cube("Next carriage | midnight window %d" % idx, (x, 2.05, z), (0.025, 0.98, 1.18), MATS["glass"], 0.01, details)
+        x = side * 2.78
+        window_centers = (-11.15, -9.5, -7.5)
+        cursor = -12.325
+        for window_z in window_centers:
+            opening_start = window_z - 0.59
+            if opening_start > cursor:
+                cube("Next carriage | window pier", (x, 2.05, (cursor + opening_start) / 2),
+                     (0.16, 1.24, opening_start - cursor), MATS["mahogany"], 0.02, shell)
+            cursor = window_z + 0.59
+        if cursor < -5.975:
+            cube("Next carriage | window end pier", (x, 2.05, (cursor - 5.975) / 2),
+                 (0.16, 1.24, -5.975 - cursor), MATS["mahogany"], 0.02, shell)
+
+        for idx, z in enumerate(window_centers, 1):
+            cube("Next carriage | midnight window %d" % idx, (side * 2.685, 2.05, z),
+                 (0.025, 0.98, 1.18), MATS["glass"], 0.01, details)
             for y in (1.50, 2.60):
-                cube("Next carriage | brass window rail", (side * 2.61, y, z), (0.12, 0.06, 1.28), MATS["brass"], 0.015, details)
+                cube("Next carriage | brass window rail", (side * 2.61, y, z),
+                     (0.12, 0.06, 1.28), MATS["brass"], 0.015, details)
             for zz in (z - 0.64, z + 0.64):
-                cube("Next carriage | brass window stile", (side * 2.61, 2.05, zz), (0.12, 1.15, 0.06), MATS["brass_highlight"], 0.015, details)
+                cube("Next carriage | brass window stile", (side * 2.61, 2.05, zz),
+                     (0.12, 1.15, 0.06), MATS["brass_highlight"], 0.015, details)
+
+    # Emerald seats beyond the portal add scale and give the second compartment a clear destination.
+    for z in (-8.2, -10.35):
+        for side in (-1, 1):
+            x = side * 1.78
+            cube("Next carriage | seat walnut plinth", (x, 0.36, z),
+                 (1.24, 0.30, 1.12), MATS["dark_wood"], 0.07, seating)
+            cube("Next carriage | emerald seat cushion", (x, 0.56, z),
+                 (1.20, 0.24, 1.08), seat_leather, 0.08, seating)
+            cube("Next carriage | emerald seat back", (x, 1.08, z - 0.45),
+                 (1.20, 0.88, 0.20), seat_leather, 0.08, seating)
     cube("Front wall | end panel", (0, 1.65, 5.95), (5.8, 3.3, 0.18), MATS["dark_wood"], 0.04, shell)
 
     # Long brass rails and repeating inset wall panels.
@@ -246,13 +319,16 @@ def create_carriage():
                 uv_sphere("Seat | brass upholstery stud", (x + dx, 1.10, z - 0.512), (0.025, 0.025, 0.018), MATS["brass_highlight"])
 
     # A tailored runner makes the central aisle feel like a first-class sleeper carriage.
-    rug_mat = material("Interior | emerald velvet runner", (0.018, 0.19, 0.085, 1), roughness=0.92)
-    rug_red = material("Interior | woven antique gold motif", (0.72, 0.43, 0.12, 1), roughness=0.88)
+    rug_mat = material("Interior | emerald velvet runner", (0.008, 0.085, 0.032, 1), roughness=0.92)
+    rug_red = material("Interior | woven antique gold motif", (0.38, 0.21, 0.045, 1), roughness=0.82)
     cube("Aisle | tailored emerald runner", (0, 0.045, 0), (0.88, 0.035, 11.25), rug_mat, 0.025, details)
     for z in [(-5.15 + i * 0.52) for i in range(20)]:
         cube("Runner | antique-gold woven lozenge", (0, 0.068, z), (0.24, 0.012, 0.24), rug_red, 0.018, details)
     for x in (-0.40, 0.40):
         cube("Runner | brass woven border", (x, 0.069, 0), (0.025, 0.012, 11.05), MATS["brass_highlight"], 0.008, details)
+    cube("Next carriage | emerald runner", (0, 0.045, -9.15), (0.86, 0.035, 6.0), rug_mat, 0.02, details)
+    for z in (-11.55, -10.95, -10.35, -9.75, -9.15, -8.55, -7.95, -7.35):
+        cube("Next carriage | gold runner motif", (0, 0.068, z), (0.20, 0.012, 0.20), rug_red, 0.015, details)
 
     # Small first-class marble tables and brass reading lamps, placed between seating rows.
     marble = material("Tables | warm ivory marble", (0.66, 0.64, 0.57, 1), roughness=0.27)
@@ -288,7 +364,7 @@ def create_carriage():
     for panel_z in (-4.4, -2.6, -0.8, 1.0, 2.8, 4.6):
         cube("Ceiling | emerald upholstered inset", (0, 3.365, panel_z), (4.75, 0.035, 1.38), emerald_ceiling, 0.045, details)
     curtain_mat = material("Curtains | deep emerald velvet", (0.012, 0.22, 0.095, 1), roughness=0.88)
-    curtain_fold = material("Curtains | raised emerald folds", (0.025, 0.34, 0.14, 1), roughness=0.84)
+    curtain_fold = material("Curtains | raised emerald folds", (0.016, 0.25, 0.10, 1), roughness=0.84)
     for side in (-1, 1):
         for z in (-4.0, -1.8, 0.4, 2.6, 4.7):
             for zz in (z - 0.66, z + 0.66):
@@ -296,6 +372,14 @@ def create_carriage():
                 for fold in (-0.055, 0.0, 0.055):
                     cube("Curtain | tailored fold", (side * 2.525, 2.03, zz + fold), (0.035, 1.02, 0.018), curtain_fold, 0.008, details)
                 cube("Curtain | brass tie-back", (side * 2.49, 1.88, zz), (0.07, 0.055, 0.24), MATS["brass_highlight"], 0.018, details)
+
+        for z in (-11.15, -9.5, -7.5):
+            for zz in (z - 0.54, z + 0.54):
+                cube("Next carriage | emerald curtain", (side * 2.58, 2.03, zz),
+                     (0.10, 1.08, 0.16), curtain_mat, 0.035, details)
+                for fold in (-0.045, 0.0, 0.045):
+                    cube("Next carriage | curtain fold", (side * 2.52, 2.03, zz + fold),
+                         (0.025, 1.00, 0.014), curtain_fold, 0.006, details)
 
     # Ceiling ribs and inset panels add a handcrafted, architectural silhouette.
     for z in (-5.3, -3.5, -1.7, 0.1, 1.9, 3.7, 5.35):
@@ -339,7 +423,7 @@ def create_carriage():
     # Production pass: layered window casings, tailored upholstery, engraved trim,
     # and focal storytelling props. Keep geometry readable at mobile camera distance.
     trim_shadow = material("Carved trim | shadow", (0.045, 0.018, 0.012, 1), roughness=0.42)
-    velvet_highlight = material("Emerald leather | raised piping", (0.045, 0.32, 0.15, 1), roughness=0.56)
+    velvet_highlight = material("Emerald leather | raised piping", (0.022, 0.19, 0.075, 1), roughness=0.58)
     inlay = material("Wood inlay | warm brass line", (0.82, 0.53, 0.22, 1), metallic=0.58, roughness=0.29)
     leather = material("Luggage | oxblood leather", (0.19, 0.035, 0.025, 1), roughness=0.58)
 
