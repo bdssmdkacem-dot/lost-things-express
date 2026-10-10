@@ -27,6 +27,15 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      # Keep the same debug signing certificate between CI builds. Without this,
+      # a newly generated keystore signs every APK with a different certificate and
+      # Android may reject an update as an invalid package.
+      - name: Restore stable Android debug signing key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: lost-things-express-android-debug-keystore-v1
+
       - name: Install Android SDK command-line tools
         uses: android-actions/setup-android@v3
         with:
@@ -106,10 +115,12 @@ jobs:
           "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs "$APK"
           "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK" | tee build/apk-badging.txt
           grep -F "package: name='com.lostthingsexpress.game'" build/apk-badging.txt
+          grep -F "versionCode='3' versionName='0.1.2'" build/apk-badging.txt
           unzip -l "$APK" > build/apk-contents.txt
           grep -F 'AndroidManifest.xml' build/apk-contents.txt
           grep -F 'lib/arm64-v8a/libgodot_android.so' build/apk-contents.txt
           sha256sum "$APK" | tee build/apk-sha256.txt
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs "$APK" | tee build/apk-certificate.txt
 
       - name: Upload verified installable APK
         uses: actions/upload-artifact@v4
