@@ -137,7 +137,7 @@ func _run_first_slice() -> void:
 	if not _check(held_letter != null and held_letter.get_parent() == hands and hands.visible, "the readable letter is not visible between the player's hands"):
 		return
 	var physical_message := held_letter.get_node_or_null("LetterMessage") as Label3D
-	if not _check(physical_message != null and physical_message.text.contains("DO NOT LET IT FINISH"), "the fresh clock warning is missing from the physical paper"):
+	if not _check(physical_message != null and physical_message.text.contains("DO NOT LET THE CLOCK") and physical_message.text.contains("FINISH."), "the fresh clock warning is missing from the physical paper"):
 		return
 	if not _check(str((game.get("interact_button") as Button).text).contains("CLOSE LETTER"), "the physical letter has no clear close action"):
 		return
