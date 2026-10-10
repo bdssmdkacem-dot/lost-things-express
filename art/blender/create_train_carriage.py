@@ -106,6 +106,7 @@ MATS = {
 
 # Define seat upholstery before any seat geometry references it.
 seat_leather = material("Seats | deep emerald green leather", (0.006, 0.068, 0.027, 1), roughness=0.36)
+velvet_highlight = material("Emerald leather | raised piping", (0.012, 0.12, 0.046, 1), roughness=0.50)
 
 def assign(obj, mat):
     obj.data.materials.append(mat)
@@ -543,7 +544,6 @@ def create_carriage():
     # Production pass: layered window casings, tailored upholstery, engraved trim,
     # and focal storytelling props. Keep geometry readable at mobile camera distance.
     trim_shadow = material("Carved trim | shadow", (0.045, 0.018, 0.012, 1), roughness=0.42)
-    velvet_highlight = material("Emerald leather | raised piping", (0.012, 0.12, 0.046, 1), roughness=0.50)
     inlay = material("Wood inlay | warm brass line", (0.82, 0.53, 0.22, 1), metallic=0.58, roughness=0.29)
     leather = material("Luggage | oxblood leather", (0.19, 0.035, 0.025, 1), roughness=0.58)
 
