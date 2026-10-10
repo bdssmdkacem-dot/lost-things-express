@@ -41,8 +41,8 @@ A premium fantasy train adventure where players explore strange stations, discov
 2. Open the latest successful **Android APK** run and download the artifact named `The-Lost-Things-Express-Android-APK`.
 3. The downloaded artifact is a **ZIP archive**. Extract it first; install the inner `TheLostThingsExpress.apk` file, not the ZIP.
 4. Extract and install the inner `TheLostThingsExpress.apk`, not the ZIP.
-5. The workflow verifies the APK signature, 4-byte alignment, package identifier, manifest and native libraries, then installs and launches the app in an Android 14 x86_64 emulator before publishing the APK.
-6. If you installed a previous test APK signed with a different temporary key, uninstall that old test app once before installing this new build. The CI workflow now caches a stable debug keystore for subsequent builds so upgrades use the same test certificate while that cache is retained.
+5. The workflow requires APK signature verification, 4-byte alignment, the correct package/version, manifest and both native libraries. CI also attempts an Android 14 emulator launch, but standard Ubuntu runners may lack KVM so that smoke test is non-blocking; physical-device verification is still required.
+6. If a previous test APK was signed with a different temporary key, uninstall that old test app once before installing this build. CI now caches a stable debug keystore for subsequent builds so upgrades can use the same test certificate while the cache is retained.
 
 The CI artifact is a **debug/testing build**, not a release-signed Google Play build. The emulator test checks installation and process startup in CI; it does not replace testing controls, graphics, performance and the puzzle on the target physical phone.
 
@@ -50,7 +50,7 @@ The CI artifact is a **debug/testing build**, not a release-signed Google Play b
 
 The repository contains the Godot first-person puzzle foundation, a Blender carriage generator, and committed `.blend` / `.glb` outputs. The generator has been updated to add an open framed doorway with a second-compartment depth cue, emerald seat piping, marble side tables, brass reading lamps and overhead leather luggage. The latest generator revision also renders `assets/blender/train_carriage_preview.png` from a camera aligned to the game's opening view. The asset regeneration workflow checks this image, imports the GLB in Godot, launches the scene headlessly, and archives the preview. The model still requires visual inspection against the approved reference; automated generation is not visual approval.
 
-The Android export preset previously had `package/signed=false`, even though the workflow called an APK export successful. Signing is enabled; version **0.1.3 (version code 4)** is the current test target. The workflow now verifies the signature, checks that both arm64 and x86_64 native libraries are present, checks the package version, and performs an emulator install-and-launch smoke test. Only a build that passes these steps should be offered for installation.
+The Android export preset previously had `package/signed=false`, even though the workflow called an APK export successful. Signing is enabled; version **0.1.3 (version code 4)** is the current test target. The workflow gates publishing on the signature, alignment, package/version and native-library checks. It also attempts an emulator install-and-launch smoke test, but that step is non-blocking because the standard Ubuntu runner may lack hardware acceleration. A successful CI artifact is still not proof of graphics or interaction quality on the target phone.
 
 **Visual approval is still pending.** The carriage must be rendered/imported and reviewed at a phone aspect ratio against [docs/ART_DIRECTION.md](docs/ART_DIRECTION.md), followed by a real Android install and a complete key → letter → chest play-through. Do not treat the CI result as visual or device approval.
 
