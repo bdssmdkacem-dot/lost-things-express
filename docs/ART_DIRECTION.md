@@ -75,3 +75,23 @@ The user's newly supplied carriage photograph is the definitive reference for th
 10. **Playable interactions** — reliable touch movement/look, visible interaction prompt, key/letter/chest sequence and objective feedback.
 
 Build these as separately named, reusable Blender collections and Godot scene/components where practical. Test the full opening sequence in the actual Godot scene at mobile aspect ratio and performance settings. The uploaded photograph is the quality target; a successful import/export or CI run alone is not visual approval.
+
+
+## Root-level visual quality commitment — permanent (confirmed 2026-10-10)
+
+The current prototype is **not approved as visually complete**. The next production work must improve the foundations, not merely add polish on top of placeholder geometry.
+
+### Required production order
+1. Replace primitive first-person hands and placeholder object shapes with authored, coherent 3D assets and credible materials, proportions, and contact points.
+2. Rebuild the opening carriage to the approved reference: carved walnut/mahogany joinery, emerald upholstered seating, patterned aisle carpet, tall windows and pleated curtains, ivory ceiling with ribs, warm brass lamps, luggage racks and layered doorway depth.
+3. Make interactions physically coherent: the real letter remains visible between both hands while its text is readable on the paper; the brass key remains in the grip; the chest lock, hand action, hinged lid and photograph behave as one connected sequence.
+4. Rework the clock carriage connection and verify the real player collider can pass through the doorway without invisible blockers, snagging, teleport-like movement or changes to the established controls.
+5. Rebuild and visually review the pre-entry locomotive scene as a cinematic composition with convincing boiler silhouette, wheels/rods, brass fittings, passenger carriage, connected curved rails, floating islands, atmosphere and consistent scale.
+6. Run automated project checks and Android build, then inspect actual in-game renders at mobile aspect ratio and verify the sequence on a real device before approving quality.
+
+### Non-negotiable rules
+- Prioritize asset quality and visual inspection before expanding content.
+- Build success, code presence, procedural placeholders, and illustrative target images are not proof of final visual quality.
+- Do not claim a visual/device test passed unless the corresponding render, screenshot/video, or device result was actually inspected.
+- Do not alter the existing movement controls or camera handling solely to make visual work easier.
+- Keep this commitment in the repository as the persistent handoff contract across sessions and work locations.
