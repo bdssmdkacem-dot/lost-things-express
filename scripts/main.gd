@@ -1192,6 +1192,83 @@ func _build_world_intro() -> void:
 						Vector3(1.28, 0.16, 1.28), Color(0.15, 0.055, 0.045), 0.08)
 					roof.rotation.z = -0.16 if building_index % 2 == 0 else 0.16
 
+	# Five distant landmarks give each rail-linked world a memorable silhouette.
+	# They are kept beside the track so the locomotive remains the clear focal point.
+	for landmark_index in range(5):
+		var landmark_z := -18.0 + float(landmark_index) * 12.0
+		var landmark_x := 30.0 + sin(landmark_z * 0.072) * 2.1
+		var landmark_side := -1.0 if landmark_index % 2 == 0 else 1.0
+		var landmark_base := Vector3(landmark_x + landmark_side * 9.4, 0.55, landmark_z + 0.4)
+		var stone_material := StandardMaterial3D.new()
+		stone_material.albedo_color = [Color(0.25, 0.22, 0.20), Color(0.20, 0.25, 0.29), Color(0.29, 0.20, 0.17), Color(0.19, 0.27, 0.28), Color(0.24, 0.22, 0.30)][landmark_index]
+		stone_material.roughness = 0.88
+		var tower := MeshInstance3D.new()
+		tower.name = "World landmark tower %02d" % landmark_index
+		var tower_mesh := CylinderMesh.new()
+		tower_mesh.top_radius = 0.72 if landmark_index == 0 else 0.58
+		tower_mesh.bottom_radius = 0.88 if landmark_index == 0 else 0.76
+		tower_mesh.height = 2.8 + float(landmark_index % 3) * 0.65
+		tower_mesh.radial_segments = 10
+		tower.mesh = tower_mesh
+		tower.position = landmark_base + Vector3(0.0, tower_mesh.height * 0.5, 0.0)
+		tower.material_override = stone_material
+		world_intro_root.add_child(tower)
+		var roof := MeshInstance3D.new()
+		roof.name = "World landmark copper spire %02d" % landmark_index
+		var roof_mesh := CylinderMesh.new()
+		roof_mesh.top_radius = 0.03
+		roof_mesh.bottom_radius = 0.82
+		roof_mesh.height = 1.35
+		roof_mesh.radial_segments = 9
+		roof.mesh = roof_mesh
+		roof.position = landmark_base + Vector3(0.0, tower_mesh.height + 0.66, 0.0)
+		var roof_material := StandardMaterial3D.new()
+		roof_material.albedo_color = Color(0.22, 0.095, 0.055) if landmark_index != 1 else Color(0.16, 0.22, 0.24)
+		roof_material.metallic = 0.28
+		roof_material.roughness = 0.54
+		roof.material_override = roof_material
+		world_intro_root.add_child(roof)
+		# Small amber windows are emissive story cues, not a flat glowing billboard.
+		for window_index in range(3):
+			var window := MeshInstance3D.new()
+			window.name = "Landmark amber window"
+			var window_mesh := BoxMesh.new()
+			window_mesh.size = Vector3(0.18, 0.34, 0.055)
+			window.mesh = window_mesh
+			window.position = landmark_base + Vector3(landmark_side * 0.48, 0.72 + float(window_index) * 0.57, -0.62)
+			var window_material := StandardMaterial3D.new()
+			window_material.albedo_color = Color(1.0, 0.53, 0.19)
+			window_material.emission_enabled = true
+			window_material.emission = Color(1.0, 0.29, 0.08)
+			window_material.emission_energy_multiplier = 0.75
+			window.material_override = window_material
+			world_intro_root.add_child(window)
+		if landmark_index == 1 or landmark_index == 3:
+			# Clock/castle worlds get paired turrets so their skyline reads at a glance.
+			for turret_side in [-1.0, 1.0]:
+				var turret := MeshInstance3D.new()
+				turret.name = "World landmark paired turret"
+				var turret_mesh := CylinderMesh.new()
+				turret_mesh.top_radius = 0.22
+				turret_mesh.bottom_radius = 0.32
+				turret_mesh.height = 1.65
+				turret_mesh.radial_segments = 8
+				turret.mesh = turret_mesh
+				turret.position = landmark_base + Vector3(turret_side * 0.82, 1.45, 0.15)
+				turret.material_override = stone_material
+				world_intro_root.add_child(turret)
+				var turret_cap := MeshInstance3D.new()
+				turret_cap.name = "Turret cap"
+				var cap_mesh := CylinderMesh.new()
+				cap_mesh.top_radius = 0.015
+				cap_mesh.bottom_radius = 0.38
+				cap_mesh.height = 0.62
+				cap_mesh.radial_segments = 8
+				turret_cap.mesh = cap_mesh
+				turret_cap.position = landmark_base + Vector3(turret_side * 0.82, 2.58, 0.15)
+				turret_cap.material_override = roof_material
+				world_intro_root.add_child(turret_cap)
+
 	# Warm guide lamps mounted to the connected railway repeat into the distance.
 	for z in range(-24, 39, 6):
 		var lamp_x := 30.0 + sin(float(z) * 0.072) * 2.1
