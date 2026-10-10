@@ -147,7 +147,7 @@ func _run_first_slice() -> void:
 	if not _check(thumb_left != null and thumb_right != null and absf(thumb_left.position.x) < 0.26 and absf(thumb_right.position.x) < 0.26, "both thumbs did not move inward to grip the letter edges"):
 		return
 	game.call("_interact")
-	if not _check(not bool(game.get("letter_inspecting")) and not hands.visible and game.get("held_letter_prop") == null, "closing the letter did not restore normal exploration")
+	if not _check(not bool(game.get("letter_inspecting")) and not hands.visible and game.get("held_letter_prop") == null, "closing the letter did not restore normal exploration"):
 		return
 
 	# With both prerequisites met, the chest should open and its lid should move.
