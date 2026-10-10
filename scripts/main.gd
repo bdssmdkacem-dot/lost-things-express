@@ -921,7 +921,12 @@ func _toggle_pause_menu() -> void:
 	if is_instance_valid(inventory_label):
 		inventory_label.visible = false
 	pause_overlay.visible = game_paused
-	if game_paused:
+	_set_gameplay_hud_visible(not game_paused)
+	if not game_paused:
+		prompt_label.visible = nearby_object != null or letter_inspecting
+		inventory_label.visible = inventory_open
+		pause_button.visible = not inventory_open
+	else:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
@@ -953,12 +958,19 @@ func _save_settings() -> void:
 		push_warning("Could not save first-stage settings (error %d)." % error)
 
 
+func _set_gameplay_hud_visible(visible_state: bool) -> void:
+	for control in gameplay_hud_controls:
+		if is_instance_valid(control):
+			control.visible = visible_state
+
+
 func _show_story_card(title_text: String, body_text: String, button_text: String) -> void:
 	if not is_instance_valid(story_overlay):
 		return
 	touch_move_id = -1
 	touch_look_id = -1
 	touch_move_vector = Vector2.ZERO
+	_set_gameplay_hud_visible(false)
 	story_title.text = title_text
 	story_body.text = body_text
 	story_continue.text = button_text
@@ -1225,6 +1237,10 @@ func _close_story_card() -> void:
 		letter_inspecting = false
 		if is_instance_valid(first_person_hands):
 			first_person_hands.visible = false
+	_set_gameplay_hud_visible(true)
+	prompt_label.visible = nearby_object != null or letter_inspecting
+	inventory_label.visible = inventory_open
+	pause_button.visible = not inventory_open and not game_paused
 
 func _process(_delta: float) -> void:
 	_update_nearby()
@@ -1232,6 +1248,7 @@ func _process(_delta: float) -> void:
 	interact_button.disabled = nearby_object == null and not letter_inspecting
 	interact_button.text = "CLOSE LETTER" if letter_inspecting else "✦  INTERACT"
 	prompt_label.text = "Read the physical letter · tap CLOSE LETTER when finished" if letter_inspecting else ("Inspect: " + str(nearby_object.get_meta("display_name", "object")) if nearby_object else "")
+	prompt_label.visible = (nearby_object != null or letter_inspecting) and not story_card_open and not game_paused
 	if is_instance_valid(pause_button):
 		pause_button.visible = not inventory_open and not story_card_open and not game_paused
 	inventory_button.text = "BAG · %d" % _inventory_count()
