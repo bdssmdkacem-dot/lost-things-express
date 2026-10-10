@@ -1259,6 +1259,69 @@ func _build_world_intro() -> void:
 	_intro_box("Brass boiler band", Vector3(30.0, 1.85, -2.2), Vector3(1.63, 1.40, 0.11), Color(0.70, 0.42, 0.13), 0.78)
 	_intro_box("Front buffer beam", Vector3(30.0, 0.95, -3.25), Vector3(2.45, 0.34, 0.35), Color(0.38, 0.055, 0.04), 0.25)
 	_intro_box("Cowcatcher", Vector3(30.0, 0.55, -3.65), Vector3(2.0, 0.12, 0.85), Color(0.18, 0.20, 0.20), 0.7)
+
+	# A proper circular smokebox door and fittings give the engine a readable
+	# front instead of presenting the boiler as a plain cylinder.
+	var smokebox := MeshInstance3D.new()
+	smokebox.name = "Circular locomotive smokebox door"
+	var smokebox_mesh := CylinderMesh.new()
+	smokebox_mesh.top_radius = 0.59
+	smokebox_mesh.bottom_radius = 0.59
+	smokebox_mesh.height = 0.12
+	smokebox.mesh = smokebox_mesh
+	smokebox.position = Vector3(30.0, 1.85, -3.38)
+	smokebox.rotation_degrees.x = 90.0
+	var smokebox_mat := StandardMaterial3D.new()
+	smokebox_mat.albedo_color = Color(0.035, 0.055, 0.05)
+	smokebox_mat.metallic = 0.68
+	smokebox_mat.roughness = 0.3
+	smokebox.material_override = smokebox_mat
+	world_intro_root.add_child(smokebox)
+	var door_rim := MeshInstance3D.new()
+	door_rim.name = "Smokebox brass outer rim"
+	var rim_mesh := TorusMesh.new()
+	rim_mesh.inner_radius = 0.54
+	rim_mesh.outer_radius = 0.60
+	door_rim.mesh = rim_mesh
+	door_rim.position = Vector3(30.0, 1.85, -3.47)
+	door_rim.rotation_degrees.x = 90.0
+	var rim_mat := StandardMaterial3D.new()
+	rim_mat.albedo_color = Color(0.63, 0.35, 0.085)
+	rim_mat.metallic = 0.86
+	rim_mat.roughness = 0.22
+	door_rim.material_override = rim_mat
+	world_intro_root.add_child(door_rim)
+	for bolt_index in range(12):
+		var bolt_angle := TAU * float(bolt_index) / 12.0
+		var bolt := MeshInstance3D.new()
+		bolt.name = "Smokebox rim bolt %02d" % bolt_index
+		var bolt_mesh := SphereMesh.new()
+		bolt_mesh.radius = 0.035
+		bolt_mesh.height = 0.07
+		bolt.mesh = bolt_mesh
+		bolt.position = Vector3(30.0 + cos(bolt_angle) * 0.56, 1.85 + sin(bolt_angle) * 0.56, -3.53)
+		var bolt_mat := StandardMaterial3D.new()
+		bolt_mat.albedo_color = Color(0.78, 0.52, 0.19)
+		bolt_mat.metallic = 0.82
+		bolt_mat.roughness = 0.24
+		bolt.material_override = bolt_mat
+		world_intro_root.add_child(bolt)
+	var door_handle := _intro_box("Smokebox door handle", Vector3(30.0, 1.85, -3.56), Vector3(0.36, 0.07, 0.07), Color(0.74, 0.48, 0.15), 0.82)
+	door_handle.rotation.z = -0.25
+	for pipe_side in [-1.0, 1.0]:
+		var steam_pipe := _intro_box("Boiler side pipe", Vector3(30.0 + pipe_side * 0.70, 1.68, -0.9), Vector3(0.10, 0.10, 3.25), Color(0.56, 0.33, 0.12), 0.8)
+		steam_pipe.rotation.y = pipe_side * -0.08
+		var pipe_joint := MeshInstance3D.new()
+		pipe_joint.name = "Boiler pipe coupling"
+		var pipe_joint_mesh := CylinderMesh.new()
+		pipe_joint_mesh.top_radius = 0.085
+		pipe_joint_mesh.bottom_radius = 0.085
+		pipe_joint_mesh.height = 0.14
+		pipe_joint.mesh = pipe_joint_mesh
+		pipe_joint.position = Vector3(30.0 + pipe_side * 0.70, 1.68, -2.15)
+		pipe_joint.rotation_degrees.x = 90.0
+		pipe_joint.material_override = rim_mat
+		world_intro_root.add_child(pipe_joint)
 	_intro_box("Chimney", Vector3(30.0, 2.85, -2.1), Vector3(0.52, 0.85, 0.52), Color(0.055, 0.065, 0.06), 0.45)
 	_intro_box("Chimney cap", Vector3(30.0, 3.28, -2.1), Vector3(0.78, 0.12, 0.78), Color(0.67, 0.42, 0.14), 0.78)
 
@@ -1348,6 +1411,31 @@ func _build_world_intro() -> void:
 			wheel_mat.roughness = 0.34
 			wheel.material_override = wheel_mat
 			world_intro_root.add_child(wheel)
+			var wheel_rim := MeshInstance3D.new()
+			wheel_rim.name = "Machined wheel rim"
+			var rim := TorusMesh.new()
+			rim.inner_radius = 0.39
+			rim.outer_radius = 0.48
+			wheel_rim.mesh = rim
+			wheel_rim.position = Vector3(x + (0.105 if x > 30.0 else -0.105), 0.73, z)
+			wheel_rim.rotation_degrees.y = 90.0
+			var wheel_rim_mat := StandardMaterial3D.new()
+			wheel_rim_mat.albedo_color = Color(0.28, 0.30, 0.31)
+			wheel_rim_mat.metallic = 0.8
+			wheel_rim_mat.roughness = 0.3
+			wheel_rim.material_override = wheel_rim_mat
+			world_intro_root.add_child(wheel_rim)
+			var hub := MeshInstance3D.new()
+			hub.name = "Brass wheel hub"
+			var hub_mesh := CylinderMesh.new()
+			hub_mesh.top_radius = 0.13
+			hub_mesh.bottom_radius = 0.13
+			hub_mesh.height = 0.24
+			hub.mesh = hub_mesh
+			hub.position = Vector3(x + (0.14 if x > 30.0 else -0.14), 0.73, z)
+			hub.rotation_degrees.z = 90.0
+			hub.material_override = rim_mat
+			world_intro_root.add_child(hub)
 
 	# Exposed side rods connect the visible wheel centers so the engine reads as
 	# a mechanical locomotive rather than a static green box on wheels.
