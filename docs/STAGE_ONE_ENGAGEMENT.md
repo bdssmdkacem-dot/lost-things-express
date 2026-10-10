@@ -69,6 +69,8 @@ Do not mark the first stage complete until the relevant gates have been observed
 
 ## Source-reference lock — 2026-10-10
 
-The user explicitly requested continuing without creating a new SUNSET STATION image. Treat the supplied image attachments documented in `art/reference/README.md` as the visual source references for the opening train shot, carriage, chest, letter and station photo. Do not use image generation to replace or reinterpret them. Match the in-game 3D assets and the existing physical photo card to these references.
+The user explicitly requested continuing without creating a new SUNSET STATION image. The reference binaries have now been uploaded to `art/reference/` under their original, non-standard filenames. The exact verified paths are listed in `art/reference/README.md` and the source comment in `scripts/main.gd` points to those paths.
 
-The source paths are documented and referenced from `scripts/main.gd`, but the original binary images still need to be copied unchanged into `art/reference/` and verified in the repository. Until then, reference-driven visual review is not fully reproducible from a clean checkout. Do not claim final visual approval or mark the reference archive complete until the files exist, the scene is rendered, and the rendered output is compared side by side with the supplied originals.
+Do not rename, modify, or replace the supplied images merely to match the earlier suggested filenames. The original concept-board names `قطار الأشياء المفقودة بين الغيوم.png` and `1000173104.png`, and the earlier expected screenshot name `Screenshot_20261009_175342~2.jpg`, were not found in the current directory listing; do not claim they are present or guess which uploaded file is equivalent. Visually inspect the uploaded references to assign precise roles.
+
+Do not generate a replacement station image. Use the supplied station photograph as the target for the existing physical in-game photo card. Reference upload is now present, but visual approval is still pending until the actual scene render is compared side by side with the images and the first stage is tested on a real Android device.
