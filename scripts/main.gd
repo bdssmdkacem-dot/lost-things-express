@@ -324,35 +324,35 @@ func _build_first_person_hands() -> void:
 		var arm := MeshInstance3D.new()
 		arm.name = "Sleeve_%s" % ("L" if side < 0.0 else "R")
 		var arm_mesh := CapsuleMesh.new()
-		arm_mesh.radius = 0.105
-		arm_mesh.height = 0.48
+		arm_mesh.radius = 0.082
+		arm_mesh.height = 0.40
 		arm.mesh = arm_mesh
 		arm.material_override = sleeve_material
-		arm.position = Vector3(side * 0.30, -0.43, -0.62)
+		arm.position = Vector3(side * 0.30, -0.46, -0.65)
 		arm.rotation_degrees = Vector3(0.0, 0.0, side * -24.0)
 		first_person_hands.add_child(arm)
 
 		var cuff := MeshInstance3D.new()
 		cuff.name = "BrassCuff_%s" % ("L" if side < 0.0 else "R")
 		var cuff_mesh := CylinderMesh.new()
-		cuff_mesh.top_radius = 0.105
-		cuff_mesh.bottom_radius = 0.105
+		cuff_mesh.top_radius = 0.084
+		cuff_mesh.bottom_radius = 0.084
 		cuff_mesh.height = 0.055
 		cuff.mesh = cuff_mesh
 		cuff.material_override = cuff_material
-		cuff.position = Vector3(side * 0.30, -0.285, -0.67)
+		cuff.position = Vector3(side * 0.30, -0.305, -0.69)
 		cuff.rotation_degrees.z = side * -24.0
 		first_person_hands.add_child(cuff)
 
 		var palm := MeshInstance3D.new()
 		palm.name = "Hand_%s" % ("L" if side < 0.0 else "R")
 		var palm_mesh := SphereMesh.new()
-		palm_mesh.radius = 0.105
-		palm_mesh.height = 0.16
+		palm_mesh.radius = 0.092
+		palm_mesh.height = 0.14
 		palm.mesh = palm_mesh
 		palm.material_override = skin_material
-		palm.position = Vector3(side * 0.30, -0.20, -0.71)
-		palm.scale = Vector3(1.12, 0.78, 0.72)
+		palm.position = Vector3(side * 0.30, -0.19, -0.68)
+		palm.scale = Vector3(1.08, 0.76, 0.70)
 		first_person_hands.add_child(palm)
 
 		# Four short fingers make the silhouette read as a hand at phone size.
@@ -360,11 +360,11 @@ func _build_first_person_hands() -> void:
 			var finger := MeshInstance3D.new()
 			finger.name = "Finger_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
 			var finger_mesh := CapsuleMesh.new()
-			finger_mesh.radius = [0.019, 0.021, 0.021, 0.018][finger_index]
-			finger_mesh.height = [0.082, 0.105, 0.101, 0.078][finger_index]
+			finger_mesh.radius = [0.016, 0.018, 0.018, 0.015][finger_index]
+			finger_mesh.height = [0.075, 0.091, 0.089, 0.070][finger_index]
 			finger.mesh = finger_mesh
 			finger.material_override = skin_material
-			finger.position = Vector3(side * 0.30 + (finger_index - 1.5) * 0.042, -0.245, -0.79)
+			finger.position = Vector3(side * 0.30 + (finger_index - 1.5) * 0.039, -0.225, -0.75)
 			finger.rotation_degrees.x = -18.0
 			first_person_hands.add_child(finger)
 
@@ -372,11 +372,11 @@ func _build_first_person_hands() -> void:
 		var thumb := MeshInstance3D.new()
 		thumb.name = "Thumb_%s" % ("L" if side < 0.0 else "R")
 		var thumb_mesh := CapsuleMesh.new()
-		thumb_mesh.radius = 0.024
-		thumb_mesh.height = 0.09
+		thumb_mesh.radius = 0.019
+		thumb_mesh.height = 0.078
 		thumb.mesh = thumb_mesh
 		thumb.material_override = skin_material
-		thumb.position = Vector3(side * 0.30 + side * 0.09, -0.205, -0.755)
+		thumb.position = Vector3(side * 0.30 + side * 0.085, -0.19, -0.72)
 		thumb.rotation_degrees = Vector3(-12.0, 0.0, side * 34.0)
 		first_person_hands.add_child(thumb)
 
@@ -390,7 +390,7 @@ func _play_hand_action(action: String) -> void:
 	# Start each action from a known neutral grip; the read pose will bring both thumbs to the paper edges.
 	for part in first_person_hands.get_children():
 		if part.name.begins_with("Thumb_"):
-			part.position.x = -0.39 if part.name.ends_with("L") else 0.39
+			part.position.x = -0.385 if part.name.ends_with("L") else 0.385
 	first_person_hands.visible = true
 	hand_action_tween = create_tween()
 	hand_action_tween.set_parallel(true)
@@ -409,14 +409,17 @@ func _play_hand_action(action: String) -> void:
 			hand_action_tween.tween_property(first_person_hands, "rotation:x", deg_to_rad(-7.0), 0.28)
 			for part in first_person_hands.get_children():
 				if part.name.begins_with("Thumb_"):
-					hand_action_tween.tween_property(part, "position:x", -0.23 if part.name.ends_with("L") else 0.23, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+					hand_action_tween.tween_property(part, "position:x", -0.28 if part.name.ends_with("L") else 0.28, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		"open":
 			hand_action_tween.tween_property(first_person_hands, "position", Vector3(0.0, 0.16, -0.40), 0.32).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 			hand_action_tween.tween_property(first_person_hands, "rotation:x", deg_to_rad(-14.0), 0.32)
 	hand_action_tween.set_parallel(false)
 	hand_action_tween.tween_interval(0.12)
-	hand_action_tween.tween_property(first_person_hands, "position", Vector3.ZERO, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	hand_action_tween.parallel().tween_property(first_person_hands, "rotation", Vector3.ZERO, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	var hold_letter_pose := action == "read" and is_instance_valid(held_letter_prop)
+	var final_hand_position := Vector3(0.0, 0.12, -0.12) if hold_letter_pose else Vector3.ZERO
+	var final_hand_rotation := Vector3(deg_to_rad(-3.0), 0.0, 0.0) if hold_letter_pose else Vector3.ZERO
+	hand_action_tween.tween_property(first_person_hands, "position", final_hand_position, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	hand_action_tween.parallel().tween_property(first_person_hands, "rotation", final_hand_rotation, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	for part in first_person_hands.get_children():
 		if part.name.begins_with("Finger_"):
 			var finger_curl := -34.0 if action == "read" else -18.0
@@ -441,7 +444,7 @@ func _create_held_letter_prop() -> void:
 		held_letter_prop.queue_free()
 	held_letter_prop = Node3D.new()
 	held_letter_prop.name = "HeldReadableLetter"
-	held_letter_prop.position = Vector3(0.0, -0.23, -0.78)
+	held_letter_prop.position = Vector3(0.0, -0.17, -0.62)
 	held_letter_prop.rotation_degrees = Vector3(-8.0, 0.0, 0.0)
 	first_person_hands.add_child(held_letter_prop)
 
@@ -451,7 +454,7 @@ func _create_held_letter_prop() -> void:
 	var sheet := MeshInstance3D.new()
 	sheet.name = "AgedParchment"
 	var sheet_mesh := BoxMesh.new()
-	sheet_mesh.size = Vector3(0.44, 0.012, 0.32)
+	sheet_mesh.size = Vector3(0.58, 0.012, 0.36)
 	sheet.mesh = sheet_mesh
 	sheet.material_override = parchment
 	held_letter_prop.add_child(sheet)
@@ -459,8 +462,8 @@ func _create_held_letter_prop() -> void:
 	var message := Label3D.new()
 	message.name = "LetterMessage"
 	message.text = "WHEN THE CLOCK\nSTRIKES THREE TIMES,\nRETURN WHAT THE\nTRAVELER FORGOT.\nDO NOT LET THE CLOCK\nFINISH."
-	message.font_size = 20
-	message.pixel_size = 0.00135
+	message.font_size = 24
+	message.pixel_size = 0.0016
 	message.modulate = Color(0.19, 0.075, 0.028)
 	message.position = Vector3(0.0, 0.011, -0.005)
 	message.rotation_degrees.x = -90.0
