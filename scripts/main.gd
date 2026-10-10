@@ -926,7 +926,7 @@ func _build_world_intro() -> void:
 		[Vector3(29.68, 4.34, -2.48), Vector3(0.34, 0.28, 0.35)]
 	]:
 		var steam := MeshInstance3D.new()
-		steam.name = "Soft steam plume"
+		steam.name = "SoftSteamPuff_%02d" % world_intro_root.get_child_count()
 		var steam_mesh := SphereMesh.new()
 		steam_mesh.radius = 1.0
 		steam_mesh.height = 2.0
