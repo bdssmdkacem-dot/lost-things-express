@@ -8,6 +8,7 @@ on:
 jobs:
   godot-validation:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -34,6 +35,12 @@ jobs:
           grep -q "TRAIN_CARRIAGE_ASSET_CREATED" art/blender/create_train_carriage.py
           echo "Blender generator syntax and export marker look valid."
 
+      - name: Install Blender for .blend resource import
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender
+          blender --version
+
       - name: Install Godot 4.3
         uses: chickensoft-games/setup-godot@v1
         with:
@@ -41,8 +48,8 @@ jobs:
           use-dotnet: false
           include-templates: false
 
-      - name: Import project and parse scripts
-        run: godot --headless --editor --path . --quit
+      - name: Import project and parse scripts (15 minute limit)
+        run: timeout --signal=TERM --kill-after=30s 15m godot --headless --editor --path . --quit --verbose
 
-      - name: Launch main scene headlessly
-        run: godot --headless --path . --quit-after 5
+      - name: Launch main scene headlessly (2 minute limit)
+        run: timeout --signal=TERM --kill-after=15s 2m godot --headless --path . --quit-after 5 --verbose
