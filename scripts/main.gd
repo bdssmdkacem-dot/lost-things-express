@@ -38,6 +38,8 @@ var world_intro_root: Node3D
 var world_intro_camera: Camera3D
 var held_key_prop: Node3D
 var held_letter_prop: Node3D
+var suspense_tween: Tween
+var mystery_beat_count := 0
 
 func _ready() -> void:
 	_setup_input_map()
@@ -974,8 +976,9 @@ func _interact() -> void:
 				_create_held_key_prop()
 				_play_hand_action("take")
 				nearby_object.queue_free()
-				_set_status("The brass key is warm, as if someone held it only moments ago.")
-				_show_story_card("THE BRASS KEY", "The little key is still warm. Whoever carried it must have left this carriage only moments ago.\n\nNew clue added to your bag.", "CONTINUE")
+				_set_status("The brass key is warm. Somewhere beneath the carriage, metal answers with three slow knocks.")
+				_trigger_mystery_beat("A hollow knock travels under the floorboards. Something in the next compartment has noticed you.")
+				_show_story_card("THE BRASS KEY", "The brass is warm — impossibly warm. Three knocks answer from beneath the floor, then stop the moment you turn toward them.\n\nCLUE 01 · The key belongs to something that remembers.", "CONTINUE")
 			else:
 				_set_status("You already have the key.")
 		"letter":
@@ -983,8 +986,9 @@ func _interact() -> void:
 			_play_hand_action("read")
 			letter_read = true
 			nearby_object.set_meta("display_name", "Letter read")
-			_set_status("The letter contains a message about returning what was forgotten.")
-			_show_story_card("A MESSAGE LEFT BEHIND", "“When the clock strikes three times, return what the traveler forgot.”\n\nThe letter is written on old parchment. The memory chest may hold the answer.", "CLOSE LETTER")
+			_set_status("The ink shifts in the lamplight. The final line was written recently.")
+			_trigger_mystery_beat("A lamp flickers once. The letter smells faintly of rain, though every window is closed.")
+			_show_story_card("A MESSAGE LEFT BEHIND", "“When the clock strikes three times, return what the traveler forgot.”\n\nAs you read, fresh ink appears beneath the old words: “Do not let the clock finish.”\n\nCLUE 02 · The chest is not merely locked — it is waiting.", "CLOSE LETTER")
 		"clock":
 			if not chest_open:
 				_set_status("The next carriage is still sealed. Complete the memory chest first.")
@@ -1009,11 +1013,35 @@ func _interact() -> void:
 				if lid:
 					var lid_tween := create_tween()
 					lid_tween.tween_property(lid, "rotation:x", deg_to_rad(-72.0), 0.75).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-				_set_status("The chest opens. A photograph reveals the lost destination: Sunset Station.")
-				_show_story_card("A MEMORY RETURNS", "The photograph was not just a keepsake. It points to Sunset Station — a place that does not appear on any map.\n\nSTAGE ONE COMPLETE", "CONTINUE")
+				_set_status("The lock clicks. The lid rises — and the train falls completely silent.")
+				_trigger_mystery_beat("For one breath, every lamp goes dim. Inside the chest, a photograph glows with a copper sunset.")
+				_show_story_card("A MEMORY RETURNS", "The lock turns with a sound far too loud for this quiet carriage. The lid rises. For one impossible second, the whole train goes silent.\n\nInside: a photograph of Sunset Station — and, on its back, your own name in handwriting you do not recognize.\n\nSTAGE ONE COMPLETE · MEMORY RECOVERED", "CONTINUE")
 		_:
 			_set_status("Nothing happens here yet.")
 	_save_progress()
+
+
+# Short, readable story beats reward discovery without changing movement or camera controls.
+func _trigger_mystery_beat(message: String) -> void:
+	mystery_beat_count += 1
+	_set_status(message)
+	if is_instance_valid(camera):
+		if suspense_tween and suspense_tween.is_running():
+			suspense_tween.kill()
+		var base_position := Vector3(0.0, 1.45, 0.0)
+		suspense_tween = create_tween()
+		suspense_tween.tween_property(camera, "position", base_position + Vector3(0.0, 0.012, 0.018), 0.07).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		suspense_tween.tween_property(camera, "position", base_position + Vector3(0.0, -0.008, -0.012), 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		suspense_tween.tween_property(camera, "position", base_position, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	# Briefly pulse nearby story props so the player understands that the world reacted.
+	for node in get_tree().get_nodes_in_group("interactables"):
+		if not is_instance_valid(node):
+			continue
+		var glow := node.get_node_or_null("InteractionGlow") as OmniLight3D
+		if glow:
+			var pulse := create_tween()
+			pulse.tween_property(glow, "light_energy", 0.85, 0.12)
+			pulse.tween_property(glow, "light_energy", 0.30, 0.38)
 
 func _save_progress() -> void:
 	# Persist the first-stage puzzle so closing the app does not erase progress.
