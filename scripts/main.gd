@@ -1093,8 +1093,8 @@ func _build_world_intro() -> void:
 			land.name = "ConnectedWorldTerrain_%02d_%s" % [world_index, "L" if side < 0.0 else "R"]
 			# Irregular radial terrain crown instead of a smooth oval placeholder.
 			land.mesh = _build_terrain_crown(world_index)
-			land.scale = Vector3(4.8, 0.82, 6.0)
-			land.position = Vector3(world_x + side * 6.2, -0.52 + sin(float(world_index) * 0.7) * 0.24, world_z)
+			land.scale = Vector3(4.25, 0.82, 5.8)
+			land.position = Vector3(world_x + side * 8.4, -0.52 + sin(float(world_index) * 0.7) * 0.24, world_z)
 			var land_mat := StandardMaterial3D.new()
 			var land_colors := [Color(0.12, 0.19, 0.14), Color(0.13, 0.17, 0.22), Color(0.22, 0.14, 0.13), Color(0.12, 0.20, 0.23), Color(0.19, 0.17, 0.24)]
 			land_mat.albedo_color = land_colors[world_index]
@@ -1109,7 +1109,7 @@ func _build_world_intro() -> void:
 			cliff_mesh.bottom_radius = 0.18
 			cliff_mesh.height = 2.6
 			cliff.mesh = cliff_mesh
-			cliff.scale = Vector3(4.3, 1.0, 5.4)
+			cliff.scale = Vector3(3.7, 1.0, 5.2)
 			cliff.position = Vector3(land.position.x, land.position.y - 1.35, world_z)
 			var cliff_mat := StandardMaterial3D.new()
 			cliff_mat.albedo_color = Color(0.075, 0.085, 0.12)
@@ -1463,21 +1463,21 @@ func _build_terrain_crown(seed_index: int) -> ArrayMesh:
 	for segment in range(segments):
 		var angle_a := TAU * float(segment) / float(segments)
 		var angle_b := TAU * float(segment + 1) / float(segments)
-		var radius_a := 1.0 + 0.09 * sin(angle_a * 3.0 + float(seed_index)) + 0.045 * cos(angle_a * 5.0 - float(seed_index))
-		var radius_b := 1.0 + 0.09 * sin(angle_b * 3.0 + float(seed_index)) + 0.045 * cos(angle_b * 5.0 - float(seed_index))
+		var radius_a := 1.0 + 0.19 * sin(angle_a * 3.0 + float(seed_index)) + 0.10 * cos(angle_a * 5.0 - float(seed_index)) + 0.045 * sin(angle_a * 7.0 + float(seed_index))
+		var radius_b := 1.0 + 0.19 * sin(angle_b * 3.0 + float(seed_index)) + 0.10 * cos(angle_b * 5.0 - float(seed_index)) + 0.045 * sin(angle_b * 7.0 + float(seed_index))
 		var first_ring := 1.0 / float(rings)
-		var outer_a := Vector3(cos(angle_a) * radius_a * first_ring, 0.10 + 0.11 * sin(angle_a * 4.0 + float(seed_index)) * first_ring - 0.13 * first_ring * first_ring, sin(angle_a) * radius_a * first_ring)
-		var outer_b := Vector3(cos(angle_b) * radius_b * first_ring, 0.10 + 0.11 * sin(angle_b * 4.0 + float(seed_index)) * first_ring - 0.13 * first_ring * first_ring, sin(angle_b) * radius_b * first_ring)
+		var outer_a := Vector3(cos(angle_a) * radius_a * first_ring, 0.10 + 0.22 * sin(angle_a * 4.0 + float(seed_index)) * first_ring - 0.13 * first_ring * first_ring, sin(angle_a) * radius_a * first_ring)
+		var outer_b := Vector3(cos(angle_b) * radius_b * first_ring, 0.10 + 0.22 * sin(angle_b * 4.0 + float(seed_index)) * first_ring - 0.13 * first_ring * first_ring, sin(angle_b) * radius_b * first_ring)
 		surface.add_vertex(center)
 		surface.add_vertex(outer_b)
 		surface.add_vertex(outer_a)
 		for ring_index in range(1, rings):
 			var r0 := float(ring_index) / float(rings)
 			var r1 := float(ring_index + 1) / float(rings)
-			var a0 := Vector3(cos(angle_a) * radius_a * r0, 0.10 + 0.11 * sin(angle_a * 4.0 + float(seed_index)) * r0 - 0.13 * r0 * r0, sin(angle_a) * radius_a * r0)
-			var b0 := Vector3(cos(angle_b) * radius_b * r0, 0.10 + 0.11 * sin(angle_b * 4.0 + float(seed_index)) * r0 - 0.13 * r0 * r0, sin(angle_b) * radius_b * r0)
-			var a1 := Vector3(cos(angle_a) * radius_a * r1, 0.10 + 0.11 * sin(angle_a * 4.0 + float(seed_index)) * r1 - 0.13 * r1 * r1, sin(angle_a) * radius_a * r1)
-			var b1 := Vector3(cos(angle_b) * radius_b * r1, 0.10 + 0.11 * sin(angle_b * 4.0 + float(seed_index)) * r1 - 0.13 * r1 * r1, sin(angle_b) * radius_b * r1)
+			var a0 := Vector3(cos(angle_a) * radius_a * r0, 0.10 + 0.22 * sin(angle_a * 4.0 + float(seed_index)) * r0 - 0.13 * r0 * r0, sin(angle_a) * radius_a * r0)
+			var b0 := Vector3(cos(angle_b) * radius_b * r0, 0.10 + 0.22 * sin(angle_b * 4.0 + float(seed_index)) * r0 - 0.13 * r0 * r0, sin(angle_b) * radius_b * r0)
+			var a1 := Vector3(cos(angle_a) * radius_a * r1, 0.10 + 0.22 * sin(angle_a * 4.0 + float(seed_index)) * r1 - 0.13 * r1 * r1, sin(angle_a) * radius_a * r1)
+			var b1 := Vector3(cos(angle_b) * radius_b * r1, 0.10 + 0.22 * sin(angle_b * 4.0 + float(seed_index)) * r1 - 0.13 * r1 * r1, sin(angle_b) * radius_b * r1)
 			surface.add_vertex(a0)
 			surface.add_vertex(b1)
 			surface.add_vertex(a1)
