@@ -1025,9 +1025,12 @@ func _build_world_intro() -> void:
 
 	world_intro_camera = Camera3D.new()
 	world_intro_camera.name = "WorldsIntroCamera"
-	world_intro_camera.position = Vector3(30.0, 6.0, 16.0)
+	# A three-quarter front view reveals the locomotive face, running gear,
+	# continuous rails, and the connected world behind it in one readable frame.
+	world_intro_camera.position = Vector3(23.6, 5.4, -10.5)
 	world_intro_root.add_child(world_intro_camera)
-	world_intro_camera.look_at(Vector3(30.0, 1.8, 0.0), Vector3.UP)
+	world_intro_camera.look_at(Vector3(30.0, 1.75, 1.0), Vector3.UP)
+	world_intro_camera.fov = 52.0
 	world_intro_camera.current = true
 
 	var warm := OmniLight3D.new()
@@ -1087,12 +1090,152 @@ func _build_world_intro() -> void:
 			ledge.rotation.y = 0.22 if ledge_index == 0 else -0.28
 			world_intro_root.add_child(ledge)
 
-	for z in range(-14, 19, 2):
-		var curve_x := 30.0 + sin(float(z) * 0.115) * 2.4
-		_intro_box("Railway sleeper", Vector3(curve_x, 0.0, float(z)), Vector3(4.2, 0.16, 0.34), Color(0.20, 0.095, 0.05))
+	# A continuous, gently bending railway runs through the entire establishing
+	# vista. Closely spaced sleepers and overlapping rail sections remove the
+	# broken "floating bars" look of the prototype track.
+	for z in range(-27, 42, 1):
+		var zf := float(z)
+		var curve_x := 30.0 + sin(zf * 0.072) * 2.1
+		var track_y := 0.0 + sin(zf * 0.09) * 0.035
+		var sleeper := _intro_box("Railway sleeper %02d" % (z + 27), Vector3(curve_x, track_y, zf), Vector3(4.05, 0.15, 0.24), Color(0.105, 0.047, 0.027), 0.04)
+		sleeper.rotation.y = cos(zf * 0.072) * 0.145
 		for rail_side in [-1.0, 1.0]:
-			var rail := _intro_box("Curved polished rail", Vector3(curve_x + rail_side * 1.34, 0.16, float(z)), Vector3(0.13, 0.16, 2.2), Color(0.52, 0.55, 0.60), 0.82)
-			rail.rotation.y = cos(float(z) * 0.115) * 0.16
+			var rail := _intro_box("Continuous steel rail %02d" % (z + 27), Vector3(curve_x + rail_side * 1.28, track_y + 0.15, zf), Vector3(0.115, 0.17, 1.08), Color(0.39, 0.43, 0.47), 0.84)
+			rail.rotation.y = cos(zf * 0.072) * 0.145
+			var plate := _intro_box("Rail fastening plate", Vector3(curve_x + rail_side * 1.28, track_y + 0.085, zf), Vector3(0.24, 0.035, 0.19), Color(0.29, 0.23, 0.15), 0.62)
+			plate.rotation.y = cos(zf * 0.072) * 0.145
+
+	# Broad, overlapping land shelves anchor the railway to actual terrain.
+	# Stone viaduct spans bridge the gaps between the inhabited floating worlds.
+	for span_index in range(7):
+		var span_z := -21.0 + float(span_index) * 9.0
+		var span_x := 30.0 + sin(span_z * 0.072) * 2.1
+		var deck := _intro_box("Stone railway viaduct span %02d" % span_index,
+			Vector3(span_x, -0.34, span_z), Vector3(4.45, 0.48, 9.15),
+			Color(0.22, 0.24, 0.27), 0.08)
+		deck.rotation.y = cos(span_z * 0.072) * 0.145
+		for side in [-1.0, 1.0]:
+			var parapet := _intro_box("Carved viaduct parapet",
+				Vector3(span_x + side * 2.05, -0.02, span_z),
+				Vector3(0.22, 0.42, 9.05), Color(0.31, 0.30, 0.29), 0.16)
+			parapet.rotation.y = cos(span_z * 0.072) * 0.145
+		for pier_z in [-3.0, 3.0]:
+			for side in [-1.0, 1.0]:
+				var pier := _intro_box("Tapered stone viaduct pier",
+					Vector3(span_x + side * 1.58, -1.42, span_z + pier_z),
+					Vector3(0.62, 2.25, 0.62), Color(0.17, 0.19, 0.22), 0.12)
+				pier.rotation.y = side * 0.04
+
+	# Each world has a distinct terrain crown, rock strata, vegetation, and
+	# architecture; the railway/viaduct physically leads the eye between them.
+	for world_index in range(5):
+		var world_z := -18.0 + float(world_index) * 12.0
+		var world_x := 30.0 + sin(world_z * 0.072) * 2.1
+		for side in [-1.0, 1.0]:
+			var land := MeshInstance3D.new()
+			land.name = "ConnectedWorldTerrain_%02d_%s" % [world_index, "L" if side < 0.0 else "R"]
+			var land_mesh := SphereMesh.new()
+			land_mesh.radius = 1.0
+			land_mesh.height = 1.0
+			land.mesh = land_mesh
+			land.scale = Vector3(5.7, 1.1, 7.5)
+			land.position = Vector3(world_x + side * 6.2, -0.52 + sin(float(world_index) * 0.7) * 0.24, world_z)
+			var land_mat := StandardMaterial3D.new()
+			var land_colors := [Color(0.12, 0.19, 0.14), Color(0.13, 0.17, 0.22), Color(0.22, 0.14, 0.13), Color(0.12, 0.20, 0.23), Color(0.19, 0.17, 0.24)]
+			land_mat.albedo_color = land_colors[world_index]
+			land_mat.roughness = 0.98
+			land.material_override = land_mat
+			world_intro_root.add_child(land)
+
+			var cliff := MeshInstance3D.new()
+			cliff.name = "Layered world cliff"
+			var cliff_mesh := CylinderMesh.new()
+			cliff_mesh.top_radius = 0.82
+			cliff_mesh.bottom_radius = 0.18
+			cliff_mesh.height = 2.6
+			cliff.mesh = cliff_mesh
+			cliff.scale = Vector3(5.0, 1.0, 6.8)
+			cliff.position = Vector3(land.position.x, land.position.y - 1.35, world_z)
+			var cliff_mat := StandardMaterial3D.new()
+			cliff_mat.albedo_color = Color(0.075, 0.085, 0.12)
+			cliff_mat.roughness = 1.0
+			cliff.material_override = cliff_mat
+			world_intro_root.add_child(cliff)
+
+			# Tree clusters use tapered trunks and layered crowns rather than
+			# identical spheres; silhouettes remain legible at mobile scale.
+			for tree_index in range(4):
+				var tree_x := land.position.x + (float(tree_index) - 1.5) * 1.7
+				var tree_z := world_z + (0.8 if tree_index % 2 == 0 else -1.1)
+				var trunk := MeshInstance3D.new()
+				trunk.name = "World tree trunk"
+				var trunk_mesh := CylinderMesh.new()
+				trunk_mesh.top_radius = 0.075
+				trunk_mesh.bottom_radius = 0.15
+				trunk_mesh.height = 1.45 + float(tree_index % 3) * 0.25
+				trunk.mesh = trunk_mesh
+				trunk.position = Vector3(tree_x, land.position.y + 0.7, tree_z)
+				var trunk_mat := StandardMaterial3D.new()
+				trunk_mat.albedo_color = Color(0.15, 0.075, 0.04)
+				trunk_mat.roughness = 0.95
+				trunk.material_override = trunk_mat
+				world_intro_root.add_child(trunk)
+				for crown_level in range(3):
+					var crown := MeshInstance3D.new()
+					crown.name = "Layered evergreen crown"
+					var crown_mesh := SphereMesh.new()
+					crown_mesh.radius = 0.65 - float(crown_level) * 0.11
+					crown_mesh.height = 1.1 - float(crown_level) * 0.12
+					crown.mesh = crown_mesh
+					crown.position = Vector3(tree_x, land.position.y + 1.25 + float(crown_level) * 0.38, tree_z)
+					var crown_mat := StandardMaterial3D.new()
+					crown_mat.albedo_color = Color(0.035 + float(crown_level) * 0.012, 0.12 + float(world_index % 2) * 0.035, 0.075)
+					crown_mat.roughness = 0.94
+					crown.material_override = crown_mat
+					world_intro_root.add_child(crown)
+
+			# Distant settlement silhouettes make the lands feel inhabited.
+			if world_index % 2 == 0:
+				for building_index in range(3):
+					var building := _intro_box("Distant world house",
+						Vector3(land.position.x + float(building_index - 1) * 1.65, land.position.y + 0.58, world_z + 2.6),
+						Vector3(1.05, 1.15 + float(building_index % 2) * 0.65, 1.05),
+						Color(0.22, 0.14, 0.095), 0.08)
+					var roof := _intro_box("House roof",
+						Vector3(building.position.x, building.position.y + 0.78, building.position.z),
+						Vector3(1.28, 0.16, 1.28), Color(0.15, 0.055, 0.045), 0.08)
+					roof.rotation.z = -0.16 if building_index % 2 == 0 else 0.16
+
+	# Warm guide lamps mounted to the connected railway repeat into the distance.
+	for z in range(-24, 39, 6):
+		var lamp_x := 30.0 + sin(float(z) * 0.072) * 2.1
+		for side in [-1.0, 1.0]:
+			var post := _intro_box("Railway lamp post", Vector3(lamp_x + side * 2.4, 0.92, float(z)), Vector3(0.08, 1.8, 0.08), Color(0.12, 0.10, 0.075), 0.55)
+			var lantern := MeshInstance3D.new()
+			lantern.name = "Warm railway lantern"
+			var lantern_mesh := SphereMesh.new()
+			lantern_mesh.radius = 0.16
+			lantern_mesh.height = 0.34
+			lantern.mesh = lantern_mesh
+			lantern.position = Vector3(lamp_x + side * 2.4, 1.85, float(z))
+			var lantern_mat := StandardMaterial3D.new()
+			lantern_mat.albedo_color = Color(1.0, 0.57, 0.23)
+			lantern_mat.emission_enabled = true
+			lantern_mat.emission = Color(1.0, 0.32, 0.08)
+			lantern_mat.emission_energy_multiplier = 1.15
+			lantern.material_override = lantern_mat
+			world_intro_root.add_child(lantern)
+
+	for z in range(-27, 42, 1):
+		var curve_x := 30.0 + sin(float(z) * 0.072) * 2.1
+		var track_y := 0.0 + sin(float(z) * 0.09) * 0.035
+		var sleeper := _intro_box("Railway sleeper %02d" % (z + 27), Vector3(curve_x, track_y, float(z)), Vector3(4.05, 0.15, 0.24), Color(0.105, 0.047, 0.027), 0.04)
+		sleeper.rotation.y = cos(float(z) * 0.072) * 0.145
+		for rail_side in [-1.0, 1.0]:
+			var rail := _intro_box("Continuous steel rail %02d" % (z + 27), Vector3(curve_x + rail_side * 1.28, track_y + 0.15, float(z)), Vector3(0.115, 0.17, 1.08), Color(0.39, 0.43, 0.47), 0.84)
+			rail.rotation.y = cos(float(z) * 0.072) * 0.145
+			var plate := _intro_box("Rail fastening plate", Vector3(curve_x + rail_side * 1.28, track_y + 0.085, float(z)), Vector3(0.24, 0.035, 0.19), Color(0.29, 0.23, 0.15), 0.62)
+			plate.rotation.y = cos(float(z) * 0.072) * 0.145
 	
 
 	_intro_box("Locomotive chassis", Vector3(30.0, 1.05, 0.2), Vector3(2.8, 0.42, 6.8), Color(0.035, 0.095, 0.075), 0.35)
