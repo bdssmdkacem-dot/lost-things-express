@@ -11,6 +11,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: carriage-art-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   generate-carriage:
     runs-on: ubuntu-latest
@@ -51,12 +55,16 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/blender/train_carriage.blend assets/models/train_carriage.glb
+          git add assets/blender/train_carriage.blend assets/models/train_carriage.glb assets/blender/train_carriage_preview.png
           if git diff --cached --quiet; then
             echo "Generated assets are unchanged."
           else
             git commit -m "art: publish generated carriage assets"
-            git push
+            # Documentation/source edits may land while Blender is rendering. Rebase
+            # the generated binary output onto the newest main instead of losing it.
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
           fi
 
       - name: Upload generated carriage assets for review
@@ -66,5 +74,6 @@ jobs:
           path: |
             assets/blender/train_carriage.blend
             assets/models/train_carriage.glb
+            assets/blender/train_carriage_preview.png
           if-no-files-found: error
           retention-days: 14
