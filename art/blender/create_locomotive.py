@@ -247,6 +247,8 @@ for name, loc, power, size, color in [
 scene = bpy.context.scene
 scene.render.engine = "CYCLES"
 scene.cycles.samples = 24
+# Ubuntu Blender packages may be built without OpenImageDenoiser.
+scene.cycles.use_denoising = False
 scene.render.resolution_x = 1280
 scene.render.resolution_y = 900
 scene.render.resolution_percentage = 100
