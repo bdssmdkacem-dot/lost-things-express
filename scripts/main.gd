@@ -817,6 +817,116 @@ func _build_story_overlay(root: Control) -> void:
 	content.add_child(story_continue)
 
 	# Story cards and pause menus are modal: release any touch gesture captured underneath.
+func _build_pause_overlay(root: Control) -> void:
+	pause_overlay = ColorRect.new()
+	pause_overlay.name = "PauseOverlay"
+	pause_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	pause_overlay.color = Color(0.008, 0.018, 0.028, 0.86)
+	pause_overlay.visible = false
+	pause_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.add_child(pause_overlay)
+
+	var panel := PanelContainer.new()
+	panel.name = "PausePanel"
+	panel.anchor_left = 0.25
+	panel.anchor_top = 0.18
+	panel.anchor_right = 0.75
+	panel.anchor_bottom = 0.82
+	panel.add_theme_stylebox_override("panel", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.99), Color(0.72, 0.47, 0.19, 1.0), 18, 18))
+	pause_overlay.add_child(panel)
+
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 12)
+	panel.add_child(content)
+
+	var title := Label.new()
+	title.text = "JOURNEY PAUSED"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 23)
+	title.add_theme_color_override("font_color", Color(1.0, 0.76, 0.39))
+	content.add_child(title)
+
+	var controls := Label.new()
+	controls.text = "LEFT SIDE · MOVE     RIGHT SIDE · LOOK"
+	controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	controls.add_theme_font_size_override("font_size", 14)
+	controls.add_theme_color_override("font_color", Color(0.96, 0.91, 0.81))
+	content.add_child(controls)
+
+	look_sensitivity_label = Label.new()
+	look_sensitivity_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	look_sensitivity_label.add_theme_font_size_override("font_size", 16)
+	look_sensitivity_label.add_theme_color_override("font_color", Color(1.0, 0.89, 0.67))
+	content.add_child(look_sensitivity_label)
+
+	look_sensitivity_slider = HSlider.new()
+	look_sensitivity_slider.name = "LookSensitivitySlider"
+	look_sensitivity_slider.min_value = 0.002
+	look_sensitivity_slider.max_value = 0.010
+	look_sensitivity_slider.step = 0.001
+	look_sensitivity_slider.value = look_sensitivity
+	look_sensitivity_slider.custom_minimum_size = Vector2(240, 30)
+	look_sensitivity_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	look_sensitivity_slider.value_changed.connect(_on_look_sensitivity_changed)
+	content.add_child(look_sensitivity_slider)
+	_update_look_sensitivity_label()
+
+	var resume := Button.new()
+	resume.name = "ResumeButton"
+	resume.text = "RESUME JOURNEY"
+	resume.custom_minimum_size = Vector2(0, 50)
+	resume.add_theme_font_size_override("font_size", 18)
+	resume.add_theme_color_override("font_color", Color(1.0, 0.90, 0.66))
+	resume.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.12, 0.22, 0.20, 1.0), Color(0.72, 0.47, 0.19, 1.0), 12, 10))
+	resume.add_theme_stylebox_override("pressed", _ui_panel_style(Color(0.78, 0.48, 0.12, 1.0), Color(1.0, 0.84, 0.42, 1.0), 12, 10))
+	resume.pressed.connect(_toggle_pause_menu)
+	content.add_child(resume)
+
+
+func _toggle_pause_menu() -> void:
+	if story_card_open or not is_instance_valid(pause_overlay):
+		return
+	game_paused = not game_paused
+	touch_move_id = -1
+	touch_look_id = -1
+	touch_move_vector = Vector2.ZERO
+	inventory_open = false
+	if is_instance_valid(inventory_label):
+		inventory_label.visible = false
+	pause_overlay.visible = game_paused
+	if game_paused:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func _on_look_sensitivity_changed(value: float) -> void:
+	look_sensitivity = clampf(value, 0.002, 0.010)
+	_update_look_sensitivity_label()
+	_save_settings()
+
+
+func _update_look_sensitivity_label() -> void:
+	if is_instance_valid(look_sensitivity_label):
+		look_sensitivity_label.text = "Look sensitivity · %.3f" % look_sensitivity
+
+
+func _load_settings() -> void:
+	var config := ConfigFile.new()
+	if config.load("user://first_stage_settings.cfg") == OK:
+		look_sensitivity = clampf(float(config.get_value("settings", "look_sensitivity", DEFAULT_LOOK_SENSITIVITY)), 0.002, 0.010)
+	if is_instance_valid(look_sensitivity_slider):
+		look_sensitivity_slider.set_value_no_signal(look_sensitivity)
+	_update_look_sensitivity_label()
+
+
+func _save_settings() -> void:
+	var config := ConfigFile.new()
+	config.set_value("settings", "look_sensitivity", look_sensitivity)
+	var error := config.save("user://first_stage_settings.cfg")
+	if error != OK:
+		push_warning("Could not save first-stage settings (error %d)." % error)
+
+
 func _show_story_card(title_text: String, body_text: String, button_text: String) -> void:
 	if not is_instance_valid(story_overlay):
 		return
@@ -1119,6 +1229,10 @@ func _physics_process(_delta: float) -> void:
 	player.position.z = clampf(player.position.z, rear_limit, 5.1)
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
+		if not story_card_open:
+			_toggle_pause_menu()
+		return
 	# Modal overlays must block gameplay input as well as draw above it; otherwise
 	# a swipe can rotate the camera or leave a touch joystick latched.
 	if story_card_open or game_paused:
@@ -1126,8 +1240,6 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_E:
 			_interact()
-		elif event.keycode == KEY_ESCAPE:
-			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed and event.position.x > get_viewport().get_visible_rect().size.x * 0.35:
