@@ -98,6 +98,14 @@ func _run_first_slice() -> void:
 	var lid := chest.get_node_or_null("Lid") as Node3D
 	if not _check(lid != null and is_equal_approx(lid.rotation.x, deg_to_rad(-72.0)), "chest lid did not reach the open position"):
 		return
+
+	# The player must be able to leave the first carriage and activate the clock.
+	game.call("_close_story_card")
+	player.global_position = station_clock.global_position + Vector3(0.0, -2.2, 0.1)
+	game.call("_interact")
+	if not _check(bool(game.get("story_card_open")), "the clock carriage interaction did not open its story card"):
+		return
+	game.call("_close_story_card")
 	if not _check(int(game.call("_inventory_count")) == 3, "inventory does not show the three completed story items"):
 		return
 	# Once the chest is open, the rear boundary must no longer trap the player in carriage one.
