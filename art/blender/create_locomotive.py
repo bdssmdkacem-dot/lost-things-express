@@ -276,6 +276,9 @@ bpy.context.view_layer.objects.active = next((o for o in bpy.context.scene.objec
 axis_fix = Matrix.Rotation(math.radians(90.0), 4, "X")
 for obj in bpy.context.scene.objects:
     if obj.type in {"MESH", "CURVE"} and obj.select_get():
-        obj.matrix_world = axis_fix @ obj.matrix_world
+        # Rotate the vertex data, not the object transform. This cancels the
+        # exporter's Blender-Z-up to glTF-Y-up mesh conversion without tipping
+        # the entire object node (which left the locomotive standing vertically).
+        obj.data.transform(axis_fix)
 bpy.ops.export_scene.gltf(filepath=os.path.join(MODEL_DIR, "lost_things_locomotive.glb"), export_format="GLB", use_selection=True, export_apply=True)
 print("LOCOMOTIVE_ASSET_GENERATED: blend, GLB and preview")
