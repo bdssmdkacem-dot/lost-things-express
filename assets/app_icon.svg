@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b2630"/><stop offset="1" stop-color="#031018"/></linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#f3cb78"/><stop offset="0.48" stop-color="#bd7b31"/><stop offset="1" stop-color="#6e4019"/></linearGradient>
+    <linearGradient id="emerald" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#167253"/><stop offset="1" stop-color="#073a2d"/></linearGradient>
+    <linearGradient id="lamp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0ae"/><stop offset="1" stop-color="#f19a35"/></linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="url(#bg)"/>
+  <rect x="21" y="21" width="214" height="214" rx="36" fill="none" stroke="url(#brass)" stroke-width="3"/>
+  <path d="M48 206V91Q48 49 90 49H166Q208 49 208 91V206Z" fill="#180f0b" stroke="url(#brass)" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M70 196V91Q70 72 91 72H165Q186 72 186 91V196Z" fill="url(#emerald)" stroke="#c38a43" stroke-width="4"/>
+  <path d="M70 196L103 160H153L186 196" fill="#0a2626" stroke="#c38a43" stroke-width="3"/>
+  <path d="M82 87H174M82 98H174" stroke="#e8bd6c" stroke-width="3" opacity=".9"/>
+  <path d="M91 113H165V155H91Z" fill="#09202a" stroke="url(#brass)" stroke-width="4"/>
+  <path d="M100 149L114 126L126 138L143 116L157 149Z" fill="#1d7780"/>
+  <circle cx="149" cy="119" r="7" fill="url(#lamp)"/>
+  <path d="M105 160V196M151 160V196" stroke="#d7a24f" stroke-width="3"/>
+  <path d="M35 208H221" stroke="url(#brass)" stroke-width="6" stroke-linecap="round"/>
+  <path d="M77 216H179" stroke="#d7a24f" stroke-width="3" stroke-linecap="round" opacity=".75"/>
+  <circle cx="46" cy="45" r="3" fill="#f7d58a"/><circle cx="210" cy="45" r="3" fill="#f7d58a"/><circle cx="46" cy="211" r="3" fill="#f7d58a"/><circle cx="210" cy="211" r="3" fill="#f7d58a"/>
+</svg>
