@@ -1220,141 +1220,244 @@ func _build_world_intro() -> void:
 			plate.rotation.y = cos(float(z) * 0.072) * 0.145
 	
 
-	_intro_box("Locomotive chassis", Vector3(30.0, 1.05, 0.2), Vector3(2.8, 0.42, 6.8), Color(0.035, 0.095, 0.075), 0.35)
-	var boiler := MeshInstance3D.new()
-	boiler.name = "Rounded green steam boiler"
-	var boiler_mesh := CylinderMesh.new()
-	boiler_mesh.top_radius = 0.76
-	boiler_mesh.bottom_radius = 0.76
-	boiler_mesh.height = 4.7
-	boiler.mesh = boiler_mesh
-	boiler.position = Vector3(30.0, 1.85, -1.1)
-	boiler.rotation_degrees.x = 90.0
-	var boiler_mat := StandardMaterial3D.new()
-	boiler_mat.albedo_color = Color(0.055, 0.235, 0.145)
-	boiler_mat.metallic = 0.38
-	boiler_mat.roughness = 0.34
-	boiler.material_override = boiler_mat
-	world_intro_root.add_child(boiler)
-	_intro_box("Locomotive cab", Vector3(30.0, 2.05, 2.55), Vector3(2.5, 2.0, 1.8), Color(0.055, 0.17, 0.115), 0.28)
-	_intro_box("Cab window", Vector3(30.0, 2.38, 1.61), Vector3(1.6, 0.9, 0.06), Color(0.055, 0.20, 0.27), 0.15)
-	_intro_box("Brass boiler band", Vector3(30.0, 1.85, -2.2), Vector3(1.63, 1.40, 0.11), Color(0.70, 0.42, 0.13), 0.78)
-	_intro_box("Front buffer beam", Vector3(30.0, 0.95, -3.25), Vector3(2.45, 0.34, 0.35), Color(0.46, 0.075, 0.045), 0.25)
-	_intro_box("Cowcatcher", Vector3(30.0, 0.55, -3.65), Vector3(2.0, 0.12, 0.85), Color(0.18, 0.20, 0.20), 0.7)
-	# Individual sloped steel bars and red marker lamps make the front pilot
-	# read as railway hardware instead of one flat plank.
-	for slat_index in range(7):
-		var slat_x := 29.25 + float(slat_index) * 0.25
-		var slat := _intro_box("Cowcatcher steel slat", Vector3(slat_x, 0.60, -3.98), Vector3(0.075, 0.66, 0.10), Color(0.24, 0.27, 0.28), 0.78)
-		slat.rotation.z = -0.40
-	for marker_side in [-1.0, 1.0]:
-		var marker := MeshInstance3D.new()
-		marker.name = "Amber locomotive marker lamp"
-		var marker_mesh := SphereMesh.new()
-		marker_mesh.radius = 0.09
-		marker_mesh.height = 0.16
-		marker.mesh = marker_mesh
-		marker.position = Vector3(30.0 + marker_side * 0.88, 1.10, -3.58)
-		var marker_mat := StandardMaterial3D.new()
-		marker_mat.albedo_color = Color(1.0, 0.24, 0.045)
-		marker_mat.emission_enabled = true
-		marker_mat.emission = Color(1.0, 0.12, 0.025)
-		marker_mat.emission_energy_multiplier = 0.8
-		marker.material_override = marker_mat
-		world_intro_root.add_child(marker)
+	var locomotive_path := "res://assets/models/lost_things_locomotive.glb"
+	var locomotive_scene := load(locomotive_path) as PackedScene if ResourceLoader.exists(locomotive_path) else null
+	if locomotive_scene != null:
+		var production_locomotive := locomotive_scene.instantiate()
+		production_locomotive.name = "ProductionLocomotive"
+		production_locomotive.position = Vector3(30.0, 0.0, 0.0)
+		world_intro_root.add_child(production_locomotive)
+	else:
+		# Fallback remains available until the Blender-authored asset is generated
+		# and imported; it is not considered the final art target.
+		_intro_box("Locomotive chassis", Vector3(30.0, 1.05, 0.2), Vector3(2.8, 0.42, 6.8), Color(0.035, 0.095, 0.075), 0.35)
+		var boiler := MeshInstance3D.new()
+		boiler.name = "Rounded green steam boiler"
+		var boiler_mesh := CylinderMesh.new()
+		boiler_mesh.top_radius = 0.76
+		boiler_mesh.bottom_radius = 0.76
+		boiler_mesh.height = 4.7
+		boiler.mesh = boiler_mesh
+		boiler.position = Vector3(30.0, 1.85, -1.1)
+		boiler.rotation_degrees.x = 90.0
+		var boiler_mat := StandardMaterial3D.new()
+		boiler_mat.albedo_color = Color(0.055, 0.235, 0.145)
+		boiler_mat.metallic = 0.38
+		boiler_mat.roughness = 0.34
+		boiler.material_override = boiler_mat
+		world_intro_root.add_child(boiler)
+		_intro_box("Locomotive cab", Vector3(30.0, 2.05, 2.55), Vector3(2.5, 2.0, 1.8), Color(0.055, 0.17, 0.115), 0.28)
+		_intro_box("Cab window", Vector3(30.0, 2.38, 1.61), Vector3(1.6, 0.9, 0.06), Color(0.055, 0.20, 0.27), 0.15)
+		_intro_box("Brass boiler band", Vector3(30.0, 1.85, -2.2), Vector3(1.63, 1.40, 0.11), Color(0.70, 0.42, 0.13), 0.78)
+		_intro_box("Front buffer beam", Vector3(30.0, 0.95, -3.25), Vector3(2.45, 0.34, 0.35), Color(0.46, 0.075, 0.045), 0.25)
+		_intro_box("Cowcatcher", Vector3(30.0, 0.55, -3.65), Vector3(2.0, 0.12, 0.85), Color(0.18, 0.20, 0.20), 0.7)
+		# Individual sloped steel bars and red marker lamps make the front pilot
+		# read as railway hardware instead of one flat plank.
+		for slat_index in range(7):
+			var slat_x := 29.25 + float(slat_index) * 0.25
+			var slat := _intro_box("Cowcatcher steel slat", Vector3(slat_x, 0.60, -3.98), Vector3(0.075, 0.66, 0.10), Color(0.24, 0.27, 0.28), 0.78)
+			slat.rotation.z = -0.40
+		for marker_side in [-1.0, 1.0]:
+			var marker := MeshInstance3D.new()
+			marker.name = "Amber locomotive marker lamp"
+			var marker_mesh := SphereMesh.new()
+			marker_mesh.radius = 0.09
+			marker_mesh.height = 0.16
+			marker.mesh = marker_mesh
+			marker.position = Vector3(30.0 + marker_side * 0.88, 1.10, -3.58)
+			var marker_mat := StandardMaterial3D.new()
+			marker_mat.albedo_color = Color(1.0, 0.24, 0.045)
+			marker_mat.emission_enabled = true
+			marker_mat.emission = Color(1.0, 0.12, 0.025)
+			marker_mat.emission_energy_multiplier = 0.8
+			marker.material_override = marker_mat
+			world_intro_root.add_child(marker)
 
-	# A proper circular smokebox door and fittings give the engine a readable
-	# front instead of presenting the boiler as a plain cylinder.
-	var smokebox := MeshInstance3D.new()
-	smokebox.name = "Circular locomotive smokebox door"
-	var smokebox_mesh := CylinderMesh.new()
-	smokebox_mesh.top_radius = 0.59
-	smokebox_mesh.bottom_radius = 0.59
-	smokebox_mesh.height = 0.12
-	smokebox.mesh = smokebox_mesh
-	smokebox.position = Vector3(30.0, 1.85, -3.38)
-	smokebox.rotation_degrees.x = 90.0
-	var smokebox_mat := StandardMaterial3D.new()
-	smokebox_mat.albedo_color = Color(0.035, 0.055, 0.05)
-	smokebox_mat.metallic = 0.68
-	smokebox_mat.roughness = 0.3
-	smokebox.material_override = smokebox_mat
-	world_intro_root.add_child(smokebox)
-	var door_rim := MeshInstance3D.new()
-	door_rim.name = "Smokebox brass outer rim"
-	var rim_mesh := TorusMesh.new()
-	rim_mesh.inner_radius = 0.54
-	rim_mesh.outer_radius = 0.60
-	door_rim.mesh = rim_mesh
-	door_rim.position = Vector3(30.0, 1.85, -3.47)
-	door_rim.rotation_degrees.x = 90.0
-	var rim_mat := StandardMaterial3D.new()
-	rim_mat.albedo_color = Color(0.63, 0.35, 0.085)
-	rim_mat.metallic = 0.86
-	rim_mat.roughness = 0.22
-	door_rim.material_override = rim_mat
-	world_intro_root.add_child(door_rim)
-	for bolt_index in range(12):
-		var bolt_angle := TAU * float(bolt_index) / 12.0
-		var bolt := MeshInstance3D.new()
-		bolt.name = "Smokebox rim bolt %02d" % bolt_index
-		var bolt_mesh := SphereMesh.new()
-		bolt_mesh.radius = 0.035
-		bolt_mesh.height = 0.07
-		bolt.mesh = bolt_mesh
-		bolt.position = Vector3(30.0 + cos(bolt_angle) * 0.56, 1.85 + sin(bolt_angle) * 0.56, -3.53)
-		var bolt_mat := StandardMaterial3D.new()
-		bolt_mat.albedo_color = Color(0.78, 0.52, 0.19)
-		bolt_mat.metallic = 0.82
-		bolt_mat.roughness = 0.24
-		bolt.material_override = bolt_mat
-		world_intro_root.add_child(bolt)
-	var door_handle := _intro_box("Smokebox door handle", Vector3(30.0, 1.85, -3.56), Vector3(0.36, 0.07, 0.07), Color(0.74, 0.48, 0.15), 0.82)
-	door_handle.rotation.z = -0.25
-	for pipe_side in [-1.0, 1.0]:
-		# Continuous handrails follow the boiler curve with evenly spaced
-		# brackets, adding readable manufactured detail at the establishing scale.
-		var handrail := _intro_box("Boiler brass handrail", Vector3(30.0 + pipe_side * 0.80, 2.05, -0.95), Vector3(0.055, 0.055, 2.75), Color(0.72, 0.47, 0.17), 0.82)
-		handrail.rotation.y = pipe_side * -0.06
-		for bracket_index in range(5):
-			_intro_box("Boiler handrail bracket", Vector3(30.0 + pipe_side * 0.80, 1.91, -2.1 + float(bracket_index) * 0.58), Vector3(0.045, 0.24, 0.045), Color(0.60, 0.39, 0.14), 0.76)
-		var steam_pipe := _intro_box("Boiler side pipe", Vector3(30.0 + pipe_side * 0.70, 1.68, -0.9), Vector3(0.10, 0.10, 3.25), Color(0.56, 0.33, 0.12), 0.8)
-		steam_pipe.rotation.y = pipe_side * -0.08
-		var pipe_joint := MeshInstance3D.new()
-		pipe_joint.name = "Boiler pipe coupling"
-		var pipe_joint_mesh := CylinderMesh.new()
-		pipe_joint_mesh.top_radius = 0.085
-		pipe_joint_mesh.bottom_radius = 0.085
-		pipe_joint_mesh.height = 0.14
-		pipe_joint.mesh = pipe_joint_mesh
-		pipe_joint.position = Vector3(30.0 + pipe_side * 0.70, 1.68, -2.15)
-		pipe_joint.rotation_degrees.x = 90.0
-		pipe_joint.material_override = rim_mat
-		world_intro_root.add_child(pipe_joint)
-	_intro_box("Chimney", Vector3(30.0, 2.85, -2.1), Vector3(0.52, 0.85, 0.52), Color(0.055, 0.065, 0.06), 0.45)
-	_intro_box("Chimney cap", Vector3(30.0, 3.28, -2.1), Vector3(0.78, 0.12, 0.78), Color(0.67, 0.42, 0.14), 0.78)
+		# A proper circular smokebox door and fittings give the engine a readable
+		# front instead of presenting the boiler as a plain cylinder.
+		var smokebox := MeshInstance3D.new()
+		smokebox.name = "Circular locomotive smokebox door"
+		var smokebox_mesh := CylinderMesh.new()
+		smokebox_mesh.top_radius = 0.59
+		smokebox_mesh.bottom_radius = 0.59
+		smokebox_mesh.height = 0.12
+		smokebox.mesh = smokebox_mesh
+		smokebox.position = Vector3(30.0, 1.85, -3.38)
+		smokebox.rotation_degrees.x = 90.0
+		var smokebox_mat := StandardMaterial3D.new()
+		smokebox_mat.albedo_color = Color(0.035, 0.055, 0.05)
+		smokebox_mat.metallic = 0.68
+		smokebox_mat.roughness = 0.3
+		smokebox.material_override = smokebox_mat
+		world_intro_root.add_child(smokebox)
+		var door_rim := MeshInstance3D.new()
+		door_rim.name = "Smokebox brass outer rim"
+		var rim_mesh := TorusMesh.new()
+		rim_mesh.inner_radius = 0.54
+		rim_mesh.outer_radius = 0.60
+		door_rim.mesh = rim_mesh
+		door_rim.position = Vector3(30.0, 1.85, -3.47)
+		door_rim.rotation_degrees.x = 90.0
+		var rim_mat := StandardMaterial3D.new()
+		rim_mat.albedo_color = Color(0.63, 0.35, 0.085)
+		rim_mat.metallic = 0.86
+		rim_mat.roughness = 0.22
+		door_rim.material_override = rim_mat
+		world_intro_root.add_child(door_rim)
+		for bolt_index in range(12):
+			var bolt_angle := TAU * float(bolt_index) / 12.0
+			var bolt := MeshInstance3D.new()
+			bolt.name = "Smokebox rim bolt %02d" % bolt_index
+			var bolt_mesh := SphereMesh.new()
+			bolt_mesh.radius = 0.035
+			bolt_mesh.height = 0.07
+			bolt.mesh = bolt_mesh
+			bolt.position = Vector3(30.0 + cos(bolt_angle) * 0.56, 1.85 + sin(bolt_angle) * 0.56, -3.53)
+			var bolt_mat := StandardMaterial3D.new()
+			bolt_mat.albedo_color = Color(0.78, 0.52, 0.19)
+			bolt_mat.metallic = 0.82
+			bolt_mat.roughness = 0.24
+			bolt.material_override = bolt_mat
+			world_intro_root.add_child(bolt)
+		var door_handle := _intro_box("Smokebox door handle", Vector3(30.0, 1.85, -3.56), Vector3(0.36, 0.07, 0.07), Color(0.74, 0.48, 0.15), 0.82)
+		door_handle.rotation.z = -0.25
+		for pipe_side in [-1.0, 1.0]:
+			# Continuous handrails follow the boiler curve with evenly spaced
+			# brackets, adding readable manufactured detail at the establishing scale.
+			var handrail := _intro_box("Boiler brass handrail", Vector3(30.0 + pipe_side * 0.80, 2.05, -0.95), Vector3(0.055, 0.055, 2.75), Color(0.72, 0.47, 0.17), 0.82)
+			handrail.rotation.y = pipe_side * -0.06
+			for bracket_index in range(5):
+				_intro_box("Boiler handrail bracket", Vector3(30.0 + pipe_side * 0.80, 1.91, -2.1 + float(bracket_index) * 0.58), Vector3(0.045, 0.24, 0.045), Color(0.60, 0.39, 0.14), 0.76)
+			var steam_pipe := _intro_box("Boiler side pipe", Vector3(30.0 + pipe_side * 0.70, 1.68, -0.9), Vector3(0.10, 0.10, 3.25), Color(0.56, 0.33, 0.12), 0.8)
+			steam_pipe.rotation.y = pipe_side * -0.08
+			var pipe_joint := MeshInstance3D.new()
+			pipe_joint.name = "Boiler pipe coupling"
+			var pipe_joint_mesh := CylinderMesh.new()
+			pipe_joint_mesh.top_radius = 0.085
+			pipe_joint_mesh.bottom_radius = 0.085
+			pipe_joint_mesh.height = 0.14
+			pipe_joint.mesh = pipe_joint_mesh
+			pipe_joint.position = Vector3(30.0 + pipe_side * 0.70, 1.68, -2.15)
+			pipe_joint.rotation_degrees.x = 90.0
+			pipe_joint.material_override = rim_mat
+			world_intro_root.add_child(pipe_joint)
+		_intro_box("Chimney", Vector3(30.0, 2.85, -2.1), Vector3(0.52, 0.85, 0.52), Color(0.055, 0.065, 0.06), 0.45)
+		_intro_box("Chimney cap", Vector3(30.0, 3.28, -2.1), Vector3(0.78, 0.12, 0.78), Color(0.67, 0.42, 0.14), 0.78)
 
-	# Layered boiler bands, a whistle and restrained steam puffs break up the
-	# locomotive's large silhouette while remaining inexpensive on mobile GPUs.
-	for band_z in [-2.65, -1.65, -0.55, 0.55]:
-		var boiler_band := MeshInstance3D.new()
-		boiler_band.name = "Boiler Brass Band"
-		var band_mesh := CylinderMesh.new()
-		band_mesh.top_radius = 0.785
-		band_mesh.bottom_radius = 0.785
-		band_mesh.height = 0.075
-		boiler_band.mesh = band_mesh
-		boiler_band.position = Vector3(30.0, 1.85, band_z)
-		boiler_band.rotation_degrees.x = 90.0
-		var band_material := StandardMaterial3D.new()
-		band_material.albedo_color = Color(0.72, 0.43, 0.13)
-		band_material.metallic = 0.82
-		band_material.roughness = 0.24
-		boiler_band.material_override = band_material
-		world_intro_root.add_child(boiler_band)
+		# Layered boiler bands, a whistle and restrained steam puffs break up the
+		# locomotive's large silhouette while remaining inexpensive on mobile GPUs.
+		for band_z in [-2.65, -1.65, -0.55, 0.55]:
+			var boiler_band := MeshInstance3D.new()
+			boiler_band.name = "Boiler Brass Band"
+			var band_mesh := CylinderMesh.new()
+			band_mesh.top_radius = 0.785
+			band_mesh.bottom_radius = 0.785
+			band_mesh.height = 0.075
+			boiler_band.mesh = band_mesh
+			boiler_band.position = Vector3(30.0, 1.85, band_z)
+			boiler_band.rotation_degrees.x = 90.0
+			var band_material := StandardMaterial3D.new()
+			band_material.albedo_color = Color(0.72, 0.43, 0.13)
+			band_material.metallic = 0.82
+			band_material.roughness = 0.24
+			boiler_band.material_override = band_material
+			world_intro_root.add_child(boiler_band)
 
-	_intro_box("Boiler whistle base", Vector3(30.0, 2.61, -0.85), Vector3(0.22, 0.10, 0.22), Color(0.70, 0.43, 0.14), 0.82)
-	_intro_box("Boiler whistle", Vector3(30.0, 2.78, -0.85), Vector3(0.10, 0.26, 0.10), Color(0.66, 0.39, 0.12), 0.78)
+		_intro_box("Boiler whistle base", Vector3(30.0, 2.61, -0.85), Vector3(0.22, 0.10, 0.22), Color(0.70, 0.43, 0.14), 0.82)
+		_intro_box("Boiler whistle", Vector3(30.0, 2.78, -0.85), Vector3(0.10, 0.26, 0.10), Color(0.66, 0.39, 0.12), 0.78)
+		_intro_box("Headlamp brass housing", Vector3(30.0, 2.0, -3.52), Vector3(0.62, 0.62, 0.30), Color(0.72, 0.43, 0.13), 0.8)
+		var headlamp_glass := MeshInstance3D.new()
+		headlamp_glass.name = "Glowing round headlamp lens"
+		var headlamp_mesh := SphereMesh.new()
+		headlamp_mesh.radius = 0.21
+		headlamp_mesh.height = 0.42
+		headlamp_glass.mesh = headlamp_mesh
+		headlamp_glass.position = Vector3(30.0, 2.0, -3.72)
+		var glow_material := StandardMaterial3D.new()
+		glow_material.albedo_color = Color(1.0, 0.66, 0.24)
+		glow_material.emission_enabled = true
+		glow_material.emission = Color(1.0, 0.48, 0.12)
+		glow_material.emission_energy_multiplier = 1.8
+		headlamp_glass.material_override = glow_material
+		world_intro_root.add_child(headlamp_glass)
+		var headlamp_light := OmniLight3D.new()
+		headlamp_light.position = Vector3(30.0, 2.0, -4.0)
+		headlamp_light.light_color = Color(1.0, 0.52, 0.20)
+		headlamp_light.light_energy = 2.2
+		headlamp_light.omni_range = 8.0
+		world_intro_root.add_child(headlamp_light)
+		var nameplate := Label3D.new()
+		nameplate.name = "Lost and Found nameplate"
+		nameplate.text = "Lost & Found"
+		nameplate.font_size = 48
+		nameplate.pixel_size = 0.003
+		nameplate.modulate = Color(1.0, 0.72, 0.36)
+		nameplate.position = Vector3(30.0, 1.46, -3.78)
+		nameplate.rotation_degrees.y = 180.0
+		world_intro_root.add_child(nameplate)
+		for x in [28.55, 31.45]:
+			for z in [-2.35, 0.1, 2.25]:
+				var wheel := MeshInstance3D.new()
+				var wheel_mesh := CylinderMesh.new()
+				wheel_mesh.top_radius = 0.53
+				wheel_mesh.bottom_radius = 0.53
+				wheel_mesh.height = 0.18
+				wheel.mesh = wheel_mesh
+				wheel.position = Vector3(x, 0.73, z)
+				wheel.rotation_degrees.z = 90.0
+				var wheel_mat := StandardMaterial3D.new()
+				wheel_mat.albedo_color = Color(0.055, 0.06, 0.065)
+				wheel_mat.metallic = 0.72
+				wheel_mat.roughness = 0.34
+				wheel.material_override = wheel_mat
+				world_intro_root.add_child(wheel)
+				var wheel_rim := MeshInstance3D.new()
+				wheel_rim.name = "Machined wheel rim"
+				var rim := TorusMesh.new()
+				rim.inner_radius = 0.39
+				rim.outer_radius = 0.48
+				wheel_rim.mesh = rim
+				wheel_rim.position = Vector3(x + (0.105 if x > 30.0 else -0.105), 0.73, z)
+				wheel_rim.rotation_degrees.y = 90.0
+				var wheel_rim_mat := StandardMaterial3D.new()
+				wheel_rim_mat.albedo_color = Color(0.28, 0.30, 0.31)
+				wheel_rim_mat.metallic = 0.8
+				wheel_rim_mat.roughness = 0.3
+				wheel_rim.material_override = wheel_rim_mat
+				world_intro_root.add_child(wheel_rim)
+				var hub := MeshInstance3D.new()
+				hub.name = "Brass wheel hub"
+				var hub_mesh := CylinderMesh.new()
+				hub_mesh.top_radius = 0.13
+				hub_mesh.bottom_radius = 0.13
+				hub_mesh.height = 0.24
+				hub.mesh = hub_mesh
+				hub.position = Vector3(x + (0.14 if x > 30.0 else -0.14), 0.73, z)
+				hub.rotation_degrees.z = 90.0
+				hub.material_override = rim_mat
+				world_intro_root.add_child(hub)
+
+		# Exposed side rods connect the visible wheel centers so the engine reads as
+		# a mechanical locomotive rather than a static green box on wheels.
+		for side in [-1.0, 1.0]:
+			var rod := _intro_box("LocomotiveConnectingRod_%s" % ("L" if side < 0.0 else "R"),
+				Vector3(30.0 + side * 1.54, 0.73, -0.05), Vector3(0.075, 0.09, 4.95),
+				Color(0.42, 0.45, 0.46), 0.82)
+			rod.rotation.y = 0.0
+			for joint_z in [-2.35, 0.1, 2.25]:
+				var joint := MeshInstance3D.new()
+				joint.name = "Connecting rod brass joint"
+				var joint_mesh := SphereMesh.new()
+				joint_mesh.radius = 0.095
+				joint_mesh.height = 0.19
+				joint.mesh = joint_mesh
+				joint.position = Vector3(30.0 + side * 1.56, 0.73, joint_z)
+				var joint_material := StandardMaterial3D.new()
+				joint_material.albedo_color = Color(0.69, 0.43, 0.14)
+				joint_material.metallic = 0.78
+				joint_material.roughness = 0.28
+				joint.material_override = joint_material
+				world_intro_root.add_child(joint)
 	var smoke_material := StandardMaterial3D.new()
 	smoke_material.albedo_color = Color(0.66, 0.73, 0.80, 0.26)
 	smoke_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -1374,99 +1477,6 @@ func _build_world_intro() -> void:
 		steam.scale = smoke_spec[1]
 		steam.material_override = smoke_material
 		world_intro_root.add_child(steam)
-	_intro_box("Headlamp brass housing", Vector3(30.0, 2.0, -3.52), Vector3(0.62, 0.62, 0.30), Color(0.72, 0.43, 0.13), 0.8)
-	var headlamp_glass := MeshInstance3D.new()
-	headlamp_glass.name = "Glowing round headlamp lens"
-	var headlamp_mesh := SphereMesh.new()
-	headlamp_mesh.radius = 0.21
-	headlamp_mesh.height = 0.42
-	headlamp_glass.mesh = headlamp_mesh
-	headlamp_glass.position = Vector3(30.0, 2.0, -3.72)
-	var glow_material := StandardMaterial3D.new()
-	glow_material.albedo_color = Color(1.0, 0.66, 0.24)
-	glow_material.emission_enabled = true
-	glow_material.emission = Color(1.0, 0.48, 0.12)
-	glow_material.emission_energy_multiplier = 1.8
-	headlamp_glass.material_override = glow_material
-	world_intro_root.add_child(headlamp_glass)
-	var headlamp_light := OmniLight3D.new()
-	headlamp_light.position = Vector3(30.0, 2.0, -4.0)
-	headlamp_light.light_color = Color(1.0, 0.52, 0.20)
-	headlamp_light.light_energy = 2.2
-	headlamp_light.omni_range = 8.0
-	world_intro_root.add_child(headlamp_light)
-	var nameplate := Label3D.new()
-	nameplate.name = "Lost and Found nameplate"
-	nameplate.text = "Lost & Found"
-	nameplate.font_size = 48
-	nameplate.pixel_size = 0.003
-	nameplate.modulate = Color(1.0, 0.72, 0.36)
-	nameplate.position = Vector3(30.0, 1.46, -3.78)
-	nameplate.rotation_degrees.y = 180.0
-	world_intro_root.add_child(nameplate)
-	for x in [28.55, 31.45]:
-		for z in [-2.35, 0.1, 2.25]:
-			var wheel := MeshInstance3D.new()
-			var wheel_mesh := CylinderMesh.new()
-			wheel_mesh.top_radius = 0.53
-			wheel_mesh.bottom_radius = 0.53
-			wheel_mesh.height = 0.18
-			wheel.mesh = wheel_mesh
-			wheel.position = Vector3(x, 0.73, z)
-			wheel.rotation_degrees.z = 90.0
-			var wheel_mat := StandardMaterial3D.new()
-			wheel_mat.albedo_color = Color(0.055, 0.06, 0.065)
-			wheel_mat.metallic = 0.72
-			wheel_mat.roughness = 0.34
-			wheel.material_override = wheel_mat
-			world_intro_root.add_child(wheel)
-			var wheel_rim := MeshInstance3D.new()
-			wheel_rim.name = "Machined wheel rim"
-			var rim := TorusMesh.new()
-			rim.inner_radius = 0.39
-			rim.outer_radius = 0.48
-			wheel_rim.mesh = rim
-			wheel_rim.position = Vector3(x + (0.105 if x > 30.0 else -0.105), 0.73, z)
-			wheel_rim.rotation_degrees.y = 90.0
-			var wheel_rim_mat := StandardMaterial3D.new()
-			wheel_rim_mat.albedo_color = Color(0.28, 0.30, 0.31)
-			wheel_rim_mat.metallic = 0.8
-			wheel_rim_mat.roughness = 0.3
-			wheel_rim.material_override = wheel_rim_mat
-			world_intro_root.add_child(wheel_rim)
-			var hub := MeshInstance3D.new()
-			hub.name = "Brass wheel hub"
-			var hub_mesh := CylinderMesh.new()
-			hub_mesh.top_radius = 0.13
-			hub_mesh.bottom_radius = 0.13
-			hub_mesh.height = 0.24
-			hub.mesh = hub_mesh
-			hub.position = Vector3(x + (0.14 if x > 30.0 else -0.14), 0.73, z)
-			hub.rotation_degrees.z = 90.0
-			hub.material_override = rim_mat
-			world_intro_root.add_child(hub)
-
-	# Exposed side rods connect the visible wheel centers so the engine reads as
-	# a mechanical locomotive rather than a static green box on wheels.
-	for side in [-1.0, 1.0]:
-		var rod := _intro_box("LocomotiveConnectingRod_%s" % ("L" if side < 0.0 else "R"),
-			Vector3(30.0 + side * 1.54, 0.73, -0.05), Vector3(0.075, 0.09, 4.95),
-			Color(0.42, 0.45, 0.46), 0.82)
-		rod.rotation.y = 0.0
-		for joint_z in [-2.35, 0.1, 2.25]:
-			var joint := MeshInstance3D.new()
-			joint.name = "Connecting rod brass joint"
-			var joint_mesh := SphereMesh.new()
-			joint_mesh.radius = 0.095
-			joint_mesh.height = 0.19
-			joint.mesh = joint_mesh
-			joint.position = Vector3(30.0 + side * 1.56, 0.73, joint_z)
-			var joint_material := StandardMaterial3D.new()
-			joint_material.albedo_color = Color(0.69, 0.43, 0.14)
-			joint_material.metallic = 0.78
-			joint_material.roughness = 0.28
-			joint.material_override = joint_material
-			world_intro_root.add_child(joint)
 
 	_intro_box("Passenger carriage body", Vector3(30.0, 2.0, 7.6), Vector3(3.8, 2.7, 7.0), Color(0.035, 0.12, 0.085), 0.38)
 	_intro_box("Passenger carriage roof", Vector3(30.0, 3.45, 7.6), Vector3(4.0, 0.25, 7.2), Color(0.07, 0.045, 0.035), 0.3)
