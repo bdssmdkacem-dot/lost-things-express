@@ -11,6 +11,9 @@ var status_label: Label
 var objective_label: Label
 var prompt_label: Label
 var interact_button: Button
+var inventory_button: Button
+var inventory_label: Label
+var inventory_open := false
 var yaw := 0.0
 var pitch := -0.04
 var touch_move_id := -1
@@ -224,6 +227,31 @@ func _build_ui() -> void:
 	interact_button.pressed.connect(_interact)
 	root.add_child(interact_button)
 
+	inventory_button = Button.new()
+	inventory_button.text = "BAG · 0"
+	inventory_button.anchor_left = 0.82
+	inventory_button.anchor_top = 0.04
+	inventory_button.anchor_right = 0.96
+	inventory_button.anchor_bottom = 0.12
+	inventory_button.add_theme_font_size_override("font_size", 18)
+	inventory_button.pressed.connect(_toggle_inventory)
+	root.add_child(inventory_button)
+
+	inventory_label = Label.new()
+	inventory_label.anchor_left = 0.66
+	inventory_label.anchor_top = 0.14
+	inventory_label.anchor_right = 0.96
+	inventory_label.anchor_bottom = 0.34
+	inventory_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	inventory_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	inventory_label.add_theme_font_size_override("font_size", 17)
+	inventory_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.66))
+	inventory_label.add_theme_color_override("font_shadow_color", Color(0.02, 0.015, 0.01, 0.9))
+	inventory_label.add_theme_constant_override("shadow_offset_x", 2)
+	inventory_label.add_theme_constant_override("shadow_offset_y", 2)
+	inventory_label.visible = false
+	root.add_child(inventory_label)
+
 	var hint := Label.new()
 	hint.text = "Drag the left side to move • drag the right side to look"
 	hint.anchor_left = 0.15
@@ -240,6 +268,9 @@ func _process(_delta: float) -> void:
 	objective_label.text = _objective_text()
 	interact_button.disabled = nearby_object == null
 	prompt_label.text = "Inspect: " + str(nearby_object.get_meta("display_name", "object")) if nearby_object else ""
+	inventory_button.text = "BAG · %d" % _inventory_count()
+	inventory_label.visible = inventory_open
+	inventory_label.text = _inventory_text()
 
 func _physics_process(_delta: float) -> void:
 	var input_vector := Vector2(
@@ -275,6 +306,8 @@ func _input(event: InputEvent) -> void:
 
 	if event is InputEventScreenTouch:
 		var width := get_viewport().get_visible_rect().size.x
+		if event.pressed and ((is_instance_valid(interact_button) and interact_button.get_global_rect().has_point(event.position)) or (is_instance_valid(inventory_button) and inventory_button.get_global_rect().has_point(event.position))):
+			return
 		if event.pressed:
 			if event.position.x < width * 0.45 and touch_move_id == -1:
 				touch_move_id = event.index
@@ -292,7 +325,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventScreenDrag:
 		if event.index == touch_move_id:
 			var drag := (event.position - touch_move_origin) / 90.0
-			touch_move_vector = Vector2(clampf(drag.x, -1.0, 1.0), clampf(-drag.y, -1.0, 1.0))
+			touch_move_vector = Vector2(clampf(drag.x, -1.0, 1.0), clampf(drag.y, -1.0, 1.0))
 		elif event.index == touch_look_id:
 			_apply_look(event.relative)
 
@@ -345,6 +378,26 @@ func _interact() -> void:
 				_set_status("The chest opens! Inside is an old photograph and a new destination: Sunset Station.")
 		_:
 			_set_status("Nothing happens here yet.")
+
+func _toggle_inventory() -> void:
+	inventory_open = not inventory_open
+
+func _inventory_count() -> int:
+	var count := 0
+	if has_key:
+		count += 1
+	if letter_read:
+		count += 1
+	if chest_open:
+		count += 1
+	return count
+
+func _inventory_text() -> String:
+	var lines := ["INVENTORY"]
+	lines.append("• Brass key" if has_key else "• Brass key — not found")
+	lines.append("• Torn letter (read)" if letter_read else "• Torn letter — unread")	
+	lines.append("• Sunset photograph" if chest_open else "• Memory chest reward — undiscovered")
+	return "\\n".join(lines)
 
 func _objective_text() -> String:
 	if chest_open:
