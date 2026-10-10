@@ -17,6 +17,7 @@ permissions:
 jobs:
   build-android:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -30,6 +31,12 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           packages: "platform-tools platforms;android-34 build-tools;34.0.0"
+
+      - name: Install Blender for .blend resource import
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender
+          blender --version
 
       - name: Install Godot 4.3 and export templates
         uses: chickensoft-games/setup-godot@v1
@@ -52,11 +59,11 @@ jobs:
           test -f export_presets.cfg
           mkdir -p build
 
-      - name: Import project resources
-        run: godot --headless --editor --path . --quit
+      - name: Import project resources (15 minute limit)
+        run: timeout --signal=TERM --kill-after=30s 15m godot --headless --editor --path . --quit --verbose
 
-      - name: Validate game scene
-        run: godot --headless --path . --quit-after 5
+      - name: Validate game scene (2 minute limit)
+        run: timeout --signal=TERM --kill-after=15s 2m godot --headless --path . --quit-after 5 --verbose
 
       - name: Export Android APK
         run: |
