@@ -82,12 +82,12 @@ Build these as separately named, reusable Blender collections and Godot scene/co
 The current prototype is **not approved as visually complete**. The next production work must improve the foundations, not merely add polish on top of placeholder geometry.
 
 ### Required production order
-1. Replace primitive first-person hands and placeholder object shapes with authored, coherent 3D assets and credible materials, proportions, and contact points.
-2. Rebuild the opening carriage to the approved reference: carved walnut/mahogany joinery, emerald upholstered seating, patterned aisle carpet, tall windows and pleated curtains, ivory ceiling with ribs, warm brass lamps, luggage racks and layered doorway depth.
-3. Make interactions physically coherent: the real letter remains visible between both hands while its text is readable on the paper; the brass key remains in the grip; the chest lock, hand action, hinged lid and photograph behave as one connected sequence.
-4. Rework the clock carriage connection and verify the real player collider can pass through the doorway without invisible blockers, snagging, teleport-like movement or changes to the established controls.
-5. Rebuild and visually review the pre-entry locomotive scene as a cinematic composition with convincing boiler silhouette, wheels/rods, brass fittings, passenger carriage, connected curved rails, floating islands, atmosphere and consistent scale.
-6. Run automated project checks and Android build, then inspect actual in-game renders at mobile aspect ratio and verify the sequence on a real device before approving quality.
+1. **Finish the opening locomotive/world shot first.** Replace the primitive train silhouette with an authored, detailed locomotive; build physically continuous curved rails and visible viaduct links; make the distant worlds read as terrain with depth, vegetation, architecture, atmosphere and consistent scale. Iterate from actual mobile-aspect screenshots until the opening scene is explicitly approved.
+2. Rebuild the playable carriage to the approved reference: carved walnut/mahogany joinery, emerald upholstered seating, patterned aisle carpet, tall windows and pleated curtains, ivory ceiling with ribs, warm brass lamps, luggage racks and layered doorway depth.
+3. Verify that the world beyond the carriage windows belongs to the same rail-connected setting, with no disconnected placeholder ovals or scenery that contradicts the establishing shot.
+4. Make the story interactions physically coherent: key pickup, letter inspection, chest lock, hinged lid and photograph reveal must form one understandable sequence and persist after save/resume.
+5. **Only after the opening train/world scene is visually approved, move on to the first-person hands.** Replace the primitive hands with authored, believable anatomy and materials; validate grasp/contact points, finger proportions, paper visibility and animation in actual mobile captures.
+6. Run automated project checks and Android build, then inspect actual in-game renders at mobile aspect ratio and verify the complete sequence on a real device before approving quality.
 
 ### Non-negotiable rules
 - Prioritize asset quality and visual inspection before expanding content.
