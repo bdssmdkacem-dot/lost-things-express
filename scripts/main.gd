@@ -279,6 +279,18 @@ func _build_first_person_hands() -> void:
 			finger.rotation_degrees.x = -18.0
 			first_person_hands.add_child(finger)
 
+		# A separate angled thumb gives each hand a readable, grasp-ready silhouette.
+		var thumb := MeshInstance3D.new()
+		thumb.name = "Thumb_%s" % ("L" if side < 0.0 else "R")
+		var thumb_mesh := CapsuleMesh.new()
+		thumb_mesh.radius = 0.024
+		thumb_mesh.height = 0.09
+		thumb.mesh = thumb_mesh
+		thumb.material_override = skin_material
+		thumb.position = Vector3(side * 0.30 + side * 0.09, -0.205, -0.755)
+		thumb.rotation_degrees = Vector3(-12.0, 0.0, side * 34.0)
+		first_person_hands.add_child(thumb)
+
 func _play_hand_action(action: String) -> void:
 	if not is_instance_valid(first_person_hands):
 		return
