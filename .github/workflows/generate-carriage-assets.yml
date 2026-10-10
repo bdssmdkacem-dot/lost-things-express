@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: carriage-art-${{ github.ref }}
@@ -67,6 +68,11 @@ jobs:
             git rebase origin/main
             git push origin HEAD:main
           fi
+
+      - name: Trigger signed Android APK build for regenerated carriage
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run android-apk.yml --ref main
 
       - name: Upload generated carriage assets for review
         uses: actions/upload-artifact@v4
