@@ -397,7 +397,7 @@ func _inventory_text() -> String:
 	lines.append("• Brass key" if has_key else "• Brass key — not found")
 	lines.append("• Torn letter (read)" if letter_read else "• Torn letter — unread")
 	lines.append("• Sunset photograph" if chest_open else "• Memory chest reward — undiscovered")
-	return "\\n".join(lines)
+	return "\n".join(lines)
 
 func _objective_text() -> String:
 	if chest_open:
