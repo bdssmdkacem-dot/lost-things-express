@@ -29,6 +29,9 @@ func _run_first_slice() -> void:
 		return
 	if not _check(station_clock != null and station_clock.is_in_group("interactables"), "the next carriage clock interaction is missing"):
 		return
+	var window_vista := game.get_node_or_null("WindowVista") as Node3D
+	if not _check(window_vista != null and window_vista.get_child_count() == 9, "the carriage windows are missing their floating-island vista and distant station beacons"):
+		return
 
 	# First-person hands are a required part of every story interaction, not an optional visual.
 	var hands := game.get("first_person_hands") as Node3D
