@@ -1018,7 +1018,11 @@ func _build_world_intro() -> void:
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.48, 0.43, 0.54)
-	env.ambient_light_energy = 0.88
+	env.ambient_light_energy = 0.92
+	env.fog_enabled = true
+	env.fog_light_color = Color(0.19, 0.25, 0.36)
+	env.fog_density = 0.008
+	env.fog_sky_affect = 0.30
 	intro_environment = env
 	if is_instance_valid(world_environment):
 		world_environment.environment = intro_environment
@@ -1603,9 +1607,9 @@ func _process(_delta: float) -> void:
 	interact_button.disabled = nearby_object == null and not letter_inspecting
 	interact_button.text = "CLOSE LETTER" if letter_inspecting else "✦  INTERACT"
 	prompt_label.text = "Read the physical letter · tap CLOSE LETTER when finished" if letter_inspecting else ("Inspect: " + str(nearby_object.get_meta("display_name", "object")) if nearby_object else "")
-	prompt_label.visible = (nearby_object != null or letter_inspecting) and not story_card_open and not game_paused
+	prompt_label.visible = (nearby_object != null or letter_inspecting) and not story_card_open and not game_paused and not world_intro_active
 	if is_instance_valid(pause_button):
-		pause_button.visible = not inventory_open and not story_card_open and not game_paused
+		pause_button.visible = not inventory_open and not story_card_open and not game_paused and not world_intro_active
 	inventory_button.text = "BAG · %d" % _inventory_count()
 	inventory_label.visible = inventory_open
 	inventory_label.text = _inventory_text()
