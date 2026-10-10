@@ -62,6 +62,9 @@ MATS = {
     for name, color in COLORS.items()
 }
 
+# Define seat upholstery before any seat geometry references it.
+seat_leather = material("Seats | emerald green leather", (0.018, 0.16, 0.072, 1), roughness=0.34)
+
 def assign(obj, mat):
     obj.data.materials.append(mat)
     return obj
@@ -283,7 +286,6 @@ def create_carriage():
     velvet_highlight = material("Velvet | raised piping", (0.48, 0.075, 0.085, 1), roughness=0.72)
     inlay = material("Wood inlay | warm brass line", (0.82, 0.53, 0.22, 1), metallic=0.58, roughness=0.29)
     leather = material("Luggage | oxblood leather", (0.19, 0.035, 0.025, 1), roughness=0.58)
-    seat_leather = material("Seats | emerald green leather", (0.018, 0.16, 0.072, 1), roughness=0.34)
 
     # Multi-step window surrounds and lower sills make the windows feel architectural,
     # not like flat panes pasted onto the wall.
