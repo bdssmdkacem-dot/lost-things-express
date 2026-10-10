@@ -4,6 +4,10 @@ func _initialize() -> void:
 	call_deferred("_run_first_slice")
 
 func _run_first_slice() -> void:
+	# Keep this test deterministic even if it is rerun in a reused editor profile.
+	var save_path := ProjectSettings.globalize_path("user://first_stage_progress.cfg")
+	if FileAccess.file_exists("user://first_stage_progress.cfg"):
+		DirAccess.remove_absolute(save_path)
 	var packed_scene := load("res://scenes/main.tscn") as PackedScene
 	if not _check(packed_scene != null, "main scene could not be loaded"):
 		return
@@ -65,8 +69,21 @@ func _run_first_slice() -> void:
 	if not _check(str(game.call("_objective_text")).to_lower().contains("complete"), "completion objective was not displayed"):
 		return
 
-	print("FIRST_SLICE_TESTS_PASSED: key -> letter -> memory chest -> sunset photograph")
+	# Verify that a relaunch restores the solved puzzle instead of losing progress.
+	game.call("_save_progress")
 	game.queue_free()
+	await process_frame
+	var resumed_game := packed_scene.instantiate() as Node3D
+	root.add_child(resumed_game)
+	await process_frame
+	if not _check(bool(resumed_game.get("has_key")), "saved key progress was not restored"):
+		return
+	if not _check(bool(resumed_game.get("letter_read")), "saved letter progress was not restored"):
+		return
+	if not _check(bool(resumed_game.get("chest_open")), "saved chest progress was not restored"):
+		return
+	print("FIRST_SLICE_TESTS_PASSED: key -> letter -> memory chest -> sunset photograph -> save/resume")
+	resumed_game.queue_free()
 	await process_frame
 	quit(0)
 
