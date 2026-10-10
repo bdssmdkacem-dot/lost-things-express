@@ -365,6 +365,12 @@ func _play_hand_action(action: String) -> void:
 	first_person_hands.visible = true
 	hand_action_tween = create_tween()
 	hand_action_tween.set_parallel(true)
+	for part in first_person_hands.get_children():
+		if part.name.begins_with("Finger_"):
+			hand_action_tween.tween_property(part, "rotation_degrees", Vector3(-48.0, 0.0, 0.0), 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		elif part.name.begins_with("Thumb_"):
+			var thumb_roll := 24.0 if part.name.ends_with("R") else -24.0
+			hand_action_tween.tween_property(part, "rotation_degrees", Vector3(-28.0, 0.0, thumb_roll), 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	match action:
 		"take":
 			hand_action_tween.tween_property(first_person_hands, "position", Vector3(0.0, 0.13, -0.34), 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
@@ -379,9 +385,18 @@ func _play_hand_action(action: String) -> void:
 	hand_action_tween.tween_interval(0.12)
 	hand_action_tween.tween_property(first_person_hands, "position", Vector3.ZERO, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	hand_action_tween.parallel().tween_property(first_person_hands, "rotation", Vector3.ZERO, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	for part in first_person_hands.get_children():
+		if part.name.begins_with("Finger_"):
+			hand_action_tween.parallel().tween_property(part, "rotation_degrees", Vector3(-18.0, 0.0, 0.0), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		elif part.name.begins_with("Thumb_"):
+			var thumb_roll := 34.0 if part.name.ends_with("R") else -34.0
+			hand_action_tween.parallel().tween_property(part, "rotation_degrees", Vector3(-12.0, 0.0, thumb_roll), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	hand_action_tween.tween_callback(func() -> void:
 		if is_instance_valid(first_person_hands):
 			first_person_hands.visible = false
+		if is_instance_valid(held_key_prop):
+			held_key_prop.queue_free()
+			held_key_prop = null
 	)
 
 func _create_held_key_prop() -> void:
