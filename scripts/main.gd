@@ -1459,13 +1459,13 @@ func _build_world_intro() -> void:
 				joint.material_override = joint_material
 				world_intro_root.add_child(joint)
 	var smoke_material := StandardMaterial3D.new()
-	smoke_material.albedo_color = Color(0.66, 0.73, 0.80, 0.26)
+	smoke_material.albedo_color = Color(0.78, 0.83, 0.90, 0.13)
 	smoke_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	smoke_material.roughness = 1.0
 	for smoke_spec in [
-		[Vector3(30.0, 3.76, -2.15), Vector3(0.52, 0.40, 0.52)],
-		[Vector3(30.35, 4.12, -2.32), Vector3(0.42, 0.34, 0.43)],
-		[Vector3(29.68, 4.34, -2.48), Vector3(0.34, 0.28, 0.35)]
+		[Vector3(30.0, 3.72, -2.15), Vector3(0.38, 0.28, 0.36)],
+		[Vector3(30.25, 4.03, -2.30), Vector3(0.30, 0.23, 0.29)],
+		[Vector3(29.78, 4.25, -2.42), Vector3(0.23, 0.18, 0.22)]
 	]:
 		var steam := MeshInstance3D.new()
 		steam.name = "SoftSteamPuff_%02d" % world_intro_root.get_child_count()
@@ -1519,6 +1519,33 @@ func _build_terrain_crown(seed_index: int) -> ArrayMesh:
 			surface.add_vertex(a0)
 			surface.add_vertex(b0)
 			surface.add_vertex(b1)
+
+	# Build irregular rock walls below the grassy crown instead of leaving a
+	# thin flat surface above a separate cone.
+	var side_segments := 20
+	for segment in range(side_segments):
+		var angle_a := TAU * float(segment) / float(side_segments)
+		var angle_b := TAU * float(segment + 1) / float(side_segments)
+		var radius_a := 1.0 + 0.19 * sin(angle_a * 3.0 + float(seed_index)) + 0.10 * cos(angle_a * 5.0 - float(seed_index)) + 0.045 * sin(angle_a * 7.0 + float(seed_index))
+		var radius_b := 1.0 + 0.19 * sin(angle_b * 3.0 + float(seed_index)) + 0.10 * cos(angle_b * 5.0 - float(seed_index)) + 0.045 * sin(angle_b * 7.0 + float(seed_index))
+		var top_a := Vector3(cos(angle_a) * radius_a, 0.10 + 0.22 * sin(angle_a * 4.0 + float(seed_index)) - 0.13, sin(angle_a) * radius_a)
+		var top_b := Vector3(cos(angle_b) * radius_b, 0.10 + 0.22 * sin(angle_b * 4.0 + float(seed_index)) - 0.13, sin(angle_b) * radius_b)
+		var mid_a := Vector3(cos(angle_a) * radius_a * 0.78, -0.30 + 0.12 * sin(angle_a * 3.0), sin(angle_a) * radius_a * 0.78)
+		var mid_b := Vector3(cos(angle_b) * radius_b * 0.78, -0.30 + 0.12 * sin(angle_b * 3.0), sin(angle_b) * radius_b * 0.78)
+		var low_a := Vector3(cos(angle_a) * radius_a * 0.20, -1.45 + 0.10 * cos(angle_a * 4.0), sin(angle_a) * radius_a * 0.20)
+		var low_b := Vector3(cos(angle_b) * radius_b * 0.20, -1.45 + 0.10 * cos(angle_b * 4.0), sin(angle_b) * radius_b * 0.20)
+		surface.add_vertex(top_a)
+		surface.add_vertex(mid_b)
+		surface.add_vertex(mid_a)
+		surface.add_vertex(top_a)
+		surface.add_vertex(top_b)
+		surface.add_vertex(mid_b)
+		surface.add_vertex(mid_a)
+		surface.add_vertex(low_b)
+		surface.add_vertex(low_a)
+		surface.add_vertex(mid_a)
+		surface.add_vertex(mid_b)
+		surface.add_vertex(low_b)
 	surface.generate_normals()
 	return surface.commit()
 
