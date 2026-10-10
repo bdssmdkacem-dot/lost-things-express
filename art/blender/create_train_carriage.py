@@ -55,7 +55,7 @@ def material(name, color, metallic=0.0, roughness=0.45, emission=0.0):
     lower_name = name.lower()
     is_wood = any(token in lower_name for token in ("mahogany", "dark wood", "wood light", "walnut"))
     is_leather = "leather" in lower_name
-    is_fabric = any(token in lower_name for token in ("velvet", "curtain", "upholstery", "emerald woven"))
+    is_fabric = any(token in lower_name for token in ("velvet", "curtain", "upholstery", "emerald woven", "carpet", "jacquard"))
     if is_wood or is_leather or is_fabric:
         nodes = mat.node_tree.nodes
         links = mat.node_tree.links
@@ -63,7 +63,7 @@ def material(name, color, metallic=0.0, roughness=0.45, emission=0.0):
         coordinates.location = (-720, 40)
         noise = nodes.new("ShaderNodeTexNoise")
         noise.location = (-500, 40)
-        noise.inputs["Scale"].default_value = 13.0 if is_wood else (32.0 if is_leather else 24.0)
+        noise.inputs["Scale"].default_value = 13.0 if is_wood else (32.0 if is_leather else (58.0 if "carpet" in lower_name or "jacquard" in lower_name else 24.0))
         noise.inputs["Detail"].default_value = 2.5
         noise.inputs["Roughness"].default_value = 0.68
         links.new(coordinates.outputs["Generated"], noise.inputs["Vector"])
@@ -80,8 +80,8 @@ def material(name, color, metallic=0.0, roughness=0.45, emission=0.0):
 
         bump = nodes.new("ShaderNodeBump")
         bump.location = (-20, -160)
-        bump.inputs["Strength"].default_value = 0.055 if is_wood else (0.045 if is_leather else 0.035)
-        bump.inputs["Distance"].default_value = 0.018 if is_wood else 0.008
+        bump.inputs["Strength"].default_value = 0.055 if is_wood else (0.045 if is_leather else (0.12 if "carpet" in lower_name or "jacquard" in lower_name else 0.035))
+        bump.inputs["Distance"].default_value = 0.018 if is_wood else (0.012 if "carpet" in lower_name or "jacquard" in lower_name else 0.008)
         links.new(noise.outputs["Fac"], bump.inputs["Height"])
         links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
 
@@ -205,6 +205,44 @@ def create_carriage():
         z = -5.72 + i * 0.49
         cube("Floor plank %02d" % (i + 1), (0, 0.012, z), (5.55, 0.035, 0.455),
              floor_wood_alt if i % 4 == 0 else floor_wood, 0.012, details)
+
+    # A bespoke emerald jacquard runner breaks up the long aisle and anchors the
+    # warm brass palette. Its low relief keeps the surface readable at phone scale.
+    carpet = material("Aisle carpet | emerald woven jacquard",
+                      (0.012, 0.075, 0.043, 1), roughness=0.92)
+    carpet_nodes = carpet.node_tree.nodes
+    carpet_links = carpet.node_tree.links
+    carpet_bsdf = carpet_nodes.get("Principled BSDF")
+    carpet_noise = carpet_nodes.new("ShaderNodeTexNoise")
+    carpet_noise.inputs["Scale"].default_value = 165.0
+    carpet_noise.inputs["Detail"].default_value = 2.0
+    carpet_noise.inputs["Roughness"].default_value = 0.78
+    carpet_bump = carpet_nodes.new("ShaderNodeBump")
+    carpet_bump.inputs["Strength"].default_value = 0.12
+    carpet_bump.inputs["Distance"].default_value = 0.012
+    carpet_links.new(carpet_noise.outputs["Fac"], carpet_bump.inputs["Height"])
+    carpet_links.new(carpet_bump.outputs["Normal"], carpet_bsdf.inputs["Normal"])
+    cube("Aisle carpet | continuous emerald runner", (0, 0.047, 0),
+         (1.34, 0.025, 11.35), carpet, 0.025, details)
+    for side in (-1, 1):
+        cube("Aisle carpet | outer antique-gold border", (side * 0.59, 0.064, 0),
+             (0.028, 0.012, 11.20), MATS["brass_highlight"], 0.006, details)
+        cube("Aisle carpet | inner fine border", (side * 0.535, 0.064, 0),
+             (0.012, 0.010, 11.12), MATS["brass"], 0.004, details)
+    for idx, z in enumerate(range(-5, 6), 1):
+        motif = cube("Aisle carpet | woven diamond %02d" % idx,
+                     (0, 0.066, z * 0.96), (0.16, 0.012, 0.16),
+                     MATS["brass"], 0.008, details)
+        motif.rotation_euler[1] = math.radians(45.0)
+        for side in (-1, 1):
+            cube("Aisle carpet | side stitch %02d %s" % (idx, "L" if side < 0 else "R"),
+                 (side * 0.39, 0.064, z * 0.96), (0.045, 0.010, 0.045),
+                 MATS["brass_highlight"], 0.006, details)
+    for end_z in (-5.43, 5.43):
+        for side in (-1, 1):
+            cube("Aisle carpet | end cap stitch",
+                 (side * 0.39, 0.065, end_z), (0.07, 0.012, 0.07),
+                 MATS["brass_highlight"], 0.006, details)
     cube("Ceiling | inner canopy", (0, 3.48, 0), (5.8, 0.18, 12.0), MATS["dark_wood"], 0.045, shell)
     # Side walls are built around real window openings; full-height solid walls
     # behind the glass made the windows look like painted teal panels.
