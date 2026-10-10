@@ -59,18 +59,22 @@ jobs:
       - name: Validate game scene (2 minute limit)
         run: timeout --signal=TERM --kill-after=15s 2m godot --headless --path . --quit-after 5 --verbose
 
-      - name: Configure Godot Android SDK path
+      - name: Configure Godot Android and Java paths
         run: |
           mkdir -p "$HOME/.config/godot"
           cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
           [gd_resource type="EditorSettings" format=3]
           [resource]
           export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/java_sdk_path = "$JAVA_HOME"
           EOF
+          echo "Configured Android SDK: $ANDROID_HOME"
+          echo "Configured Java SDK: $JAVA_HOME"
+          cat "$HOME/.config/godot/editor_settings-4.tres"
 
       - name: Export Android APK
         run: |
-          godot --headless --path . --export-debug "Android" build/TheLostThingsExpress.apk
+          godot --headless --path . --export-debug "Android" build/TheLostThingsExpress.apk --verbose
           test -s build/TheLostThingsExpress.apk
 
       - name: Upload installable APK
