@@ -124,6 +124,13 @@ func _run_first_slice() -> void:
 		return
 	if not _check(photo.is_in_group("interactables") and photo.get_node_or_null("StationName") != null, "the photograph is not a readable interactable reward"):
 		return
+	var photo_card := photo.get_node_or_null("PhotographCard") as MeshInstance3D
+	var photo_mesh := photo_card.mesh as BoxMesh if photo_card else null
+	if not _check(photo_mesh != null and photo_mesh.size.y > photo_mesh.size.z * 10.0, "the photograph backing is not oriented as a readable upright card"):
+		return
+	var station_label := photo.get_node_or_null("StationName") as Label3D
+	if not _check(station_label != null and station_label.position.y > -0.16 and station_label.position.y < 0.0, "the station name is not positioned on the photograph face"):
+		return
 	game.call("_close_story_card")
 	player.global_position = photo.global_position + Vector3(0.0, 0.0, 0.22)
 	game.call("_interact")
