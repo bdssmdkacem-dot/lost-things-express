@@ -40,15 +40,17 @@ A premium fantasy train adventure where players explore strange stations, discov
 1. Open the [Android APK workflow](https://github.com/bdssmdkacem-dot/lost-things-express/actions/workflows/android-apk.yml).
 2. Open the latest successful **Android APK** run and download the artifact named `The-Lost-Things-Express-Android-APK`.
 3. The downloaded artifact is a **ZIP archive**. Extract it first; install the inner `TheLostThingsExpress.apk` file, not the ZIP.
-4. The workflow now requires a signed APK, checks 4-byte alignment, verifies the signature with Android's `apksigner`, checks the package identifier, and confirms the Android manifest and arm64 Godot native library are present.
+4. Extract and install the inner `TheLostThingsExpress.apk`, not the ZIP.
+5. The workflow verifies the APK signature, 4-byte alignment, package identifier, manifest and native libraries, then installs and launches the app in an Android 14 x86_64 emulator before publishing the APK.
+6. If you installed a previous test APK signed with a different temporary key, uninstall that old test app once before installing this new build. The CI workflow now caches a stable debug keystore for subsequent builds so upgrades use the same test certificate while that cache is retained.
 
-The CI artifact is a **debug/testing build**, not a release-signed Google Play build. A successful export or artifact upload alone is not proof of a successful installation or playable frame-rate on a phone.
+The CI artifact is a **debug/testing build**, not a release-signed Google Play build. The emulator test checks installation and process startup in CI; it does not replace testing controls, graphics, performance and the puzzle on the target physical phone.
 
 ## Current state
 
-The repository contains the Godot first-person puzzle foundation, a Blender carriage generator, and committed `.blend` / `.glb` outputs. The generator has been updated to add an open framed doorway with a second-compartment depth cue, emerald seat piping, marble side tables, brass reading lamps and overhead leather luggage. The asset regeneration workflow must complete before those new model changes are present in the generated GLB.
+The repository contains the Godot first-person puzzle foundation, a Blender carriage generator, and committed `.blend` / `.glb` outputs. The generator has been updated to add an open framed doorway with a second-compartment depth cue, emerald seat piping, marble side tables, brass reading lamps and overhead leather luggage. The latest generator revision also renders `assets/blender/train_carriage_preview.png` from a camera aligned to the game's opening view. The asset regeneration workflow checks this image, imports the GLB in Godot, launches the scene headlessly, and archives the preview. The model still requires visual inspection against the approved reference; automated generation is not visual approval.
 
-The Android export preset previously had `package/signed=false`, even though the workflow called an APK export successful. That mismatch is corrected: the preset now enables signing and increments the package to version **0.1.1 (version code 2)**. The CI workflow now rejects unsigned, unaligned or structurally incomplete APK files. The resulting new workflow run must pass these checks before its artifact should be installed.
+The Android export preset previously had `package/signed=false`, even though the workflow called an APK export successful. Signing is enabled; version **0.1.2 (version code 3)** is the current test target. The workflow now verifies the signature, checks that both arm64 and x86_64 native libraries are present, checks the package version, and performs an emulator install-and-launch smoke test. Only a build that passes these steps should be offered for installation.
 
 **Visual approval is still pending.** The carriage must be rendered/imported and reviewed at a phone aspect ratio against [docs/ART_DIRECTION.md](docs/ART_DIRECTION.md), followed by a real Android install and a complete key → letter → chest play-through. Do not treat the CI result as visual or device approval.
 
@@ -58,6 +60,8 @@ The Android export preset previously had `package/signed=false`, even though the
 - [x] Define the initial key / letter / chest puzzle flow
 - [x] Add repeatable Blender-to-GLB generation
 - [x] Enable Android APK signing and add APK signature/package verification
+- [x] Add an automated first-person Blender preview render to carriage generation
+- [ ] Inspect the generated preview against the approved carriage reference
 - [ ] Regenerate and visually inspect the revised carriage asset
 - [ ] Review the in-game opening view side by side with the user's reference
 - [ ] Test touch movement, camera look, interactions and collision on an Android phone
