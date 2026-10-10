@@ -12,7 +12,8 @@ extends Node3D
 ## Do not generate a replacement SUNSET STATION image. Match the physical photo card to the supplied references.
 
 const WALK_SPEED := 3.0
-const LOOK_SENSITIVITY := 0.004
+const DEFAULT_LOOK_SENSITIVITY := 0.004
+var look_sensitivity := DEFAULT_LOOK_SENSITIVITY
 const INTERACT_DISTANCE := 3.0
 
 var player: CharacterBody3D
@@ -25,6 +26,11 @@ var prompt_label: Label
 var interact_button: Button
 var inventory_button: Button
 var inventory_label: Label
+var pause_button: Button
+var pause_overlay: ColorRect
+var look_sensitivity_slider: HSlider
+var look_sensitivity_label: Label
+var game_paused := false
 var inventory_open := false
 var yaw := 0.0
 var pitch := -0.04
@@ -56,6 +62,7 @@ func _ready() -> void:
 	_build_world()
 	_build_player()
 	_build_ui()
+	_load_settings()
 	_load_progress()
 	if chest_open:
 		_set_status("Welcome back. The photograph points to Sunset Station.")
@@ -697,6 +704,20 @@ func _build_ui() -> void:
 	inventory_button.pressed.connect(_toggle_inventory)
 	root.add_child(inventory_button)
 
+	pause_button = Button.new()
+	pause_button.name = "PauseButton"
+	pause_button.text = "Ⅱ  PAUSE"
+	pause_button.anchor_left = 0.82
+	pause_button.anchor_top = 0.14
+	pause_button.anchor_right = 0.96
+	pause_button.anchor_bottom = 0.22
+	pause_button.add_theme_font_size_override("font_size", 13)
+	pause_button.add_theme_color_override("font_color", Color(1.0, 0.89, 0.67))
+	pause_button.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.96), Color(0.72, 0.47, 0.19, 0.98), 10, 6))
+	pause_button.add_theme_stylebox_override("pressed", _ui_panel_style(Color(0.40, 0.24, 0.07, 1.0), Color(1.0, 0.80, 0.38, 1.0), 10, 6))
+	pause_button.pressed.connect(_toggle_pause_menu)
+	root.add_child(pause_button)
+
 	inventory_label = Label.new()
 	inventory_label.anchor_left = 0.66
 	inventory_label.anchor_top = 0.14
@@ -726,6 +747,7 @@ func _build_ui() -> void:
 	hint.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.055, 0.068, 0.94), Color(0.42, 0.34, 0.23, 0.88), 8, 5))
 	root.add_child(hint)
 	_build_story_overlay(root)
+	_build_pause_overlay(root)
 
 func _ui_panel_style(fill: Color, edge: Color, corner_radius: int, inset: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -794,9 +816,13 @@ func _build_story_overlay(root: Control) -> void:
 	story_continue.pressed.connect(_on_story_continue_pressed)
 	content.add_child(story_continue)
 
+	# Story cards and pause menus are modal: release any touch gesture captured underneath.
 func _show_story_card(title_text: String, body_text: String, button_text: String) -> void:
 	if not is_instance_valid(story_overlay):
 		return
+	touch_move_id = -1
+	touch_look_id = -1
+	touch_move_vector = Vector2.ZERO
 	story_title.text = title_text
 	story_body.text = body_text
 	story_continue.text = button_text
@@ -1020,7 +1046,7 @@ func _build_world_intro() -> void:
 			_intro_box("Carriage window brass frame", Vector3(x, 2.25, z), Vector3(0.08, 0.95, 0.72), Color(0.67, 0.40, 0.13), 0.78)
 			_intro_box("Carriage window glass", Vector3(x + (0.05 if x > 30.0 else -0.05), 2.25, z), Vector3(0.035, 0.72, 0.53), Color(0.06, 0.18, 0.25), 0.12)
 
-	for control in [status_label, objective_label, prompt_label, interact_button, inventory_button]:
+	for control in [status_label, objective_label, prompt_label, interact_button, inventory_button, pause_button]:
 		if is_instance_valid(control):
 			control.visible = false
 
@@ -1067,12 +1093,16 @@ func _process(_delta: float) -> void:
 	_update_nearby()
 	objective_label.text = _objective_text()
 	interact_button.disabled = nearby_object == null
+	if is_instance_valid(pause_button):
+		pause_button.visible = not inventory_open and not story_card_open and not game_paused
 	prompt_label.text = "Inspect: " + str(nearby_object.get_meta("display_name", "object")) if nearby_object else ""
 	inventory_button.text = "BAG · %d" % _inventory_count()
 	inventory_label.visible = inventory_open
 	inventory_label.text = _inventory_text()
 
 func _physics_process(_delta: float) -> void:
+	if game_paused or story_card_open:
+		return
 	var input_vector := Vector2(
 		Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
 		Input.get_action_strength("move_forward") - Input.get_action_strength("move_back")
@@ -1089,9 +1119,9 @@ func _physics_process(_delta: float) -> void:
 	player.position.z = clampf(player.position.z, rear_limit, 5.1)
 
 func _input(event: InputEvent) -> void:
-	# Story cards must block gameplay input as well as draw above it; otherwise
-	# a swipe over dialogue can rotate the camera or leave a touch joystick latched.
-	if story_card_open:
+	# Modal overlays must block gameplay input as well as draw above it; otherwise
+	# a swipe can rotate the camera or leave a touch joystick latched.
+	if story_card_open or game_paused:
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_E:
@@ -1135,8 +1165,8 @@ func _input(event: InputEvent) -> void:
 			_apply_look(event.relative)
 
 func _apply_look(relative: Vector2) -> void:
-	yaw -= relative.x * LOOK_SENSITIVITY
-	pitch = clampf(pitch - relative.y * LOOK_SENSITIVITY, -0.75, 0.65)
+	yaw -= relative.x * look_sensitivity
+	pitch = clampf(pitch - relative.y * look_sensitivity, -0.75, 0.65)
 	player.rotation.y = yaw
 	camera.rotation.x = pitch
 
