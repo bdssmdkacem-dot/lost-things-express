@@ -1018,7 +1018,7 @@ func _build_world_intro() -> void:
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.48, 0.43, 0.54)
-	env.ambient_light_energy = 0.68
+	env.ambient_light_energy = 0.88
 	intro_environment = env
 	if is_instance_valid(world_environment):
 		world_environment.environment = intro_environment
@@ -1027,10 +1027,10 @@ func _build_world_intro() -> void:
 	world_intro_camera.name = "WorldsIntroCamera"
 	# A three-quarter front view reveals the locomotive face, running gear,
 	# continuous rails, and the connected world behind it in one readable frame.
-	world_intro_camera.position = Vector3(23.6, 5.4, -10.5)
+	world_intro_camera.position = Vector3(27.0, 5.2, -11.5)
 	world_intro_root.add_child(world_intro_camera)
-	world_intro_camera.look_at(Vector3(30.0, 1.75, 1.0), Vector3.UP)
-	world_intro_camera.fov = 52.0
+	world_intro_camera.look_at(Vector3(30.0, 1.8, 1.6), Vector3.UP)
+	world_intro_camera.fov = 46.0
 	world_intro_camera.current = true
 
 	var warm := OmniLight3D.new()
@@ -1042,7 +1042,7 @@ func _build_world_intro() -> void:
 	var moon_fill := DirectionalLight3D.new()
 	moon_fill.rotation_degrees = Vector3(-38.0, -25.0, 0.0)
 	moon_fill.light_color = Color(0.48, 0.62, 1.0)
-	moon_fill.light_energy = 0.46
+	moon_fill.light_energy = 0.82
 	world_intro_root.add_child(moon_fill)
 
 	for island in [
@@ -1138,7 +1138,7 @@ func _build_world_intro() -> void:
 			land_mesh.radius = 1.0
 			land_mesh.height = 1.0
 			land.mesh = land_mesh
-			land.scale = Vector3(5.7, 1.1, 7.5)
+			land.scale = Vector3(4.8, 0.82, 6.0)
 			land.position = Vector3(world_x + side * 6.2, -0.52 + sin(float(world_index) * 0.7) * 0.24, world_z)
 			var land_mat := StandardMaterial3D.new()
 			var land_colors := [Color(0.12, 0.19, 0.14), Color(0.13, 0.17, 0.22), Color(0.22, 0.14, 0.13), Color(0.12, 0.20, 0.23), Color(0.19, 0.17, 0.24)]
@@ -1154,7 +1154,7 @@ func _build_world_intro() -> void:
 			cliff_mesh.bottom_radius = 0.18
 			cliff_mesh.height = 2.6
 			cliff.mesh = cliff_mesh
-			cliff.scale = Vector3(5.0, 1.0, 6.8)
+			cliff.scale = Vector3(4.3, 1.0, 5.4)
 			cliff.position = Vector3(land.position.x, land.position.y - 1.35, world_z)
 			var cliff_mat := StandardMaterial3D.new()
 			cliff_mat.albedo_color = Color(0.075, 0.085, 0.12)
