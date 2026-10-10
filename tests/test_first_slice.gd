@@ -29,14 +29,14 @@ func _run_first_slice() -> void:
 
 	# A chest must not open until both clues have been found and understood.
 	player.global_position = chest.global_position + Vector3(0.0, 0.0, 0.35)
-	game.call("_update_nearby")
+	# _interact must refresh proximity itself, as it does on a real button tap.
 	game.call("_interact")
 	if not _check(not bool(game.get("chest_open")), "chest opened without the brass key"):
 		return
 
 	# Find the key on the floor.
 	player.global_position = key.global_position + Vector3(0.0, 0.0, 0.35)
-	game.call("_update_nearby")
+	# _interact must refresh proximity itself, as it does on a real button tap.
 	game.call("_interact")
 	if not _check(bool(game.get("has_key")), "interacting with the brass key did not collect it"):
 		return
@@ -44,20 +44,20 @@ func _run_first_slice() -> void:
 
 	# The key alone is insufficient: the letter must be read first.
 	player.global_position = chest.global_position + Vector3(0.0, 0.0, 0.35)
-	game.call("_update_nearby")
+	# _interact must refresh proximity itself, as it does on a real button tap.
 	game.call("_interact")
 	if not _check(not bool(game.get("chest_open")), "chest opened before the letter was read"):
 		return
 
 	player.global_position = letter.global_position + Vector3(0.0, 0.0, 0.20)
-	game.call("_update_nearby")
+	# _interact must refresh proximity itself, as it does on a real button tap.
 	game.call("_interact")
 	if not _check(bool(game.get("letter_read")), "interacting with the torn letter did not mark it read"):
 		return
 
 	# With both prerequisites met, the chest should open and its lid should move.
 	player.global_position = chest.global_position + Vector3(0.0, 0.0, 0.35)
-	game.call("_update_nearby")
+	# _interact must refresh proximity itself, as it does on a real button tap.
 	game.call("_interact")
 	if not _check(bool(game.get("chest_open")), "chest did not open after key and letter"):
 		return
