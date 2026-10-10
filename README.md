@@ -19,7 +19,7 @@ A premium fantasy train adventure where players explore strange stations, discov
 
 ## First vertical slice: “The Station That Forgot Its Name”
 
-- One richly dressed antique sleeper carriage, with a clear central aisle and a visible second compartment through a framed doorway.
+- One richly dressed antique sleeper carriage in landscape mobile orientation, with a clear central aisle and a visible second compartment through a framed doorway.
 - Polished dark walnut/mahogany joinery, emerald upholstery and carpet, brass/copper details, curtains, warm lamps, tables and overhead luggage.
 - Three meaningful puzzle objects: brass key, torn letter, memory chest.
 - A complete puzzle requiring the player to discover the key, read the letter, and open the chest.
