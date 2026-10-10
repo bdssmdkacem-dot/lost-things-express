@@ -73,7 +73,15 @@ def bevel(obj, amount=0.035, segments=2):
     mod = obj.modifiers.new("Soft crafted edges", "BEVEL")
     mod.width = amount
     mod.segments = segments
-    obj.modifiers.new("Weighted corner normals", "WEIGHTED_NORMAL")
+    # Weighted normals only work correctly when the mesh uses smooth shading.
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
+    if hasattr(obj.data, "use_auto_smooth"):
+        obj.data.use_auto_smooth = True
+        if hasattr(obj.data, "auto_smooth_angle"):
+            obj.data.auto_smooth_angle = math.radians(35)
+    normal_mod = obj.modifiers.new("Weighted corner normals", "WEIGHTED_NORMAL")
+    normal_mod.keep_sharp = True
     return obj
 
 def cube(name, location, dimensions, mat, bevel_amount=0.0, collection=None):
@@ -471,20 +479,39 @@ def create_carriage():
     bpy.ops.object.select_all(action="SELECT")
     bpy.context.scene.unit_settings.system = "METRIC"
     bpy.context.scene.unit_settings.scale_length = 1.0
-    bpy.context.scene.render.engine = "CYCLES"
     # Brighter warm interior illumination and an ambient fill are authored into the scene
     # for the .blend preview; Godot will still use its own runtime lights/environment.
-    world = bpy.context.scene.world
+    scene = bpy.context.scene
+    world = scene.world
     world.use_nodes = True
     world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.16, 0.19, 0.24, 1)
     world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.70
-    # Keep the correctly aimed cinematic area lights above; do not replace them with
-    # parallel lamps, which leave the aisle and upholstery underlit.
-    bpy.context.scene.render.resolution_x = 1280
-    bpy.context.scene.render.resolution_y = 720
-    bpy.context.scene.render.resolution_percentage = 100
-    bpy.context.scene.world.color = (0.018, 0.035, 0.052)
+    scene.world.color = (0.018, 0.035, 0.052)
+
+    # Match the game's eye-level opening shot so the preview checks the central aisle,
+    # green upholstery, doorway depth and far clock in the same composition as play.
+    bpy.ops.object.camera_add(location=(0.0, 1.58, 4.72))
+    camera = bpy.context.object
+    camera.name = "Preview Camera | first-person carriage view"
+    camera.data.name = "Preview Camera | 16:9 mobile match"
+    camera.data.lens = 16.0
+    camera.data.sensor_fit = "VERTICAL"
+    look_at = Vector((0.0, 1.92, -4.85))
+    camera.rotation_euler = (look_at - camera.location).to_track_quat("-Z", "Y").to_euler()
+    scene.camera = camera
+
+    scene.render.engine = "BLENDER_EEVEE_NEXT"
+    scene.render.resolution_x = 1280
+    scene.render.resolution_y = 720
+    scene.render.resolution_percentage = 100
+    scene.render.image_settings.file_format = "PNG"
+    scene.render.image_settings.color_mode = "RGB"
+    scene.render.image_settings.color_depth = "8"
+    scene.render.filepath = os.path.join(BLEND_DIR, "train_carriage_preview.png")
+    scene.render.film_transparent = False
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(BLEND_DIR, "train_carriage.blend"))
+    bpy.ops.render.render(write_still=True)
+    print("TRAIN_CARRIAGE_PREVIEW_CREATED: assets/blender/train_carriage_preview.png")
 
     # Apply transforms for stable glTF scale and export selected scene objects.
     bpy.ops.export_scene.gltf(
@@ -494,6 +521,7 @@ def create_carriage():
         export_apply=True,
         export_yup=True,
         export_lights=True,
+        export_cameras=False,
     )
     print("TRAIN_CARRIAGE_ASSET_CREATED: assets/models/train_carriage.glb")
 
