@@ -157,7 +157,26 @@ def create_carriage():
             cube("Side wall | end pier", (x, 1.65, (cursor + 6.0) / 2),
                  (0.18, 3.3, segment_length), MATS["mahogany"], 0.025, shell)
 
-    cube("Rear wall | end panel", (0, 1.65, -5.95), (5.8, 3.3, 0.18), MATS["dark_wood"], 0.04, shell)
+    cube("Rear wall | left walnut pier", (-2.32, 1.65, -5.95), (1.16, 3.3, 0.18), MATS["dark_wood"], 0.04, shell)
+    cube("Rear wall | right walnut pier", (2.32, 1.65, -5.95), (1.16, 3.3, 0.18), MATS["dark_wood"], 0.04, shell)
+    cube("Rear wall | doorway lintel", (0, 2.98, -5.95), (3.48, 0.64, 0.18), MATS["dark_wood"], 0.035, shell)
+    cube("Doorway | left carved walnut jamb", (-1.74, 1.34, -5.80), (0.13, 2.68, 0.16), MATS["mahogany"], 0.025, details)
+    cube("Doorway | right carved walnut jamb", (1.74, 1.34, -5.80), (0.13, 2.68, 0.16), MATS["mahogany"], 0.025, details)
+    cube("Doorway | brass lintel inlay", (0, 2.68, -5.80), (3.42, 0.075, 0.16), MATS["brass_highlight"], 0.018, details)
+    # A second carriage section sits beyond the open doorway to establish real depth.
+    cube("Next carriage | walnut floor", (0, -0.10, -9.15), (5.56, 0.20, 6.35), MATS["dark_wood"], 0.035, shell)
+    cube("Next carriage | ceiling canopy", (0, 3.38, -9.15), (5.56, 0.18, 6.35), MATS["dark_wood"], 0.035, shell)
+    cube("Next carriage | left wall", (-2.78, 1.62, -9.15), (0.16, 3.24, 6.35), MATS["mahogany"], 0.025, shell)
+    cube("Next carriage | right wall", (2.78, 1.62, -9.15), (0.16, 3.24, 6.35), MATS["mahogany"], 0.025, shell)
+    cube("Next carriage | distant end wall", (0, 1.62, -12.32), (5.56, 3.24, 0.18), MATS["dark_wood"], 0.035, shell)
+    for side in (-1, 1):
+        x = side * 2.685
+        for idx, z in enumerate((-7.5, -9.5, -11.15), 1):
+            cube("Next carriage | midnight window %d" % idx, (x, 2.05, z), (0.025, 0.98, 1.18), MATS["glass"], 0.01, details)
+            for y in (1.50, 2.60):
+                cube("Next carriage | brass window rail", (side * 2.61, y, z), (0.12, 0.06, 1.28), MATS["brass"], 0.015, details)
+            for zz in (z - 0.64, z + 0.64):
+                cube("Next carriage | brass window stile", (side * 2.61, 2.05, zz), (0.12, 1.15, 0.06), MATS["brass_highlight"], 0.015, details)
     cube("Front wall | end panel", (0, 1.65, 5.95), (5.8, 3.3, 0.18), MATS["dark_wood"], 0.04, shell)
 
     # Long brass rails and repeating inset wall panels.
@@ -208,7 +227,7 @@ def create_carriage():
         for side in (-1, 1):
             x = side * 1.78
             cube("Seat | carved mahogany plinth", (x, 0.36, z), (1.30, 0.30, 1.24), MATS["dark_wood"], 0.09, seating)
-            cube("Seat | deep crimson velvet cushion", (x, 0.56, z), (1.27, 0.24, 1.19), seat_leather, 0.10, seating)
+            cube("Seat | emerald leather cushion", (x, 0.56, z), (1.27, 0.24, 1.19), seat_leather, 0.10, seating)
             cube("Seat back | velvet upholstery", (x, 1.08, z - 0.49), (1.27, 0.88, 0.22), seat_leather, 0.09, seating)
             cube("Seat back | dark wood surround", (x, 1.08, z - 0.62), (1.38, 0.98, 0.12), MATS["mahogany"], 0.07, seating)
             cube("Seat back | inset upholstery", (x, 1.08, z - 0.545), (1.15, 0.72, 0.045), MATS["velvet_dark"], 0.045, seating)
@@ -221,11 +240,40 @@ def create_carriage():
     # A tailored runner makes the central aisle feel like a first-class sleeper carriage.
     rug_mat = material("Interior | emerald velvet runner", (0.018, 0.19, 0.085, 1), roughness=0.92)
     rug_red = material("Interior | woven antique gold motif", (0.72, 0.43, 0.12, 1), roughness=0.88)
-    cube("Aisle | tailored teal runner", (0, 0.045, 0), (0.88, 0.035, 11.25), rug_mat, 0.025, details)
+    cube("Aisle | tailored emerald runner", (0, 0.045, 0), (0.88, 0.035, 11.25), rug_mat, 0.025, details)
     for z in [(-5.15 + i * 0.52) for i in range(20)]:
-        cube("Runner | woven burgundy lozenge", (0, 0.068, z), (0.24, 0.012, 0.24), rug_red, 0.018, details)
+        cube("Runner | antique-gold woven lozenge", (0, 0.068, z), (0.24, 0.012, 0.24), rug_red, 0.018, details)
     for x in (-0.40, 0.40):
         cube("Runner | brass woven border", (x, 0.069, 0), (0.025, 0.012, 11.05), MATS["brass_highlight"], 0.008, details)
+
+    # Small first-class marble tables and brass reading lamps, placed between seating rows.
+    marble = material("Tables | warm ivory marble", (0.66, 0.64, 0.57, 1), roughness=0.27)
+    table_gold = material("Tables | polished brass", (0.64, 0.36, 0.095, 1), metallic=0.78, roughness=0.22)
+    lamp_glass = material("Reading lamps | amber glass", (1.0, 0.47, 0.12, 1), roughness=0.24, emission=1.4)
+    luggage_leather = material("Overhead luggage | oxblood leather", (0.16, 0.035, 0.022, 1), roughness=0.48)
+    luggage_inlay = material("Overhead luggage | brass straps", (0.72, 0.43, 0.14, 1), metallic=0.68, roughness=0.26)
+    for z in (-2.05, 1.15, 4.30):
+        for side in (-1, 1):
+            x = side * 2.08
+            cube("Table | ivory marble top", (x, 0.76, z), (0.62, 0.085, 0.62), marble, 0.035, details)
+            cylinder("Table | brass pedestal", (x, 0.46, z), 0.055, 0.54, table_gold, vertices=20)
+            cube("Table | brass foot", (x, 0.18, z), (0.42, 0.055, 0.42), table_gold, 0.025, details)
+            cylinder("Reading lamp | brass base", (x, 0.825, z), 0.105, 0.035, table_gold, vertices=24)
+            cylinder("Reading lamp | brass stem", (x, 0.93, z), 0.022, 0.19, table_gold, vertices=16)
+            cube("Reading lamp | amber shade", (x, 1.045, z), (0.18, 0.12, 0.18), lamp_glass, 0.045, details)
+
+    # Overhead racks with compact leather cases; keep them above head height and out of the aisle.
+    for z in (-3.6, -0.5, 2.8):
+        for side in (-1, 1):
+            x = side * 2.03
+            cube("Luggage rack | walnut shelf", (x, 2.62, z), (0.70, 0.075, 2.18), MATS["mahogany"], 0.035, details)
+            cube("Luggage rack | brass outer rail", (side * 2.34, 2.72, z), (0.045, 0.16, 2.12), MATS["brass_highlight"], 0.018, details)
+            for dz in (-0.92, 0.92):
+                cube("Luggage rack | brass support", (side * 2.28, 2.48, z + dz), (0.07, 0.28, 0.07), table_gold, 0.018, details)
+            cube("Luggage | leather suitcase", (x, 2.79, z), (0.44, 0.25, 0.62), luggage_leather, 0.045, details)
+            for dx in (-0.12, 0.12):
+                cube("Luggage | brass suitcase band", (x + dx, 2.79, z), (0.035, 0.26, 0.64), luggage_inlay, 0.008, details)
+            cube("Luggage | brass handle", (x, 2.93, z), (0.13, 0.025, 0.035), table_gold, 0.01, details)
 
     # Emerald upholstered ceiling panels and tailored velvet curtains establish the requested signature palette.
     emerald_ceiling = material("Ceiling | emerald woven velvet", (0.012, 0.115, 0.058, 1), roughness=0.86)
@@ -257,7 +305,7 @@ def create_carriage():
             cube("Wall | plaque enamel inset", (side * 2.525, 1.78, z - 0.40), (0.025, 0.24, 0.33), rug_mat, 0.01, details)
 
     # Small travel trunks tucked at carriage ends, clear of the central aisle.
-    for side in (-1, 1):
+    for side in (1,):
         z = side * 5.05
         cube("Luggage | antique leather trunk", (side * 1.70, 0.34, z), (0.92, 0.55, 0.78), MATS["mahogany"], 0.07, details)
         cube("Luggage | brass lid band", (side * 1.70, 0.62, z), (0.94, 0.045, 0.80), MATS["brass"], 0.018, details)
@@ -283,7 +331,7 @@ def create_carriage():
     # Production pass: layered window casings, tailored upholstery, engraved trim,
     # and focal storytelling props. Keep geometry readable at mobile camera distance.
     trim_shadow = material("Carved trim | shadow", (0.045, 0.018, 0.012, 1), roughness=0.42)
-    velvet_highlight = material("Velvet | raised piping", (0.48, 0.075, 0.085, 1), roughness=0.72)
+    velvet_highlight = material("Emerald leather | raised piping", (0.045, 0.32, 0.15, 1), roughness=0.56)
     inlay = material("Wood inlay | warm brass line", (0.82, 0.53, 0.22, 1), metallic=0.58, roughness=0.29)
     leather = material("Luggage | oxblood leather", (0.19, 0.035, 0.025, 1), roughness=0.58)
 
@@ -351,31 +399,29 @@ def create_carriage():
                 cube("Seat | armrest brass cap", (x + dx, 0.875, z - 0.05),
                      (0.17, 0.025, 0.90), inlay, 0.012, seating)
 
-    # A signature brass carriage clock at the far end anchors the composition and
-    # gives the compartment a memorable story object.
-    clock_z = 5.78
-    cube("End wall | clock shadow mount", (0, 2.32, 5.80), (1.22, 1.02, 0.10),
+    # A focal carriage clock is mounted on the far wall of the second section,
+    # facing down the central aisle through the open doorway.
+    cube("Next carriage | clock shadow mount", (0, 2.32, -12.17), (1.22, 1.02, 0.10),
          trim_shadow, 0.08, details)
-    cube("End wall | clock mahogany frame", (0, 2.32, 5.73), (1.12, 0.92, 0.12),
+    cube("Next carriage | clock mahogany frame", (0, 2.32, -12.08), (1.12, 0.92, 0.12),
          MATS["mahogany"], 0.07, details)
-    cylinder("End wall | brass clock bezel", (0, 2.33, 5.61), 0.34, 0.10,
-             MATS["brass_highlight"], rotation=(math.radians(90), 0, 0), vertices=48)
-    cylinder("End wall | clock face", (0, 2.33, 5.545), 0.285, 0.035,
-             MATS["parchment"], rotation=(math.radians(90), 0, 0), vertices=48)
-    cylinder("End wall | clock center pin", (0, 2.33, 5.515), 0.035, 0.025,
-             MATS["brass"], rotation=(math.radians(90), 0, 0), vertices=20)
-    # Clock hands are thin, raised brass bars.
-    hand_minute = cube("End wall | clock minute hand", (0, 2.33, 5.495),
-                       (0.018, 0.018, 0.22), MATS["brass"], 0.006, details)
-    hand_minute.rotation_euler[1] = math.radians(-22)
-    hand_hour = cube("End wall | clock hour hand", (0.035, 2.33, 5.49),
-                     (0.018, 0.018, 0.15), MATS["brass"], 0.006, details)
-    hand_hour.rotation_euler[1] = math.radians(48)
+    cylinder("Next carriage | brass clock bezel", (0, 2.33, -12.005), 0.34, 0.10,
+             MATS["brass_highlight"], vertices=48)
+    cylinder("Next carriage | clock face", (0, 2.33, -11.945), 0.285, 0.035,
+             MATS["parchment"], vertices=48)
+    cylinder("Next carriage | clock center pin", (0, 2.33, -11.915), 0.035, 0.025,
+             MATS["brass"], vertices=20)
+    minute_hand = cube("Next carriage | clock minute hand", (0, 2.44, -11.895),
+                       (0.018, 0.22, 0.018), MATS["brass"], 0.006, details)
+    minute_hand.rotation_euler[2] = math.radians(-22)
+    hour_hand = cube("Next carriage | clock hour hand", (0.035, 2.33, -11.89),
+                     (0.018, 0.15, 0.018), MATS["brass"], 0.006, details)
+    hour_hand.rotation_euler[2] = math.radians(48)
     for i in range(12):
         angle = (i / 12.0) * math.tau
-        uv_sphere("End wall | clock hour marker",
-                  (math.sin(angle) * 0.235, 2.33 + math.cos(angle) * 0.235, 5.57),
-                  (0.018, 0.012, 0.018), MATS["brass"],)
+        uv_sphere("Next carriage | clock hour marker",
+                  (math.sin(angle) * 0.235, 2.33 + math.cos(angle) * 0.235, -11.91),
+                  (0.018, 0.018, 0.018), MATS["brass"])
 
     # Bespoke trunk hardware: corner guards, parallel straps, and visible studs.
     for side in (-1, 1):
