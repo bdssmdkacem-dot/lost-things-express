@@ -1378,7 +1378,7 @@ func _build_exterior_vista() -> void:
 
 		var rock := MeshInstance3D.new()
 		rock.name = "TaperedFloatingRock"
-		var rock_mesh := ConeMesh.new()
+		var rock_mesh := CylinderMesh.new()
 		rock_mesh.top_radius = 0.78
 		rock_mesh.bottom_radius = 0.06
 		rock_mesh.height = 1.65
