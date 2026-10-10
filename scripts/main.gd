@@ -411,9 +411,8 @@ func _play_hand_action(action: String) -> void:
 		# Keep the letter visible in both hands while its message is being read.
 		if (action != "read" or not is_instance_valid(held_letter_prop)) and is_instance_valid(first_person_hands):
 			first_person_hands.visible = false
-		if is_instance_valid(held_key_prop):
-			held_key_prop.queue_free()
-			held_key_prop = null
+		# The key is persistent inventory geometry, not a one-shot animation prop.
+		# It stays attached to the view model while hands remain hidden in exploration.
 	)
 
 func _create_held_letter_prop() -> void:
@@ -1271,6 +1270,8 @@ func _load_progress() -> void:
 		var key := get_node_or_null("BrassKey")
 		if key:
 			key.queue_free()
+		# Rebuild the held key on resume so saved inventory and the view model agree.
+		_create_held_key_prop()
 	var letter := get_node_or_null("TornLetter")
 	if letter and letter_read:
 		letter.set_meta("display_name", "Letter read")
