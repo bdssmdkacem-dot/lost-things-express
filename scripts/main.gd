@@ -386,6 +386,10 @@ func _play_hand_action(action: String) -> void:
 		hand_action_tween.kill()
 	first_person_hands.position = Vector3.ZERO
 	first_person_hands.rotation = Vector3.ZERO
+	# Start each action from a known neutral grip; the read pose will bring both thumbs to the paper edges.
+	for part in first_person_hands.get_children():
+		if part.name.begins_with("Thumb_"):
+			part.position.x = -0.39 if part.name.ends_with("L") else 0.39
 	first_person_hands.visible = true
 	hand_action_tween = create_tween()
 	hand_action_tween.set_parallel(true)
@@ -402,6 +406,9 @@ func _play_hand_action(action: String) -> void:
 		"read":
 			hand_action_tween.tween_property(first_person_hands, "position", Vector3(0.0, 0.20, -0.26), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 			hand_action_tween.tween_property(first_person_hands, "rotation:x", deg_to_rad(-7.0), 0.28)
+			for part in first_person_hands.get_children():
+				if part.name.begins_with("Thumb_"):
+					hand_action_tween.tween_property(part, "position:x", -0.23 if part.name.ends_with("L") else 0.23, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		"open":
 			hand_action_tween.tween_property(first_person_hands, "position", Vector3(0.0, 0.16, -0.40), 0.32).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 			hand_action_tween.tween_property(first_person_hands, "rotation:x", deg_to_rad(-14.0), 0.32)
@@ -411,10 +418,15 @@ func _play_hand_action(action: String) -> void:
 	hand_action_tween.parallel().tween_property(first_person_hands, "rotation", Vector3.ZERO, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	for part in first_person_hands.get_children():
 		if part.name.begins_with("Finger_"):
-			hand_action_tween.parallel().tween_property(part, "rotation_degrees", Vector3(-18.0, 0.0, 0.0), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+			var finger_curl := -34.0 if action == "read" else -18.0
+			hand_action_tween.parallel().tween_property(part, "rotation_degrees", Vector3(finger_curl, 0.0, 0.0), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 		elif part.name.begins_with("Thumb_"):
-			var thumb_roll := 34.0 if part.name.ends_with("R") else -34.0
-			hand_action_tween.parallel().tween_property(part, "rotation_degrees", Vector3(-12.0, 0.0, thumb_roll), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+			var thumb_roll := 24.0 if part.name.ends_with("R") else -24.0
+			var thumb_curl := -28.0 if action == "read" else -12.0
+			hand_action_tween.parallel().tween_property(part, "rotation_degrees", Vector3(thumb_curl, 0.0, thumb_roll), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+			if action != "read":
+				var neutral_x := -0.39 if part.name.ends_with("L") else 0.39
+				hand_action_tween.parallel().tween_property(part, "position:x", neutral_x, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	hand_action_tween.tween_callback(func() -> void:
 		# Keep the letter visible in both hands while its message is being read.
 		if (action != "read" or not is_instance_valid(held_letter_prop)) and is_instance_valid(first_person_hands):
