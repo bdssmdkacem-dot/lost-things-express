@@ -32,10 +32,14 @@ jobs:
       - name: Generate carriage source and GLB
         run: |
           LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a blender --background --python-exit-code 1 --python art/blender/create_train_carriage.py
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a blender --background --python-exit-code 1 --python art/blender/create_locomotive.py
           test -s assets/blender/train_carriage.blend
           test -s assets/models/train_carriage.glb
           test -s assets/blender/train_carriage_preview.png
-          echo "Generated carriage assets; visual approval is still required."
+          test -s assets/blender/lost_things_locomotive.blend
+          test -s assets/models/lost_things_locomotive.glb
+          test -s assets/blender/lost_things_locomotive_preview.png
+          echo "Generated carriage and locomotive assets; visual approval is still required."
 
       - name: Install Godot 4.3
         uses: chickensoft-games/setup-godot@v1
@@ -57,7 +61,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/blender/train_carriage.blend assets/models/train_carriage.glb assets/blender/train_carriage_preview.png
+          git add assets/blender/train_carriage.blend assets/models/train_carriage.glb assets/blender/train_carriage_preview.png assets/blender/lost_things_locomotive.blend assets/models/lost_things_locomotive.glb assets/blender/lost_things_locomotive_preview.png
           if git diff --cached --quiet; then
             echo "Generated assets are unchanged."
           else
@@ -82,5 +86,8 @@ jobs:
             assets/blender/train_carriage.blend
             assets/models/train_carriage.glb
             assets/blender/train_carriage_preview.png
+            assets/blender/lost_things_locomotive.blend
+            assets/models/lost_things_locomotive.glb
+            assets/blender/lost_things_locomotive_preview.png
           if-no-files-found: error
           retention-days: 14
