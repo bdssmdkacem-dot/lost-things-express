@@ -3,7 +3,7 @@ extends Node3D
 
 const WALK_SPEED := 3.0
 const LOOK_SENSITIVITY := 0.004
-const INTERACT_DISTANCE := 2.2
+const INTERACT_DISTANCE := 3.0
 
 var player: CharacterBody3D
 var camera: Camera3D
@@ -214,16 +214,18 @@ func _build_ui() -> void:
 	status_label.anchor_left = 0.04
 	status_label.anchor_top = 0.04
 	status_label.anchor_right = 0.78
-	status_label.anchor_bottom = 0.16
-	status_label.add_theme_font_size_override("font_size", 22)
+	status_label.anchor_bottom = 0.19
+	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status_label.add_theme_font_size_override("font_size", 20)
 	status_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.58))
 	root.add_child(status_label)
 
 	objective_label = Label.new()
 	objective_label.anchor_left = 0.04
-	objective_label.anchor_top = 0.16
+	objective_label.anchor_top = 0.19
 	objective_label.anchor_right = 0.78
-	objective_label.anchor_bottom = 0.24
+	objective_label.anchor_bottom = 0.29
+	objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	objective_label.add_theme_font_size_override("font_size", 17)
 	objective_label.add_theme_color_override("font_color", Color(0.91, 0.89, 0.82))
 	root.add_child(objective_label)
@@ -360,15 +362,20 @@ func _update_nearby() -> void:
 	nearby_object = null
 	var nearest := INTERACT_DISTANCE
 	for node in get_tree().get_nodes_in_group("interactables"):
-		if not is_instance_valid(node):
+		if not is_instance_valid(node) or node.is_queued_for_deletion():
 			continue
-		var distance := player.global_position.distance_to(node.global_position)
+		# Floor-plane distance is more forgiving on mobile; vertical offset has only a small penalty.
+		var horizontal := Vector2(player.global_position.x, player.global_position.z).distance_to(Vector2(node.global_position.x, node.global_position.z))
+		var distance := horizontal + absf(player.global_position.y - node.global_position.y) * 0.25
 		if distance < nearest:
 			nearest = distance
 			nearby_object = node
 
 func _interact() -> void:
+	# Refresh at tap time so the button never acts on a stale target between frames.
+	_update_nearby()
 	if nearby_object == null:
+		_set_status("Move a little closer to the object, then tap INTERACT.")
 		return
 	var kind: String = nearby_object.get_meta("kind", "")
 	match kind:
