@@ -122,11 +122,19 @@ jobs:
           sha256sum "$APK" | tee build/apk-sha256.txt
           "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs "$APK" | tee build/apk-certificate.txt
 
+      - name: Check Android emulator acceleration
+        id: emulator-kvm
+        run: |
+          if [ -c /dev/kvm ] && [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "KVM is available; the Android install/launch smoke test will run."
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "KVM is unavailable on this runner; skipping the emulator smoke test."
+          fi
+
       - name: Install and launch APK in Android emulator
-        # Standard Ubuntu-hosted runners in this repository do not expose KVM.
-        # Keep this smoke test informative but non-blocking; signature/package
-        # validation remains gating, and a real-phone test is still required.
-        continue-on-error: true
+        if: steps.emulator-kvm.outputs.available == 'true'
         timeout-minutes: 8
         uses: reactivecircus/android-emulator-runner@v2
         with:
