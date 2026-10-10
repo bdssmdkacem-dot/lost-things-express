@@ -63,23 +63,32 @@ Do not check an item above until it has been verified. Preserve the original con
 
 ## User-supplied source references — 2026-10-10
 
-The five image files attached by the user in the project conversation are authoritative visual references. Do not generate a replacement image for SUNSET STATION. Preserve these references unchanged and use them when shaping scene geometry, materials, camera composition, and visual QA:
+The supplied originals have now been uploaded to this folder, but their repository filenames were kept as uploaded. Preserve those names and the binary files unchanged; source and documentation must refer to the paths that actually exist.
 
-| Supplied attachment filename | Reference role | Stable repository filename |
-|---|---|---|
-| `file_00000000a27081f4a16c023a7b226ef1.png` | Train, chest, sunset-station photograph and object composition | `lost-things-express-scene-reference-a.png` |
-| `file_000000007b4c821098d8a94c5f9574b2.png` | Locomotive framing, carriage, chest and photo presentation | `lost-things-express-scene-reference-b.png` |
-| `file_000000007df8821092ff04732735a543.png` | Opening train shot, objects, letter and chest interaction | `lost-things-express-scene-reference-c.png` |
-| `Screenshot_20261009_175342~2.jpg` | Actual in-game carriage layout / comparison target | `lost-things-express-gameplay-reference.jpg` |
-| `1000173104.png` | Primary concept board and overall art direction | `lost-things-express-concept-wide.png` |
+### Verified files currently in this folder
 
-**Important source policy:** the reference images guide implementation; they are not runtime textures unless a specific asset is explicitly approved for that use. The existing SUNSET STATION card must use the station/photo visible in the supplied reference as its target. Do not create a new station image or substitute a generated approximation. Keep the physical card orientation, border and title readable on the same face.
+| Actual repository path | Role / handling |
+|---|---|
+| `art/reference/file_00000000a27081f4a16c023a7b226ef1.png` | User-supplied scene reference; use for visual comparison without altering the original |
+| `art/reference/file_000000007b4c821098d8a94c5f9574b2.png` | User-supplied scene reference; use for visual comparison without altering the original |
+| `art/reference/file_000000007df8821092ff04732735a543.png` | User-supplied scene reference; use for visual comparison without altering the original |
+| `art/reference/Screenshot_20261009_175304~2.jpg` | Uploaded screenshot reference; preserve as supplied |
+| `art/reference/Screenshot_20261010_203416.jpg` | Uploaded screenshot/reference; preserve as supplied |
+| `art/reference/Screenshot_20261010_203427.jpg` | Uploaded screenshot/reference; preserve as supplied |
+| `art/reference/Screenshot_20261010_203438.jpg` | Uploaded screenshot/reference; preserve as supplied |
 
-**Repository binary status:** these stable paths are the intended source locations, but this documentation update alone does not add the binary image files. The archive remains incomplete until the exact supplied originals are copied unchanged into those paths and verified in GitHub. Never check the archive-complete box before that happens.
+### Source-reference rules
+
+- The three PNGs above are the supplied scene-reference images. Keep their exact filenames and use these real paths in source comments, tests, and visual-review notes.
+- The four JPGs above are also preserved as references. Do not assume a specific semantic role for a timestamped screenshot until its contents have been visually inspected.
+- The previously documented filename `Screenshot_20261009_175342~2.jpg` is **not** present in the current repository listing; the uploaded file is `Screenshot_20261009_175304~2.jpg`. Do not silently treat them as the same image.
+- The original concept-board files previously expected as `قطار الأشياء المفقودة بين الغيوم.png` and `1000173104.png` are not present under those exact names in the current folder listing. Do not assume one of the uploaded PNGs is that concept board until its image content is checked.
+- Do not generate a replacement image for SUNSET STATION. Match the existing physical in-game photo card against the station photograph visible in the supplied references.
+- The images are visual references, not runtime textures unless a specific image is explicitly approved for runtime use.
 
 ## Reference-driven source implementation
 
-- Keep scene/source comments and acceptance tests tied to the stable filenames above.
-- For the opening shot, compare the whole locomotive and carriage composition against references A–C; individual details such as steam puffs or brass rings do not constitute acceptance.
-- For the photo, use the reference photo as a target for crop, perspective, warmth, station silhouette, and readable lettering. Do not synthesize or generate a replacement station picture.
-- Any discrepancy must be recorded in `docs/STAGE_ONE_ENGAGEMENT.md` and fixed before the visual gate is marked complete.
+- Source comments must point to the exact paths listed in the verified-files table, not hypothetical renamed files.
+- Compare the complete opening train shot, carriage, chest, letter, and station-photo composition against the supplied references. Individual detail additions do not constitute visual acceptance.
+- Record differences and fixes in `docs/STAGE_ONE_ENGAGEMENT.md`.
+- Keep visual approval pending until the references have been inspected side by side with an actual in-game render and the first stage has been tested on a real Android device.
