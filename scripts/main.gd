@@ -1488,6 +1488,58 @@ func _build_world_intro() -> void:
 		for x in [28.02, 31.98]:
 			_intro_box("Carriage window brass frame", Vector3(x, 2.25, z), Vector3(0.08, 0.95, 0.72), Color(0.67, 0.40, 0.13), 0.78)
 			_intro_box("Carriage window glass", Vector3(x + (0.05 if x > 30.0 else -0.05), 2.25, z), Vector3(0.035, 0.72, 0.53), Color(0.06, 0.18, 0.25), 0.12)
+			var window_glow := _intro_box("Warm carriage window interior", Vector3(28.08 if x < 30.0 else 31.92, 2.25, z), Vector3(0.025, 0.52, 0.38), Color(1.0, 0.48, 0.18), 0.05)
+			var window_glow_mat := StandardMaterial3D.new()
+			window_glow_mat.albedo_color = Color(1.0, 0.43, 0.15)
+			window_glow_mat.emission_enabled = true
+			window_glow_mat.emission = Color(1.0, 0.24, 0.055)
+			window_glow_mat.emission_energy_multiplier = 0.75
+			window_glow_mat.roughness = 0.25
+			window_glow.material_override = window_glow_mat
+
+	# The passenger coach must sit on the same rail gauge as the locomotive.
+	# Two bogies, eight steel wheels, axle caps and a continuous underframe
+	# eliminate the prototype's floating-box silhouette.
+	for side in [-1.0, 1.0]:
+		_intro_box("Passenger carriage underframe beam", Vector3(30.0 + side * 1.22, 0.77, 7.1), Vector3(0.14, 0.22, 6.55), Color(0.045, 0.052, 0.058), 0.68)
+	for bogie_z in [4.55, 9.55]:
+		_intro_box("Passenger carriage bogie frame", Vector3(30.0, 0.72, bogie_z), Vector3(2.65, 0.22, 1.45), Color(0.055, 0.065, 0.07), 0.62)
+		for side in [-1.0, 1.0]:
+			for axle_offset in [-0.48, 0.48]:
+				var coach_wheel := MeshInstance3D.new()
+				coach_wheel.name = "Passenger carriage steel wheel"
+				var coach_wheel_mesh := CylinderMesh.new()
+				coach_wheel_mesh.top_radius = 0.36
+				coach_wheel_mesh.bottom_radius = 0.36
+				coach_wheel_mesh.height = 0.18
+				coach_wheel.mesh = coach_wheel_mesh
+				coach_wheel.position = Vector3(30.0 + side * 1.32, 0.56, bogie_z + axle_offset)
+				coach_wheel.rotation_degrees.z = 90.0
+				var coach_wheel_mat := StandardMaterial3D.new()
+				coach_wheel_mat.albedo_color = Color(0.045, 0.052, 0.058)
+				coach_wheel_mat.metallic = 0.76
+				coach_wheel_mat.roughness = 0.34
+				coach_wheel.material_override = coach_wheel_mat
+				world_intro_root.add_child(coach_wheel)
+				var coach_hub := MeshInstance3D.new()
+				coach_hub.name = "Passenger carriage brass axle cap"
+				var coach_hub_mesh := CylinderMesh.new()
+				coach_hub_mesh.top_radius = 0.09
+				coach_hub_mesh.bottom_radius = 0.09
+				coach_hub_mesh.height = 0.23
+				coach_hub.mesh = coach_hub_mesh
+				coach_hub.position = Vector3(30.0 + side * 1.43, 0.56, bogie_z + axle_offset)
+				coach_hub.rotation_degrees.z = 90.0
+				var coach_hub_mat := StandardMaterial3D.new()
+				coach_hub_mat.albedo_color = Color(0.60, 0.36, 0.12)
+				coach_hub_mat.metallic = 0.82
+				coach_hub_mat.roughness = 0.24
+				coach_hub.material_override = coach_hub_mat
+				world_intro_root.add_child(coach_hub)
+	# Thin brass waist and lower skirt mouldings catch the warm key light.
+	for side in [-1.0, 1.0]:
+		_intro_box("Carriage brass waistline", Vector3(30.0 + side * 1.91, 1.52, 7.1), Vector3(0.045, 0.055, 6.8), Color(0.64, 0.38, 0.12), 0.72)
+		_intro_box("Carriage lower enamel skirt", Vector3(30.0 + side * 1.91, 0.98, 7.1), Vector3(0.05, 0.30, 6.8), Color(0.025, 0.095, 0.07), 0.3)
 
 	for control in [status_label, objective_label, prompt_label, interact_button, inventory_button, pause_button]:
 		if is_instance_valid(control):
