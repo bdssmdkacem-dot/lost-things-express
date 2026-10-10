@@ -183,7 +183,7 @@ func _create_clock_interactable() -> void:
 			var dark := StandardMaterial3D.new()
 			dark.albedo_color = Color(0.10, 0.075, 0.045)
 			clock_hand.material_override = dark
-			clock_hand.position = hand_spec
+			clock_hand.position = Vector3(hand_spec.x, hand_spec.y, 0.025)
 			clock.add_child(clock_hand)
 
 func _build_next_clock_compartment() -> void:
