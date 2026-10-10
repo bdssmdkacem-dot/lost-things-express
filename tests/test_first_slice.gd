@@ -91,7 +91,14 @@ func _run_first_slice() -> void:
 		return
 	if not _check(int(game.get("mystery_beat_count")) == 1, "key pickup did not trigger the first suspense beat"):
 		return
-	await process_frame
+	await create_timer(0.80).timeout
+	var held_key := game.get("held_key_prop") as Node3D
+	if not _check(held_key != null and is_instance_valid(held_key), "picked-up brass key vanished after the hand animation"):
+		return
+	if not _check(held_key.get_parent() == hands, "held brass key is not attached to the persistent first-person view model"):
+		return
+	if not _check(not hands.visible, "hands should return to hidden exploration state while retaining the held key"):
+		return
 
 	# The key alone is insufficient: the letter must be read first.
 	player.global_position = chest.global_position + Vector3(0.0, 0.0, 0.35)
@@ -118,6 +125,8 @@ func _run_first_slice() -> void:
 	if not _check(bool(game.get("chest_open")), "chest did not open after key and letter"):
 		return
 	if not _check(int(game.get("mystery_beat_count")) == 3, "opening the chest did not trigger the final suspense beat"):
+		return
+	if not _check(is_instance_valid(game.get("held_key_prop")) and (game.get("held_key_prop") as Node3D).get_parent() == hands, "chest-opening hand animation discarded the persistent brass key"):
 		return
 	var chest_story := str(game.get("story_body").text)
 	if not _check(chest_story.contains("MEMORY RECOVERED"), "chest reveal did not reward the player with the recovered-memory story card"):
@@ -173,6 +182,14 @@ func _run_first_slice() -> void:
 	root.add_child(resumed_game)
 	await process_frame
 	if not _check(bool(resumed_game.get("has_key")), "saved key progress was not restored"):
+		return
+	var resumed_hands := resumed_game.get("first_person_hands") as Node3D
+	var resumed_held_key := resumed_game.get("held_key_prop") as Node3D
+	if not _check(resumed_held_key != null and is_instance_valid(resumed_held_key), "saved key progress did not rebuild the held 3D key"):
+		return
+	if not _check(resumed_hands != null and resumed_held_key.get_parent() == resumed_hands, "resumed held key is detached from the first-person view model"):
+		return
+	if not _check(not resumed_hands.visible, "resumed exploration should hide hands without deleting the held key"):
 		return
 	if not _check(bool(resumed_game.get("letter_read")), "saved letter progress was not restored"):
 		return
