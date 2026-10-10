@@ -74,3 +74,25 @@ The user explicitly requested continuing without creating a new SUNSET STATION i
 Do not rename, modify, or replace the supplied images merely to match the earlier suggested filenames. The original concept-board names `قطار الأشياء المفقودة بين الغيوم.png` and `1000173104.png`, and the earlier expected screenshot name `Screenshot_20261009_175342~2.jpg`, were not found in the current directory listing; do not claim they are present or guess which uploaded file is equivalent. Visually inspect the uploaded references to assign precise roles.
 
 Do not generate a replacement station image. Use the supplied station photograph as the target for the existing physical in-game photo card. Reference upload is now present, but visual approval is still pending until the actual scene render is compared side by side with the images and the first stage is tested on a real Android device.
+
+
+## Interaction reliability and visual review — 2026-10-10
+
+### Automated interaction improvements
+
+- Fixed a real inventory/view-model bug: the brass key was deleted when the generic hand-action tween finished. It now remains attached to the first-person view model while hands are hidden during normal exploration, and it is rebuilt when saved key progress is restored.
+- Gameplay touch and keyboard input now stop behind story cards. Showing a modal releases any captured move/look touch so a swipe on dialogue cannot rotate the hidden camera or leave movement latched.
+- Added a pause overlay with Resume, movement/look guidance, and a look-sensitivity slider. The chosen sensitivity is saved to `user://first_stage_settings.cfg` and restored on relaunch.
+- Added automated assertions for key persistence, key reconstruction on resume, modal touch blocking, pause movement freeze, sensitivity updates, and settings persistence.
+
+### Visual comparison result — not approved
+
+The committed Blender preview `assets/blender/train_carriage_preview.png` was inspected at 1280×720 against the user-supplied carriage screenshot and concept boards. It has a centered aisle, emerald seating and runner, repeated windows, and a far clock, but it still falls short of the premium reference:
+
+- Upholstery and joinery read as large, hard-edged stylized blocks rather than soft, richly surfaced leather and crafted walnut.
+- Overhead luggage is only partially readable in the framing and needs to feel deliberately placed, not clipped at the top corners.
+- Warm lamps are visually too bright and uniform; the scene needs softer pools of light and better shadow detail.
+- The exterior windows do not yet communicate a clear, layered floating-island vista at a glance.
+- The current preview is a Blender asset render, not proof that the imported GLB and Godot mobile scene look the same.
+
+A new generator pass brings the island silhouettes closer to the window plane, gives them tapered rocky undersides, and enlarges the distant tower shapes. Its regenerated preview must be inspected before accepting that fix. The scene remains **not visually approved** until a new render is compared side by side and the first-stage interactions are tested on a physical Android device.
