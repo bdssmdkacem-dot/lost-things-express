@@ -118,7 +118,7 @@ func _build_world() -> void:
 		push_warning("Carriage GLB missing; using fallback geometry.")
 		_build_procedural_carriage()
 
-	_create_interactable("Brass Key", Vector3(-0.45, 0.55, -1.1), Color(0.95, 0.62, 0.16), "key")
+	_create_interactable("Brass Key", Vector3(-0.45, 0.12, -1.1), Color(0.95, 0.62, 0.16), "key")
 	# Place the letter visibly on the aisle-side edge of an ivory-marble table.
 	_create_interactable("Torn Letter", Vector3(1.95, 0.83, 1.15), Color(0.86, 0.77, 0.59), "letter")
 	_create_interactable("Memory Chest", Vector3(0.0, 0.45, -4.45), Color(0.33, 0.12, 0.055), "chest", Vector3(0.95, 0.75, 0.65))
