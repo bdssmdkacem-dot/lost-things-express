@@ -26,6 +26,12 @@ var letter_read := false
 var chest_open := false
 var nearby_object: Node3D
 
+var story_overlay: ColorRect
+var story_title: Label
+var story_body: Label
+var story_continue: Button
+var story_card_open := false
+
 func _ready() -> void:
 	_setup_input_map()
 	_build_world()
@@ -36,6 +42,7 @@ func _ready() -> void:
 		_set_status("Welcome back. The photograph points to Sunset Station.")
 	else:
 		_set_status("The train has arrived at a station that appears on no map.")
+		_show_story_card("THE STATION THAT FORGOT ITS NAME", "The train never stopped at ordinary stations. Tonight, it had forgotten even the name of its destination.\n\nExplore the carriage. Something important has been left behind.", "BEGIN EXPLORING")
 
 func _setup_input_map() -> void:
 	_add_key_action("move_forward", KEY_W)
@@ -314,6 +321,7 @@ func _build_ui() -> void:
 	hint.add_theme_color_override("font_color", Color(0.95, 0.91, 0.81))
 	hint.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.015, 0.012, 0.009, 0.78), Color(0.40, 0.31, 0.20, 0.75), 8, 5))
 	root.add_child(hint)
+	_build_story_overlay(root)
 
 func _ui_panel_style(fill: Color, edge: Color, corner_radius: int, inset: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -329,6 +337,76 @@ func _ui_panel_style(fill: Color, edge: Color, corner_radius: int, inset: int) -
 	style.shadow_size = 4
 	style.shadow_offset = Vector2(0, 2)
 	return style
+
+func _build_story_overlay(root: Control) -> void:
+	story_overlay = ColorRect.new()
+	story_overlay.name = "StoryOverlay"
+	story_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	story_overlay.color = Color(0.008, 0.018, 0.028, 0.82)
+	story_overlay.visible = false
+	story_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.add_child(story_overlay)
+
+	var card := PanelContainer.new()
+	card.name = "StoryCard"
+	card.anchor_left = 0.12
+	card.anchor_top = 0.23
+	card.anchor_right = 0.88
+	card.anchor_bottom = 0.75
+	card.add_theme_stylebox_override("panel", _ui_panel_style(Color(0.025, 0.045, 0.052, 0.98), Color(0.76, 0.48, 0.20, 1.0), 18, 18))
+	story_overlay.add_child(card)
+
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 14)
+	card.add_child(content)
+
+	story_title = Label.new()
+	story_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	story_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	story_title.add_theme_font_size_override("font_size", 23)
+	story_title.add_theme_color_override("font_color", Color(1.0, 0.76, 0.39))
+	story_title.add_theme_constant_override("line_spacing", 5)
+	content.add_child(story_title)
+
+	var divider := HSeparator.new()
+	divider.add_theme_color_override("separator", Color(0.67, 0.43, 0.20, 0.9))
+	content.add_child(divider)
+
+	story_body = Label.new()
+	story_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	story_body.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	story_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	story_body.add_theme_font_size_override("font_size", 20)
+	story_body.add_theme_color_override("font_color", Color(0.96, 0.91, 0.81))
+	story_body.add_theme_constant_override("line_spacing", 6)
+	content.add_child(story_body)
+
+	story_continue = Button.new()
+	story_continue.custom_minimum_size = Vector2(0, 54)
+	story_continue.add_theme_font_size_override("font_size", 18)
+	story_continue.add_theme_color_override("font_color", Color(1.0, 0.90, 0.66))
+	story_continue.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.24, 0.12, 0.035, 1.0), Color(0.94, 0.66, 0.25, 1.0), 12, 10))
+	story_continue.add_theme_stylebox_override("pressed", _ui_panel_style(Color(0.78, 0.48, 0.12, 1.0), Color(1.0, 0.84, 0.42, 1.0), 12, 10))
+	story_continue.pressed.connect(_close_story_card)
+	content.add_child(story_continue)
+
+func _show_story_card(title_text: String, body_text: String, button_text: String) -> void:
+	if not is_instance_valid(story_overlay):
+		return
+	story_title.text = title_text
+	story_body.text = body_text
+	story_continue.text = button_text
+	story_overlay.visible = true
+	story_card_open = true
+	var fade := create_tween()
+	story_overlay.modulate.a = 0.0
+	fade.tween_property(story_overlay, "modulate:a", 1.0, 0.22)
+
+func _close_story_card() -> void:
+	if not is_instance_valid(story_overlay):
+		return
+	story_overlay.visible = false
+	story_card_open = false
 
 func _process(_delta: float) -> void:
 	_update_nearby()
@@ -427,27 +505,33 @@ func _interact() -> void:
 			if not has_key:
 				has_key = true
 				nearby_object.queue_free()
-				_set_status("You found a brass key. Who does it belong to?")
+				_set_status("The brass key is warm, as if someone held it only moments ago.")
+				_show_story_card("THE BRASS KEY", "The little key is still warm. Whoever carried it must have left this carriage only moments ago.\n\nNew clue added to your bag.", "CONTINUE")
 			else:
 				_set_status("You already have the key.")
 		"letter":
 			letter_read = true
 			nearby_object.set_meta("display_name", "Letter read")
-			_set_status("The letter reads: “When the clock strikes three times, return what the traveler forgot.”")
+			_set_status("The letter contains a message about returning what was forgotten.")
+			_show_story_card("A MESSAGE LEFT BEHIND", "“When the clock strikes three times, return what the traveler forgot.”\n\nThe letter is written on old parchment. The memory chest may hold the answer.", "CLOSE LETTER")
 		"chest":
 			if chest_open:
-				_set_status("Inside the chest is a small memory: a photograph of a station at sunset.")
+				_show_story_card("SUNSET STATION", "The photograph shows a station glowing beneath a copper sunset. It is more than a memory — it is a clue to a place missing from every map.", "CLOSE PHOTOGRAPH")
 			elif not has_key:
 				_set_status("The chest is locked. Find the brass key.")
+				_show_story_card("A LOCKED MEMORY", "A brass lock holds the chest shut. Search the carriage for a key.", "KEEP SEARCHING")
 			elif not letter_read:
 				_set_status("You need to understand the letter before opening the chest.")
+				_show_story_card("A LOCKED MEMORY", "The chest seems to wait for more than a key. Read the torn letter on the side table first.", "READ THE LETTER")
 			else:
 				chest_open = true
 				nearby_object.set_meta("display_name", "Open chest")
 				var lid := nearby_object.get_node_or_null("Lid") as Node3D
 				if lid:
-					lid.rotation.x = deg_to_rad(-72.0)
-				_set_status("The chest opens! Inside is an old photograph and a new destination: Sunset Station.")
+					var lid_tween := create_tween()
+					lid_tween.tween_property(lid, "rotation:x", deg_to_rad(-72.0), 0.75).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+				_set_status("The chest opens. A photograph reveals the lost destination: Sunset Station.")
+				_show_story_card("A MEMORY RETURNS", "The photograph was not just a keepsake. It points to Sunset Station — a place that does not appear on any map.\n\nSTAGE ONE COMPLETE", "CONTINUE")
 		_:
 			_set_status("Nothing happens here yet.")
 	_save_progress()
