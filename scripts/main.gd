@@ -1313,6 +1313,8 @@ func _update_nearby() -> void:
 			nearest = distance
 			nearby_object = node
 
+
+func _interact() -> void:
 	if letter_inspecting:
 		letter_inspecting = false
 		if is_instance_valid(held_letter_prop):
