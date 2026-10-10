@@ -1231,6 +1231,15 @@ func _build_world_intro() -> void:
 		production_locomotive.name = "ProductionLocomotive"
 		production_locomotive.position = Vector3(30.0, 0.0, 0.0)
 		world_intro_root.add_child(production_locomotive)
+		var production_nameplate := Label3D.new()
+		production_nameplate.name = "Production locomotive nameplate text"
+		production_nameplate.text = "LOST & FOUND"
+		production_nameplate.font_size = 36
+		production_nameplate.pixel_size = 0.0024
+		production_nameplate.modulate = Color(1.0, 0.72, 0.36)
+		production_nameplate.position = Vector3(30.0, 1.42, -3.62)
+		production_nameplate.rotation_degrees.y = 180.0
+		world_intro_root.add_child(production_nameplate)
 	else:
 		# Fallback remains available until the Blender-authored asset is generated
 		# and imported; it is not considered the final art target.
