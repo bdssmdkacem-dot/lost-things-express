@@ -20,6 +20,15 @@ func _run_first_slice() -> void:
 		return
 	root.add_child(game)
 	await process_frame
+	var active_environment := game.get("world_environment") as WorldEnvironment
+	var status_hud := game.get("status_label") as Label
+	var interact_hud := game.get("interact_button") as Button
+	if not _check(active_environment != null and active_environment.environment == game.get("intro_environment"), "opening train did not activate its dedicated lighting environment"):
+		return
+	if not _check(game.find_children("*", "WorldEnvironment", true, false).size() == 1, "scene contains conflicting WorldEnvironment nodes"):
+		return
+	if not _check(status_hud != null and interact_hud != null and not status_hud.visible and not interact_hud.visible, "gameplay HUD remained visible behind the opening story card"):
+		return
 
 	var player := game.get("player") as CharacterBody3D
 	var key := game.get_node_or_null("BrassKey") as Node3D
@@ -63,7 +72,11 @@ func _run_first_slice() -> void:
 	game.call("_enter_stage_one")
 	if not _check(not bool(game.get("world_intro_active")) and camera.current, "entering stage one did not switch to the carriage camera"):
 		return
+	if not _check(active_environment.environment == game.get("carriage_environment"), "entering stage one did not restore the carriage lighting environment"):
+		return
 	game.call("_close_story_card")
+	if not _check(status_hud.visible and interact_hud.visible, "closing the story card did not restore the gameplay HUD"):
+		return
 	if not _check(hands.get_child_count() >= 16, "first-person hands are missing sleeves, cuffs, palms, fingers, or thumbs"):
 		return
 	if not _check(hands.get_node_or_null("Thumb_L") != null and hands.get_node_or_null("Thumb_R") != null, "both visible thumbs must be present for a readable hand silhouette"):
@@ -200,6 +213,8 @@ func _run_first_slice() -> void:
 	game.call("_toggle_pause_menu")
 	if not _check(bool(game.get("game_paused")) and (game.get("pause_overlay") as ColorRect).visible, "pause menu did not open as a modal overlay"):
 		return
+	if not _check(not status_hud.visible and not interact_hud.visible, "gameplay HUD was not hidden behind the pause menu"):
+		return
 	game.call("_physics_process", 0.1)
 	if not _check(player.global_position.distance_to(before_pause_position) < 0.001, "player moved while the pause menu was open"):
 		return
@@ -214,6 +229,8 @@ func _run_first_slice() -> void:
 		return
 	game.call("_toggle_pause_menu")
 	if not _check(not bool(game.get("game_paused")) and not (game.get("pause_overlay") as ColorRect).visible, "resume did not close the pause menu"):
+		return
+	if not _check(status_hud.visible and interact_hud.visible, "resuming did not restore the gameplay HUD"):
 		return
 
 	# The player must be able to leave the first carriage and activate the clock.
