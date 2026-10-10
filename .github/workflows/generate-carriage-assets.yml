@@ -33,6 +33,7 @@ jobs:
           blender --background --python art/blender/create_train_carriage.py
           test -s assets/blender/train_carriage.blend
           test -s assets/models/train_carriage.glb
+          test -s assets/blender/train_carriage_preview.png
           echo "Generated carriage assets; visual approval is still required."
 
       - name: Install Godot 4.3
