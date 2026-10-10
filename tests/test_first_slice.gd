@@ -71,6 +71,12 @@ func _run_first_slice() -> void:
 		return
 	if not _check(intro_root.find_child("Smokebox front door", true, false) != null or intro_root.find_child("Circular locomotive smokebox door", true, false) != null, "the locomotive front still reads as a plain boiler without a crafted smokebox"):
 		return
+	if intro_root.get_node_or_null("ProductionLocomotive") != null:
+		var production_boiler := intro_root.find_child("Pressure boiler | enamel barrel", true, false) as MeshInstance3D
+		if production_boiler != null:
+			var boiler_bounds := production_boiler.mesh.get_aabb().size
+			if not _check(boiler_bounds.z > boiler_bounds.y * 2.0, "the production locomotive boiler axis is sideways instead of following the rails"):
+				return
 	if not _check(intro_root.get_child_count() >= 300, "the establishing vista is missing its complete railway and world asset set"):
 		return
 	if not _check(intro_root.get_node_or_null("ConnectedWorldTerrain_00_L") != null, "the opening vista is missing the terrain beside the railway"):
