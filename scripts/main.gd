@@ -7,6 +7,8 @@ const INTERACT_DISTANCE := 3.0
 
 var player: CharacterBody3D
 var camera: Camera3D
+var first_person_hands: Node3D
+var hand_action_tween: Tween
 var status_label: Label
 var objective_label: Label
 var prompt_label: Label
@@ -208,6 +210,98 @@ func _build_player() -> void:
 	camera.rotation.x = pitch
 	camera.current = true
 	player.add_child(camera)
+	_build_first_person_hands()
+
+
+# First-person arms are a camera-attached view model. This is intentionally
+# isolated from player movement, camera look, collision, and touch input.
+func _build_first_person_hands() -> void:
+	first_person_hands = Node3D.new()
+	first_person_hands.name = "FirstPersonHands"
+	first_person_hands.position = Vector3.ZERO
+	camera.add_child(first_person_hands)
+
+	var sleeve_material := StandardMaterial3D.new()
+	sleeve_material.albedo_color = Color(0.035, 0.13, 0.15)
+	sleeve_material.roughness = 0.78
+	var cuff_material := StandardMaterial3D.new()
+	cuff_material.albedo_color = Color(0.67, 0.43, 0.17)
+	cuff_material.metallic = 0.35
+	cuff_material.roughness = 0.42
+	var skin_material := StandardMaterial3D.new()
+	skin_material.albedo_color = Color(0.72, 0.48, 0.32)
+	skin_material.roughness = 0.86
+
+	for side in [-1.0, 1.0]:
+		var arm := MeshInstance3D.new()
+		arm.name = "Sleeve_%s" % ("L" if side < 0.0 else "R")
+		var arm_mesh := CapsuleMesh.new()
+		arm_mesh.radius = 0.105
+		arm_mesh.height = 0.48
+		arm.mesh = arm_mesh
+		arm.material_override = sleeve_material
+		arm.position = Vector3(side * 0.30, -0.43, -0.62)
+		arm.rotation_degrees = Vector3(0.0, 0.0, side * -24.0)
+		first_person_hands.add_child(arm)
+
+		var cuff := MeshInstance3D.new()
+		cuff.name = "BrassCuff_%s" % ("L" if side < 0.0 else "R")
+		var cuff_mesh := CylinderMesh.new()
+		cuff_mesh.top_radius = 0.105
+		cuff_mesh.bottom_radius = 0.105
+		cuff_mesh.height = 0.055
+		cuff.mesh = cuff_mesh
+		cuff.material_override = cuff_material
+		cuff.position = Vector3(side * 0.30, -0.285, -0.67)
+		cuff.rotation_degrees.z = side * -24.0
+		first_person_hands.add_child(cuff)
+
+		var palm := MeshInstance3D.new()
+		palm.name = "Hand_%s" % ("L" if side < 0.0 else "R")
+		var palm_mesh := SphereMesh.new()
+		palm_mesh.radius = 0.105
+		palm_mesh.height = 0.16
+		palm.mesh = palm_mesh
+		palm.material_override = skin_material
+		palm.position = Vector3(side * 0.30, -0.20, -0.71)
+		first_person_hands.add_child(palm)
+
+		# Four short fingers make the silhouette read as a hand at phone size.
+		for finger_index in range(4):
+			var finger := MeshInstance3D.new()
+			finger.name = "Finger_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
+			var finger_mesh := CapsuleMesh.new()
+			finger_mesh.radius = 0.022
+			finger_mesh.height = 0.095
+			finger.mesh = finger_mesh
+			finger.material_override = skin_material
+			finger.position = Vector3(side * 0.30 + (finger_index - 1.5) * 0.042, -0.245, -0.79)
+			finger.rotation_degrees.x = -18.0
+			first_person_hands.add_child(finger)
+
+func _play_hand_action(action: String) -> void:
+	if not is_instance_valid(first_person_hands):
+		return
+	if hand_action_tween and hand_action_tween.is_running():
+		hand_action_tween.kill()
+	first_person_hands.position = Vector3.ZERO
+	first_person_hands.rotation = Vector3.ZERO
+	hand_action_tween = create_tween()
+	hand_action_tween.set_parallel(true)
+	match action:
+		"take":
+			hand_action_tween.tween_property(first_person_hands, "position", Vector3(0.0, 0.13, -0.34), 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			hand_action_tween.tween_property(first_person_hands, "rotation:x", deg_to_rad(-10.0), 0.22)
+		"read":
+			hand_action_tween.tween_property(first_person_hands, "position", Vector3(0.0, 0.20, -0.26), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			hand_action_tween.tween_property(first_person_hands, "rotation:x", deg_to_rad(-7.0), 0.28)
+		"open":
+			hand_action_tween.tween_property(first_person_hands, "position", Vector3(0.0, 0.16, -0.40), 0.32).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			hand_action_tween.tween_property(first_person_hands, "rotation:x", deg_to_rad(-14.0), 0.32)
+	hand_action_tween.set_parallel(false)
+	hand_action_tween.tween_interval(0.12)
+	hand_action_tween.tween_property(first_person_hands, "position", Vector3.ZERO, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	hand_action_tween.parallel().tween_property(first_person_hands, "rotation", Vector3.ZERO, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 
 func _build_ui() -> void:
 	var canvas := CanvasLayer.new()
@@ -504,12 +598,14 @@ func _interact() -> void:
 		"key":
 			if not has_key:
 				has_key = true
+				_play_hand_action("take")
 				nearby_object.queue_free()
 				_set_status("The brass key is warm, as if someone held it only moments ago.")
 				_show_story_card("THE BRASS KEY", "The little key is still warm. Whoever carried it must have left this carriage only moments ago.\n\nNew clue added to your bag.", "CONTINUE")
 			else:
 				_set_status("You already have the key.")
 		"letter":
+			_play_hand_action("read")
 			letter_read = true
 			nearby_object.set_meta("display_name", "Letter read")
 			_set_status("The letter contains a message about returning what was forgotten.")
@@ -525,6 +621,7 @@ func _interact() -> void:
 				_show_story_card("A LOCKED MEMORY", "The chest seems to wait for more than a key. Read the torn letter on the side table first.", "READ THE LETTER")
 			else:
 				chest_open = true
+				_play_hand_action("open")
 				nearby_object.set_meta("display_name", "Open chest")
 				var lid := nearby_object.get_node_or_null("Lid") as Node3D
 				if lid:
