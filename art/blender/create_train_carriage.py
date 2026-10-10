@@ -20,12 +20,12 @@ os.makedirs(BLEND_DIR, exist_ok=True)
 
 # Locked project palette.
 COLORS = {
-    "mahogany": (0.072, 0.018, 0.009, 1),
+    "mahogany": (0.052, 0.013, 0.006, 1),
     "dark_wood": (0.034, 0.009, 0.005, 1),
-    "wood_light": (0.115, 0.029, 0.012, 1),
+    "wood_light": (0.082, 0.021, 0.009, 1),
     "brass": (0.43, 0.19, 0.045, 1),
     "brass_highlight": (0.62, 0.35, 0.095, 1),
-    "velvet": (0.035, 0.24, 0.115, 1),
+    "velvet": (0.018, 0.15, 0.072, 1),
     "velvet_dark": (0.012, 0.095, 0.052, 1),
     "glass": (0.018, 0.095, 0.13, 0.38),
     "iron": (0.035, 0.045, 0.05, 1),
@@ -289,10 +289,10 @@ def create_carriage():
 
     # A small fantasy world sits outside the windows so the carriage never reads as a sealed box.
     # These simple, low-poly silhouettes are intentionally outside the shell and visible through the glass.
-    sky_mat = material("Exterior | twilight blue", (0.025, 0.085, 0.16, 1), roughness=0.95)
-    island_mat = material("Exterior | floating island teal", (0.08, 0.26, 0.27, 1), roughness=0.9)
-    stone_mat = material("Exterior | old stone", (0.30, 0.36, 0.41, 1), roughness=0.88)
-    distant_gold = material("Exterior | clockwork gold", (0.76, 0.43, 0.12, 1), metallic=0.28, roughness=0.38, emission=0.45)
+    sky_mat = material("Exterior | luminous sunset sky", (0.10, 0.22, 0.34, 1), roughness=0.95, emission=0.28)
+    island_mat = material("Exterior | floating island teal", (0.10, 0.34, 0.31, 1), roughness=0.9, emission=0.08)
+    stone_mat = material("Exterior | moonlit old stone", (0.43, 0.49, 0.56, 1), roughness=0.88, emission=0.08)
+    distant_gold = material("Exterior | clockwork gold", (0.95, 0.58, 0.20, 1), metallic=0.22, roughness=0.38, emission=0.9)
     # Put a distinct silhouette in each window's actual first-person sightline.
     # The camera is at x=0,z=4.72; solving the projection at the window plane avoids
     # leaving the fantasy scenery hidden behind a side pier when viewed down the aisle.
