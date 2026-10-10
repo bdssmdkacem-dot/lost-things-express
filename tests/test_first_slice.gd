@@ -35,6 +35,13 @@ func _run_first_slice() -> void:
 	var camera := game.get("camera") as Camera3D
 	if not _check(hands != null and camera != null, "first-person hands or camera were not created"):
 		return
+	if not _check(bool(game.get("world_intro_active")) and game.get("world_intro_root") != null, "the worlds train arrival scene did not start before stage one"):
+		return
+	if not _check(game.get("world_intro_camera") is Camera3D, "the worlds arrival camera is missing"):
+		return
+	game.call("_enter_stage_one")
+	if not _check(not bool(game.get("world_intro_active")) and camera.current, "entering stage one did not switch to the carriage camera"):
+		return
 	if not _check(hands.get_child_count() >= 16, "first-person hands are missing sleeves, cuffs, palms, fingers, or thumbs"):
 		return
 	if not _check(hands.get_node_or_null("Thumb_L") != null and hands.get_node_or_null("Thumb_R") != null, "both visible thumbs must be present for a readable hand silhouette"):
