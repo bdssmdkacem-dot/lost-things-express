@@ -60,3 +60,26 @@ Treat the five illustrative image examples shown in the project conversation as 
 - [ ] Real-device screenshots/video confirm the visual and interaction checks; CI success alone is insufficient.
 
 Do not check an item above until it has been verified. Preserve the original concept images unchanged. The illustrative image examples are a permanent direction for all future scene and asset revisions, not permission to claim visual validation without an actual render.
+
+## User-supplied source references — 2026-10-10
+
+The five image files attached by the user in the project conversation are authoritative visual references. Do not generate a replacement image for SUNSET STATION. Preserve these references unchanged and use them when shaping scene geometry, materials, camera composition, and visual QA:
+
+| Supplied attachment filename | Reference role | Stable repository filename |
+|---|---|---|
+| `file_00000000a27081f4a16c023a7b226ef1.png` | Train, chest, sunset-station photograph and object composition | `lost-things-express-scene-reference-a.png` |
+| `file_000000007b4c821098d8a94c5f9574b2.png` | Locomotive framing, carriage, chest and photo presentation | `lost-things-express-scene-reference-b.png` |
+| `file_000000007df8821092ff04732735a543.png` | Opening train shot, objects, letter and chest interaction | `lost-things-express-scene-reference-c.png` |
+| `Screenshot_20261009_175342~2.jpg` | Actual in-game carriage layout / comparison target | `lost-things-express-gameplay-reference.jpg` |
+| `1000173104.png` | Primary concept board and overall art direction | `lost-things-express-concept-wide.png` |
+
+**Important source policy:** the reference images guide implementation; they are not runtime textures unless a specific asset is explicitly approved for that use. The existing SUNSET STATION card must use the station/photo visible in the supplied reference as its target. Do not create a new station image or substitute a generated approximation. Keep the physical card orientation, border and title readable on the same face.
+
+**Repository binary status:** these stable paths are the intended source locations, but this documentation update alone does not add the binary image files. The archive remains incomplete until the exact supplied originals are copied unchanged into those paths and verified in GitHub. Never check the archive-complete box before that happens.
+
+## Reference-driven source implementation
+
+- Keep scene/source comments and acceptance tests tied to the stable filenames above.
+- For the opening shot, compare the whole locomotive and carriage composition against references A–C; individual details such as steam puffs or brass rings do not constitute acceptance.
+- For the photo, use the reference photo as a target for crop, perspective, warmth, station silhouette, and readable lettering. Do not synthesize or generate a replacement station picture.
+- Any discrepancy must be recorded in `docs/STAGE_ONE_ENGAGEMENT.md` and fixed before the visual gate is marked complete.
