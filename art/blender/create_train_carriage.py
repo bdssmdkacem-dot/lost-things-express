@@ -345,8 +345,8 @@ def create_carriage():
     # A small fantasy world sits outside the windows so the carriage never reads as a sealed box.
     # These simple, low-poly silhouettes are intentionally outside the shell and visible through the glass.
     sky_mat = material("Exterior | luminous sunset sky", (0.10, 0.22, 0.34, 1), roughness=0.95, emission=0.28)
-    island_mat = material("Exterior | floating island teal", (0.10, 0.34, 0.31, 1), roughness=0.9, emission=0.08)
-    stone_mat = material("Exterior | moonlit old stone", (0.43, 0.49, 0.56, 1), roughness=0.88, emission=0.08)
+    island_mat = material("Exterior | floating island teal", (0.13, 0.29, 0.25, 1), roughness=0.94, emission=0.035)
+    stone_mat = material("Exterior | moonlit old stone", (0.30, 0.36, 0.40, 1), roughness=0.92, emission=0.025)
     distant_gold = material("Exterior | clockwork gold", (0.95, 0.58, 0.20, 1), metallic=0.22, roughness=0.38, emission=0.9)
     # Put a distinct silhouette in each window's actual first-person sightline.
     # The camera is at x=0,z=4.72; solving the projection at the window plane avoids
@@ -355,24 +355,33 @@ def create_carriage():
     for side in (-1, 1):
         cube("Exterior | endless twilight", (side * 5.35, 2.0, 0.0), (0.08, 5.8, 13.5), sky_mat, 0.0, shell)
         for idx, window_z in enumerate(window_centers, 1):
-            tower_z = 4.72 + (window_z - 4.72) * (3.55 / 2.70)
-            island_z = 4.72 + (window_z - 4.72) * (3.25 / 2.70)
+            tower_z = 4.72 + (window_z - 4.72) * (3.20 / 2.70)
+            island_z = 4.72 + (window_z - 4.72) * (3.00 / 2.70)
             island_y = 1.56 if idx % 2 else 1.64
             # Floating island: broad horizontal silhouette along the lower pane.
-            cube("Exterior | floating island %d" % idx, (side * 3.25, island_y, island_z),
-                 (0.95, 0.22, 1.18), island_mat, 0.10, details)
-            # Tower and roof are larger and brighter than the former distant pinpricks.
-            tower_height = 0.82 + (idx % 2) * 0.18
-            cube("Exterior | castle tower %d" % idx, (side * 3.55, 2.03, tower_z),
-                 (0.26, tower_height, 0.34), stone_mat, 0.035, details)
-            cube("Exterior | tower roof %d" % idx, (side * 3.55, 2.03 + tower_height * 0.60, tower_z),
-                 (0.38, 0.13, 0.44), distant_gold, 0.035, details)
-            cube("Exterior | tower window %d" % idx, (side * 3.50, 2.04, tower_z + 0.18),
-                 (0.025, 0.16, 0.055), distant_gold, 0.008, details)
+            uv_sphere("Exterior | floating island %d" % idx, (side * 3.00, island_y, island_z),
+                      (0.78, 0.18, 0.86), island_mat)
+            # Tapered rock teeth make the underside read as a suspended landmass, not a flat box.
+            for tooth_index, offset in enumerate((-0.38, 0.0, 0.34), 1):
+                bpy.ops.mesh.primitive_cone_add(vertices=7, radius1=0.20 if tooth_index != 2 else 0.25,
+                                                radius2=0.035, depth=0.58 if tooth_index == 2 else 0.42,
+                                                location=(side * (3.00 + offset * 0.16), island_y - 0.27,
+                                                          island_z + offset))
+                tooth = bpy.context.object
+                tooth.name = "Exterior | floating island rock tooth %d %d" % (idx, tooth_index)
+                assign(tooth, stone_mat)
+            # Towers are placed just beyond the window plane so their silhouette survives at phone size.
+            tower_height = 1.05 + (idx % 2) * 0.22
+            cube("Exterior | castle tower %d" % idx, (side * 3.20, 2.03, tower_z),
+                 (0.34, tower_height, 0.42), stone_mat, 0.055, details)
+            cube("Exterior | tower roof %d" % idx, (side * 3.20, 2.03 + tower_height * 0.60, tower_z),
+                 (0.46, 0.16, 0.52), distant_gold, 0.045, details)
+            cube("Exterior | tower window %d" % idx, (side * 3.16, 2.04, tower_z + 0.18),
+                 (0.035, 0.19, 0.065), distant_gold, 0.01, details)
             if idx in (1, 3, 5):
-                # A slim illuminated waterfall hangs below selected floating islands.
-                cube("Exterior | luminous waterfall %d" % idx, (side * 3.18, 1.27, island_z + 0.28),
-                     (0.045, 0.42, 0.10), distant_gold, 0.015, details)
+                # A luminous waterfall gives each floating island a readable vertical silhouette.
+                cube("Exterior | luminous waterfall %d" % idx, (side * 2.98, 1.23, island_z + 0.28),
+                     (0.07, 0.52, 0.12), distant_gold, 0.02, details)
         for idx, window_z in enumerate((-3.0, 3.2), 1):
             moon_z = 4.72 + (window_z - 4.72) * (4.75 / 2.70)
             uv_sphere("Exterior | distant moon %d" % idx, (side * 4.75, 2.92, moon_z),
