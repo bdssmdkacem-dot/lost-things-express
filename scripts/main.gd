@@ -329,35 +329,35 @@ func _build_first_person_hands() -> void:
 		var arm := MeshInstance3D.new()
 		arm.name = "Sleeve_%s" % ("L" if side < 0.0 else "R")
 		var arm_mesh := CapsuleMesh.new()
-		arm_mesh.radius = 0.060
-		arm_mesh.height = 0.34
+		arm_mesh.radius = 0.048
+		arm_mesh.height = 0.28
 		arm.mesh = arm_mesh
 		arm.material_override = sleeve_material
-		arm.position = Vector3(side * 0.265, -0.43, -0.65)
+		arm.position = Vector3(side * 0.30, -0.43, -0.65)
 		arm.rotation_degrees = Vector3(0.0, 0.0, side * -24.0)
 		first_person_hands.add_child(arm)
 
 		var cuff := MeshInstance3D.new()
 		cuff.name = "BrassCuff_%s" % ("L" if side < 0.0 else "R")
 		var cuff_mesh := CylinderMesh.new()
-		cuff_mesh.top_radius = 0.063
-		cuff_mesh.bottom_radius = 0.063
+		cuff_mesh.top_radius = 0.052
+		cuff_mesh.bottom_radius = 0.052
 		cuff_mesh.height = 0.045
 		cuff.mesh = cuff_mesh
 		cuff.material_override = cuff_material
-		cuff.position = Vector3(side * 0.265, -0.305, -0.69)
+		cuff.position = Vector3(side * 0.30, -0.305, -0.69)
 		cuff.rotation_degrees.z = side * -24.0
 		first_person_hands.add_child(cuff)
 
 		var palm := MeshInstance3D.new()
 		palm.name = "Hand_%s" % ("L" if side < 0.0 else "R")
 		var palm_mesh := SphereMesh.new()
-		palm_mesh.radius = 0.073
-		palm_mesh.height = 0.12
+		palm_mesh.radius = 0.062
+		palm_mesh.height = 0.105
 		palm.mesh = palm_mesh
 		palm.material_override = skin_material
-		palm.position = Vector3(side * 0.255, -0.17, -0.68)
-		palm.scale = Vector3(1.10, 0.82, 0.68)
+		palm.position = Vector3(side * 0.27, -0.17, -0.68)
+		palm.scale = Vector3(1.08, 0.86, 0.68)
 		first_person_hands.add_child(palm)
 
 		# Four short fingers make the silhouette read as a hand at phone size.
@@ -469,8 +469,9 @@ func _create_held_letter_prop() -> void:
 	var message := Label3D.new()
 	message.name = "LetterMessage"
 	message.text = "WHEN THE CLOCK\nSTRIKES THREE TIMES,\nRETURN WHAT THE\nTRAVELER FORGOT.\nDO NOT LET THE CLOCK\nFINISH."
-	message.font_size = 24
-	message.pixel_size = 0.00125
+	message.font_size = 18
+	message.pixel_size = 0.00145
+	message.outline_size = 0
 	message.modulate = Color(0.19, 0.075, 0.028)
 	# The camera is on the +Z side of the card; keep the ink on the visible face.
 	message.position = Vector3(0.0, 0.0, 0.009)
@@ -1014,7 +1015,7 @@ func _build_world_intro() -> void:
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.48, 0.43, 0.54)
-	env.ambient_light_energy = 0.45
+	env.ambient_light_energy = 0.68
 	intro_environment = env
 	if is_instance_valid(world_environment):
 		world_environment.environment = intro_environment
@@ -1029,13 +1030,13 @@ func _build_world_intro() -> void:
 	var warm := OmniLight3D.new()
 	warm.position = Vector3(30.0, 5.0, 0.0)
 	warm.light_color = Color(1.0, 0.56, 0.25)
-	warm.light_energy = 1.15
-	warm.omni_range = 16.0
+	warm.light_energy = 1.55
+	warm.omni_range = 18.0
 	world_intro_root.add_child(warm)
 	var moon_fill := DirectionalLight3D.new()
 	moon_fill.rotation_degrees = Vector3(-38.0, -25.0, 0.0)
 	moon_fill.light_color = Color(0.48, 0.62, 1.0)
-	moon_fill.light_energy = 0.30
+	moon_fill.light_energy = 0.46
 	world_intro_root.add_child(moon_fill)
 
 	for island in [
