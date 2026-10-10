@@ -1,5 +1,11 @@
 extends Node3D
 ## First playable foundation. Geometry is temporary; the art direction is locked in docs/ART_DIRECTION.md.
+## Permanent visual source references (preserve originals; see art/reference/README.md):
+## - art/reference/lost-things-express-scene-reference-a.png (train, chest, station-photo composition)
+## - art/reference/lost-things-express-scene-reference-b.png (locomotive framing and photo presentation)
+## - art/reference/lost-things-express-scene-reference-c.png (opening shot, letter and chest)
+## - art/reference/lost-things-express-gameplay-reference.jpg (carriage layout)
+## Do not generate a replacement SUNSET STATION image. Match the physical photo card to the supplied references.
 
 const WALK_SPEED := 3.0
 const LOOK_SENSITIVITY := 0.004
