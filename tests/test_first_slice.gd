@@ -80,8 +80,8 @@ func _run_first_slice() -> void:
 
 	# Exercise the same multi-touch path used on Android: left-side movement,
 	# right-side camera look, and release cleanup.
-	var viewport_width := get_viewport().get_visible_rect().size.x
-	var viewport_height := get_viewport().get_visible_rect().size.y
+	var viewport_width := game.get_viewport().get_visible_rect().size.x
+	var viewport_height := game.get_viewport().get_visible_rect().size.y
 	var yaw_before_touch := float(game.get("yaw"))
 	var pitch_before_touch := float(game.get("pitch"))
 	var look_press := InputEventScreenTouch.new()
