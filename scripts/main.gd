@@ -218,7 +218,11 @@ func _build_ui() -> void:
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status_label.add_theme_font_size_override("font_size", 16)
 	status_label.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	status_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.58))
+	status_label.add_theme_color_override("font_color", Color(1.0, 0.91, 0.72))
+	status_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
+	status_label.add_theme_constant_override("shadow_offset_x", 1)
+	status_label.add_theme_constant_override("shadow_offset_y", 2)
+	status_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.018, 0.012, 0.88), Color(0.72, 0.47, 0.19, 0.95), 12, 12))
 	root.add_child(status_label)
 
 	objective_label = Label.new()
@@ -228,7 +232,11 @@ func _build_ui() -> void:
 	objective_label.anchor_bottom = 0.29
 	objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	objective_label.add_theme_font_size_override("font_size", 15)
-	objective_label.add_theme_color_override("font_color", Color(0.91, 0.89, 0.82))
+	objective_label.add_theme_color_override("font_color", Color(0.97, 0.94, 0.86))
+	objective_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
+	objective_label.add_theme_constant_override("shadow_offset_x", 1)
+	objective_label.add_theme_constant_override("shadow_offset_y", 1)
+	objective_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.018, 0.032, 0.031, 0.88), Color(0.36, 0.53, 0.43, 0.9), 10, 10))
 	root.add_child(objective_label)
 
 	prompt_label = Label.new()
@@ -238,7 +246,11 @@ func _build_ui() -> void:
 	prompt_label.anchor_bottom = 0.88
 	prompt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	prompt_label.add_theme_font_size_override("font_size", 20)
-	prompt_label.add_theme_color_override("font_color", Color(1, 0.91, 0.73))
+	prompt_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.73))
+	prompt_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
+	prompt_label.add_theme_constant_override("shadow_offset_x", 1)
+	prompt_label.add_theme_constant_override("shadow_offset_y", 2)
+	prompt_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.018, 0.012, 0.78), Color(0.67, 0.43, 0.17, 0.9), 12, 8))
 	root.add_child(prompt_label)
 
 	interact_button = Button.new()
@@ -247,7 +259,15 @@ func _build_ui() -> void:
 	interact_button.anchor_top = 0.78
 	interact_button.anchor_right = 0.96
 	interact_button.anchor_bottom = 0.92
-	interact_button.add_theme_font_size_override("font_size", 22)
+	interact_button.text = "✦  INTERACT"
+	interact_button.add_theme_font_size_override("font_size", 18)
+	interact_button.add_theme_color_override("font_color", Color(1.0, 0.91, 0.70))
+	interact_button.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.86))
+	interact_button.add_theme_color_override("font_pressed_color", Color(0.15, 0.08, 0.025))
+	interact_button.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.10, 0.055, 0.022, 0.96), Color(0.91, 0.62, 0.24, 1.0), 16, 8))
+	interact_button.add_theme_stylebox_override("hover", _ui_panel_style(Color(0.24, 0.13, 0.035, 0.98), Color(1.0, 0.78, 0.35, 1.0), 16, 8))
+	interact_button.add_theme_stylebox_override("pressed", _ui_panel_style(Color(0.85, 0.56, 0.18, 1.0), Color(1.0, 0.85, 0.48, 1.0), 16, 8))
+	interact_button.add_theme_stylebox_override("disabled", _ui_panel_style(Color(0.045, 0.035, 0.025, 0.80), Color(0.28, 0.23, 0.16, 0.8), 16, 8))
 	interact_button.pressed.connect(_interact)
 	root.add_child(interact_button)
 
@@ -257,7 +277,12 @@ func _build_ui() -> void:
 	inventory_button.anchor_top = 0.04
 	inventory_button.anchor_right = 0.96
 	inventory_button.anchor_bottom = 0.12
-	inventory_button.add_theme_font_size_override("font_size", 18)
+	inventory_button.add_theme_font_size_override("font_size", 16)
+	inventory_button.add_theme_color_override("font_color", Color(1.0, 0.89, 0.67))
+	inventory_button.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.86))
+	inventory_button.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.018, 0.012, 0.90), Color(0.68, 0.46, 0.22, 0.95), 12, 7))
+	inventory_button.add_theme_stylebox_override("hover", _ui_panel_style(Color(0.12, 0.075, 0.025, 0.97), Color(0.93, 0.69, 0.31, 1.0), 12, 7))
+	inventory_button.add_theme_stylebox_override("pressed", _ui_panel_style(Color(0.40, 0.24, 0.07, 1.0), Color(1.0, 0.80, 0.38, 1.0), 12, 7))
 	inventory_button.pressed.connect(_toggle_inventory)
 	root.add_child(inventory_button)
 
@@ -273,6 +298,7 @@ func _build_ui() -> void:
 	inventory_label.add_theme_color_override("font_shadow_color", Color(0.02, 0.015, 0.01, 0.9))
 	inventory_label.add_theme_constant_override("shadow_offset_x", 2)
 	inventory_label.add_theme_constant_override("shadow_offset_y", 2)
+	inventory_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.018, 0.014, 0.009, 0.90), Color(0.61, 0.40, 0.17, 0.92), 10, 10))
 	inventory_label.visible = false
 	root.add_child(inventory_label)
 
@@ -285,8 +311,24 @@ func _build_ui() -> void:
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	hint.autowrap_mode = TextServer.AUTOWRAP_OFF
 	hint.add_theme_font_size_override("font_size", 12)
-	hint.add_theme_color_override("font_color", Color(0.84, 0.84, 0.81))
+	hint.add_theme_color_override("font_color", Color(0.95, 0.91, 0.81))
+	hint.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.015, 0.012, 0.009, 0.78), Color(0.40, 0.31, 0.20, 0.75), 8, 5))
 	root.add_child(hint)
+
+func _ui_panel_style(fill: Color, edge: Color, corner_radius: int, inset: int) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = edge
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(corner_radius)
+	style.content_margin_left = inset
+	style.content_margin_right = inset
+	style.content_margin_top = 5
+	style.content_margin_bottom = 5
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
+	style.shadow_size = 4
+	style.shadow_offset = Vector2(0, 2)
+	return style
 
 func _process(_delta: float) -> void:
 	_update_nearby()
