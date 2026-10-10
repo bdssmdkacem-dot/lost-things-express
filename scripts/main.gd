@@ -30,6 +30,7 @@ var pause_button: Button
 var pause_overlay: ColorRect
 var look_sensitivity_slider: HSlider
 var look_sensitivity_label: Label
+var gameplay_hud_controls: Array[Control] = []
 var game_paused := false
 var inventory_open := false
 var yaw := 0.0
@@ -101,8 +102,8 @@ func _build_world() -> void:
 	sky.sky_material = sky_material
 	environment.sky = sky
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color(0.58, 0.52, 0.47)
-	environment.ambient_light_energy = 0.82
+	environment.ambient_light_color = Color(0.46, 0.41, 0.36)
+	environment.ambient_light_energy = 0.45
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	world.environment = environment
 	add_child(world)
@@ -110,17 +111,17 @@ func _build_world() -> void:
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-32, -25, 0)
 	sun.light_color = Color(1.0, 0.72, 0.43)
-	sun.light_energy = 0.65
+	sun.light_energy = 0.28
 	sun.shadow_enabled = true
 	add_child(sun)
 
 	# Runtime practical lights guarantee readable velvet and wood on mobile renderers,
 	# even if a glTF importer drops Blender's authored area-light data.
 	for light_spec in [
-		[Vector3(-1.45, 2.65, -3.6), Color(1.0, 0.56, 0.30), 2.2, 5.6],
-		[Vector3(1.45, 2.65, 0.0), Color(1.0, 0.68, 0.43), 2.6, 6.0],
-		[Vector3(-1.45, 2.65, 3.5), Color(1.0, 0.56, 0.30), 2.2, 5.6],
-		[Vector3(0.0, 2.5, 0.0), Color(0.48, 0.70, 1.0), 0.7, 4.8],
+		[Vector3(-1.45, 2.65, -3.6), Color(1.0, 0.56, 0.30), 0.75, 5.6],
+		[Vector3(1.45, 2.65, 0.0), Color(1.0, 0.68, 0.43), 0.95, 6.0],
+		[Vector3(-1.45, 2.65, 3.5), Color(1.0, 0.56, 0.30), 0.75, 5.6],
+		[Vector3(0.0, 2.5, 0.0), Color(0.48, 0.70, 1.0), 0.22, 4.8],
 	]:
 		var fill := OmniLight3D.new()
 		fill.name = "CarriageLight_%02d" % get_child_count()
@@ -652,56 +653,56 @@ func _build_ui() -> void:
 	canvas.add_child(root)
 
 	status_label = Label.new()
-	status_label.anchor_left = 0.04
-	status_label.anchor_top = 0.04
-	status_label.anchor_right = 0.78
-	status_label.anchor_bottom = 0.18
+	status_label.anchor_left = 0.03
+	status_label.anchor_top = 0.025
+	status_label.anchor_right = 0.63
+	status_label.anchor_bottom = 0.105
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	status_label.add_theme_font_size_override("font_size", 16)
+	status_label.add_theme_font_size_override("font_size", 14)
 	status_label.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	status_label.add_theme_color_override("font_color", Color(1.0, 0.91, 0.72))
 	status_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
 	status_label.add_theme_constant_override("shadow_offset_x", 1)
 	status_label.add_theme_constant_override("shadow_offset_y", 2)
-	status_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.96), Color(0.72, 0.47, 0.19, 0.98), 12, 12))
+	status_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.78), Color(0.72, 0.47, 0.19, 0.88), 10, 8))
 	root.add_child(status_label)
 
 	objective_label = Label.new()
-	objective_label.anchor_left = 0.04
-	objective_label.anchor_top = 0.20
-	objective_label.anchor_right = 0.78
-	objective_label.anchor_bottom = 0.29
+	objective_label.anchor_left = 0.03
+	objective_label.anchor_top = 0.115
+	objective_label.anchor_right = 0.63
+	objective_label.anchor_bottom = 0.185
 	objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	objective_label.add_theme_font_size_override("font_size", 15)
+	objective_label.add_theme_font_size_override("font_size", 13)
 	objective_label.add_theme_color_override("font_color", Color(0.97, 0.94, 0.86))
 	objective_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
 	objective_label.add_theme_constant_override("shadow_offset_x", 1)
 	objective_label.add_theme_constant_override("shadow_offset_y", 1)
-	objective_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.075, 0.078, 0.96), Color(0.30, 0.55, 0.43, 0.98), 10, 10))
+	objective_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.075, 0.078, 0.78), Color(0.30, 0.55, 0.43, 0.85), 9, 7))
 	root.add_child(objective_label)
 
 	prompt_label = Label.new()
-	prompt_label.anchor_left = 0.18
-	prompt_label.anchor_top = 0.76
-	prompt_label.anchor_right = 0.76
-	prompt_label.anchor_bottom = 0.88
+	prompt_label.anchor_left = 0.03
+	prompt_label.anchor_top = 0.195
+	prompt_label.anchor_right = 0.56
+	prompt_label.anchor_bottom = 0.255
 	prompt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	prompt_label.add_theme_font_size_override("font_size", 20)
+	prompt_label.add_theme_font_size_override("font_size", 13)
 	prompt_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.73))
 	prompt_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 1.0))
 	prompt_label.add_theme_constant_override("shadow_offset_x", 1)
 	prompt_label.add_theme_constant_override("shadow_offset_y", 2)
-	prompt_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.94), Color(0.72, 0.47, 0.19, 0.96), 12, 8))
+	prompt_label.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.82), Color(0.72, 0.47, 0.19, 0.90), 9, 6))
 	root.add_child(prompt_label)
 
 	interact_button = Button.new()
 	interact_button.text = "INTERACT"
-	interact_button.anchor_left = 0.80
-	interact_button.anchor_top = 0.78
-	interact_button.anchor_right = 0.96
+	interact_button.anchor_left = 0.82
+	interact_button.anchor_top = 0.80
+	interact_button.anchor_right = 0.97
 	interact_button.anchor_bottom = 0.92
 	interact_button.text = "✦  INTERACT"
-	interact_button.add_theme_font_size_override("font_size", 18)
+	interact_button.add_theme_font_size_override("font_size", 16)
 	interact_button.add_theme_color_override("font_color", Color(1.0, 0.91, 0.70))
 	interact_button.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.86))
 	interact_button.add_theme_color_override("font_pressed_color", Color(0.15, 0.08, 0.025))
@@ -714,11 +715,11 @@ func _build_ui() -> void:
 
 	inventory_button = Button.new()
 	inventory_button.text = "BAG · 0"
-	inventory_button.anchor_left = 0.82
-	inventory_button.anchor_top = 0.04
-	inventory_button.anchor_right = 0.96
-	inventory_button.anchor_bottom = 0.12
-	inventory_button.add_theme_font_size_override("font_size", 16)
+	inventory_button.anchor_left = 0.83
+	inventory_button.anchor_top = 0.025
+	inventory_button.anchor_right = 0.97
+	inventory_button.anchor_bottom = 0.095
+	inventory_button.add_theme_font_size_override("font_size", 14)
 	inventory_button.add_theme_color_override("font_color", Color(1.0, 0.89, 0.67))
 	inventory_button.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.86))
 	inventory_button.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.96), Color(0.72, 0.47, 0.19, 0.98), 12, 7))
@@ -730,10 +731,10 @@ func _build_ui() -> void:
 	pause_button = Button.new()
 	pause_button.name = "PauseButton"
 	pause_button.text = "Ⅱ  PAUSE"
-	pause_button.anchor_left = 0.82
-	pause_button.anchor_top = 0.14
-	pause_button.anchor_right = 0.96
-	pause_button.anchor_bottom = 0.22
+	pause_button.anchor_left = 0.83
+	pause_button.anchor_top = 0.105
+	pause_button.anchor_right = 0.97
+	pause_button.anchor_bottom = 0.175
 	pause_button.add_theme_font_size_override("font_size", 13)
 	pause_button.add_theme_color_override("font_color", Color(1.0, 0.89, 0.67))
 	pause_button.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.96), Color(0.72, 0.47, 0.19, 0.98), 10, 6))
@@ -761,14 +762,16 @@ func _build_ui() -> void:
 	hint.text = "LEFT: MOVE  •  RIGHT: LOOK"
 	hint.anchor_left = 0.03
 	hint.anchor_top = 0.94
-	hint.anchor_right = 0.68
+	hint.anchor_right = 0.40
 	hint.anchor_bottom = 0.99
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	hint.autowrap_mode = TextServer.AUTOWRAP_OFF
-	hint.add_theme_font_size_override("font_size", 12)
+	hint.add_theme_font_size_override("font_size", 11)
 	hint.add_theme_color_override("font_color", Color(0.95, 0.91, 0.81))
 	hint.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.025, 0.055, 0.068, 0.94), Color(0.42, 0.34, 0.23, 0.88), 8, 5))
 	root.add_child(hint)
+	gameplay_hud_controls = [status_label, objective_label, prompt_label, interact_button, inventory_button, pause_button, inventory_label, hint]
+	prompt_label.visible = false
 	_build_story_overlay(root)
 	_build_pause_overlay(root)
 
@@ -791,17 +794,17 @@ func _build_story_overlay(root: Control) -> void:
 	story_overlay = ColorRect.new()
 	story_overlay.name = "StoryOverlay"
 	story_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	story_overlay.color = Color(0.008, 0.018, 0.028, 0.82)
+	story_overlay.color = Color(0.008, 0.018, 0.028, 0.46)
 	story_overlay.visible = false
 	story_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(story_overlay)
 
 	var card := PanelContainer.new()
 	card.name = "StoryCard"
-	card.anchor_left = 0.12
-	card.anchor_top = 0.23
-	card.anchor_right = 0.88
-	card.anchor_bottom = 0.75
+	card.anchor_left = 0.15
+	card.anchor_top = 0.46
+	card.anchor_right = 0.85
+	card.anchor_bottom = 0.93
 	card.add_theme_stylebox_override("panel", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.99), Color(0.72, 0.47, 0.19, 1.0), 18, 18))
 	story_overlay.add_child(card)
 
@@ -844,17 +847,17 @@ func _build_pause_overlay(root: Control) -> void:
 	pause_overlay = ColorRect.new()
 	pause_overlay.name = "PauseOverlay"
 	pause_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	pause_overlay.color = Color(0.008, 0.018, 0.028, 0.86)
+	pause_overlay.color = Color(0.008, 0.018, 0.028, 0.76)
 	pause_overlay.visible = false
 	pause_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(pause_overlay)
 
 	var panel := PanelContainer.new()
 	panel.name = "PausePanel"
-	panel.anchor_left = 0.25
-	panel.anchor_top = 0.18
-	panel.anchor_right = 0.75
-	panel.anchor_bottom = 0.82
+	panel.anchor_left = 0.27
+	panel.anchor_top = 0.29
+	panel.anchor_right = 0.73
+	panel.anchor_bottom = 0.71
 	panel.add_theme_stylebox_override("panel", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.99), Color(0.72, 0.47, 0.19, 1.0), 18, 18))
 	pause_overlay.add_child(panel)
 
