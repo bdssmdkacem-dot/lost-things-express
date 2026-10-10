@@ -44,6 +44,14 @@ func _run_first_slice() -> void:
 		return
 	if not _check(game.get("world_intro_camera") is Camera3D, "the worlds arrival camera is missing"):
 		return
+	# Input over the opening story card must not start a hidden look gesture.
+	var blocked_touch := InputEventScreenTouch.new()
+	blocked_touch.index = 7
+	blocked_touch.position = Vector2(900.0, 400.0)
+	blocked_touch.pressed = true
+	game.call("_input", blocked_touch)
+	if not _check(int(game.get("touch_look_id")) == -1 and int(game.get("touch_move_id")) == -1, "touch input leaked through the opening story card"):
+		return
 	var intro_root := game.get("world_intro_root") as Node3D
 	if not _check(intro_root.get_node_or_null("LocomotiveConnectingRod_L") != null and intro_root.get_node_or_null("LocomotiveConnectingRod_R") != null, "the establishing locomotive is missing its wheel connecting rods"):
 		return
