@@ -69,6 +69,14 @@ func _run_first_slice() -> void:
 		return
 	if not _check(intro_root.find_children("SoftSteamPuff_*", "MeshInstance3D", true, false).size() == 3, "the establishing locomotive is missing its restrained steam plume"):
 		return
+	if not _check(intro_root.get_node_or_null("Circular locomotive smokebox door") != null and intro_root.get_node_or_null("Smokebox brass outer rim") != null, "the locomotive front still reads as a plain boiler without a crafted smokebox"):
+		return
+	if not _check(intro_root.find_children("Continuous steel rail *", "MeshInstance3D", true, false).size() >= 130, "the opening railway is not continuous through the establishing vista"):
+		return
+	if not _check(intro_root.find_children("ConnectedWorldTerrain_*", "MeshInstance3D", true, false).size() >= 10, "the opening worlds are not built as connected terrain on both sides of the railway"):
+		return
+	if not _check(intro_root.find_children("Stone railway viaduct span *", "MeshInstance3D", true, false).size() == 7, "the railway does not visibly bridge between the distant worlds"):
+		return
 	game.call("_enter_stage_one")
 	if not _check(not bool(game.get("world_intro_active")) and camera.current, "entering stage one did not switch to the carriage camera"):
 		return
