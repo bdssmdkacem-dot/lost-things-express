@@ -32,7 +32,9 @@ func _run_first_slice() -> void:
 	var camera := game.get("camera") as Camera3D
 	if not _check(hands != null and camera != null, "first-person hands or camera were not created"):
 		return
-	if not _check(hands.get_child_count() >= 14, "first-person hands are missing sleeves, cuffs, palms, or fingers"):
+	if not _check(hands.get_child_count() >= 16, "first-person hands are missing sleeves, cuffs, palms, fingers, or thumbs"):
+		return
+	if not _check(hands.get_node_or_null("Thumb_L") != null and hands.get_node_or_null("Thumb_R") != null, "both visible thumbs must be present for a readable hand silhouette"):
 		return
 	if not _check(hands.get_parent() == camera, "first-person hands are not attached to the camera view"):
 		return
