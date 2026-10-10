@@ -1550,6 +1550,47 @@ func _create_interactable(label: String, pos: Vector3, color: Color, kind: Strin
 				foot.position = Vector3(foot_x, -size.y * 0.5 - 0.015, foot_z)
 				item.add_child(foot)
 
+		# Raised inset panels and corner studs give the memory chest a crafted
+		# furniture silhouette instead of a single unbroken brown box.
+		var panel_material := StandardMaterial3D.new()
+		panel_material.albedo_color = Color(0.12, 0.038, 0.018)
+		panel_material.roughness = 0.54
+		for side in [-1.0, 1.0]:
+			var panel := MeshInstance3D.new()
+			panel.name = "ChestFrontPanel_%s" % ("L" if side < 0.0 else "R")
+			var panel_mesh := BoxMesh.new()
+			panel_mesh.size = Vector3(size.x * 0.25, size.y * 0.54, 0.018)
+			panel.mesh = panel_mesh
+			panel.material_override = panel_material
+			panel.position = Vector3(side * size.x * 0.19, 0.015, size.z * 0.5 + 0.014)
+			item.add_child(panel)
+			for edge_spec in [
+				[Vector3(side * size.x * 0.19, 0.015 + size.y * 0.29, size.z * 0.5 + 0.027), Vector3(size.x * 0.27, 0.018, 0.018)],
+				[Vector3(side * size.x * 0.19, 0.015 - size.y * 0.29, size.z * 0.5 + 0.027), Vector3(size.x * 0.27, 0.018, 0.018)],
+				[Vector3(side * size.x * 0.19 - size.x * 0.135, 0.015, size.z * 0.5 + 0.027), Vector3(0.018, size.y * 0.58, 0.018)],
+				[Vector3(side * size.x * 0.19 + size.x * 0.135, 0.015, size.z * 0.5 + 0.027), Vector3(0.018, size.y * 0.58, 0.018)]
+			]:
+				var panel_edge := MeshInstance3D.new()
+				var edge_mesh := BoxMesh.new()
+				edge_mesh.size = edge_spec[1]
+				panel_edge.mesh = edge_mesh
+				panel_edge.material_override = trim_material
+				panel_edge.position = edge_spec[0]
+				item.add_child(panel_edge)
+
+		var stud_mesh := SphereMesh.new()
+		stud_mesh.radius = 0.024
+		stud_mesh.height = 0.048
+		for stud_x in [-size.x * 0.43, size.x * 0.43]:
+			for stud_y in [-size.y * 0.34, size.y * 0.34]:
+				var stud := MeshInstance3D.new()
+				stud.name = "Chest brass corner stud"
+				stud.mesh = stud_mesh
+				stud.material_override = trim_material
+				stud.scale = Vector3(1.0, 1.0, 0.35)
+				stud.position = Vector3(stud_x, stud_y, size.z * 0.5 + 0.025)
+				item.add_child(stud)
+
 		var hinge := Node3D.new()
 		hinge.name = "Lid"
 		hinge.position = Vector3(0, size.y * 0.52, -size.z * 0.42)
@@ -1571,6 +1612,17 @@ func _create_interactable(label: String, pos: Vector3, color: Color, kind: Strin
 		lid_trim.material_override = trim_material
 		lid_trim.position = Vector3(0.0, 0.09, size.z * 0.42)
 		hinge.add_child(lid_trim)
+
+		var lid_seal := MeshInstance3D.new()
+		lid_seal.name = "LidSealMedallion"
+		var seal_mesh := TorusMesh.new()
+		seal_mesh.inner_radius = 0.055
+		seal_mesh.outer_radius = 0.078
+		lid_seal.mesh = seal_mesh
+		lid_seal.material_override = trim_material
+		lid_seal.rotation_degrees.x = 90.0
+		lid_seal.position = Vector3(0.0, 0.095, size.z * 0.42)
+		hinge.add_child(lid_seal)
 
 	var glow := OmniLight3D.new()
 	glow.name = "InteractionGlow"
