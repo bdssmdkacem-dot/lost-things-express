@@ -26,7 +26,7 @@ A premium fantasy train adventure where players explore strange stations, discov
 - A story reward that points to Sunset Station.
 - Touch-first movement and camera controls, with desktop controls for development.
 - Collision around seating and carriage boundaries, readable mobile UI, and an APK that passes signature/package checks.
-- Puzzle progress is now saved automatically to the app's user data and restored on relaunch; the automated first-slice test checks the save/resume path. Pause/resume controls, settings, and full device QA remain release gates until implemented and tested.
+- Puzzle progress is now saved automatically to the app's user data and restored on relaunch; the automated first-slice test checks the save/resume path. Pause/resume controls and a persistent look-sensitivity setting are now implemented and covered by automated tests; physical-device behavior and visual quality remain release gates.
 
 ## Tech stack
 
@@ -64,7 +64,8 @@ The Android export preset previously had `package/signed=false`, even though the
 - [ ] Regenerate and visually inspect the revised carriage asset
 - [ ] Review the in-game opening view side by side with the user's reference
 - [ ] Test touch movement, camera look, interactions and collision on an Android phone
-- [ ] Add and test persistent save data, pause/resume and settings
+- [x] Add persistent puzzle progress, pause/resume and saved look sensitivity (automated tests pass)
+- [ ] Verify pause/resume, settings, touch controls and the full puzzle on a physical Android phone
 - [ ] Replace remaining placeholder props with approved production art and animation
 - [ ] Add sound, subtitles, accessibility and cinematic transitions
 - [ ] Build a second playable station only after the first slice passes review
