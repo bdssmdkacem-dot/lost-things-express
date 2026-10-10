@@ -257,6 +257,18 @@ scene.render.filepath = os.path.join(BLEND_DIR, "lost_things_locomotive_preview.
 scene.world.color = (0.025, 0.035, 0.055)
 scene.view_settings.view_transform = "AgX"
 scene.render.image_settings.color_mode = "RGBA"
+# The model's design coordinates are Y-up (the Godot convention), but Blender's
+# scene and renderer are Z-up. Rotate the complete scene—including camera and
+# lights—into Blender space before rendering, so the review image shows the train
+# upright rather than lying on its side. The glTF exporter below then performs its
+# normal Z-up -> Y-up conversion, cancelling this scene-space basis rotation and
+# preserving the intended Godot orientation in the exported GLB.
+godot_to_blender = Matrix.Rotation(math.radians(90.0), 4, 'X')
+for obj in list(bpy.context.scene.objects):
+    obj.location = godot_to_blender @ obj.location
+    obj.rotation_mode = 'QUATERNION'
+    obj.rotation_quaternion = godot_to_blender.to_quaternion() @ obj.rotation_quaternion
+
 # Render first, then remove camera/lights from the exported runtime asset.
 bpy.ops.render.render(write_still=True)
 bpy.ops.object.select_all(action="DESELECT")
@@ -274,5 +286,5 @@ bpy.context.view_layer.objects.active = next((o for o in bpy.context.scene.objec
 # Z along the rails). Do not rotate the mesh vertices: doing so tips the boiler,
 # cab, and wheelsets into a standing/sideways pose. Disable Blender's automatic
 # Z-up to Y-up basis conversion so the GLB preserves the authored train geometry.
-bpy.ops.export_scene.gltf(filepath=os.path.join(MODEL_DIR, "lost_things_locomotive.glb"), export_format="GLB", use_selection=True, export_apply=True, export_yup=False)
+bpy.ops.export_scene.gltf(filepath=os.path.join(MODEL_DIR, "lost_things_locomotive.glb"), export_format="GLB", use_selection=True, export_apply=True, export_yup=True)
 print("LOCOMOTIVE_ASSET_GENERATED: blend, GLB and preview")
