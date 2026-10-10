@@ -140,6 +140,8 @@ func _build_world() -> void:
 		push_warning("Carriage GLB missing; using fallback geometry.")
 		_build_procedural_carriage()
 
+	_build_exterior_vista()
+
 	_create_interactable("Brass Key", Vector3(-0.45, 0.12, -1.1), Color(0.95, 0.62, 0.16), "key")
 	# Place the letter visibly on the aisle-side edge of an ivory-marble table.
 	_create_interactable("Torn Letter", Vector3(1.95, 0.83, 1.15), Color(0.86, 0.77, 0.59), "letter")
@@ -1268,6 +1270,88 @@ func _box(label: String, pos: Vector3, size: Vector3, color: Color, solid := tru
 		body.collision_layer = 0
 		body.collision_mask = 0
 	return body
+
+func _build_exterior_vista() -> void:
+	# Distant floating terrain gives the open carriage windows a real world beyond
+	# the glass. These are visual-only silhouettes: no colliders or movement changes.
+	var vista := Node3D.new()
+	vista.name = "WindowVista"
+	add_child(vista)
+
+	var moss := StandardMaterial3D.new()
+	moss.albedo_color = Color(0.10, 0.20, 0.16)
+	moss.roughness = 0.96
+	var stone := StandardMaterial3D.new()
+	stone.albedo_color = Color(0.075, 0.095, 0.12)
+	stone.roughness = 0.98
+	var distant_green := StandardMaterial3D.new()
+	distant_green.albedo_color = Color(0.13, 0.18, 0.17)
+	distant_green.roughness = 1.0
+	var island_specs := [
+		[-1.0, -8.8, 1.0, -4.5, Vector3(2.5, 0.72, 1.65)],
+		[1.0, 9.4, 1.6, -2.4, Vector3(2.9, 0.82, 1.9)],
+		[-1.0, -10.2, 0.6, -0.3, Vector3(2.2, 0.62, 1.45)],
+		[1.0, 8.4, 1.0, 1.4, Vector3(2.4, 0.66, 1.6)],
+		[-1.0, -8.6, 1.7, 3.5, Vector3(2.7, 0.74, 1.7)],
+		[1.0, 10.4, 0.7, 4.6, Vector3(2.2, 0.60, 1.45)]
+	]
+	for idx in range(island_specs.size()):
+		var spec: Array = island_specs[idx]
+		var side: float = spec[0]
+		var island := Node3D.new()
+		island.name = "FloatingIsland_%02d" % (idx + 1)
+		island.position = Vector3(spec[1], spec[2], spec[3])
+		vista.add_child(island)
+
+		var crown := MeshInstance3D.new()
+		crown.name = "MossyIslandCrown"
+		var crown_mesh := SphereMesh.new()
+		crown_mesh.radius = 1.0
+		crown_mesh.height = 1.0
+		crown.mesh = crown_mesh
+		crown.scale = spec[4]
+		crown.material_override = moss if idx % 2 == 0 else distant_green
+		island.add_child(crown)
+
+		var rock := MeshInstance3D.new()
+		rock.name = "TaperedFloatingRock"
+		var rock_mesh := ConeMesh.new()
+		rock_mesh.top_radius = 0.78
+		rock_mesh.bottom_radius = 0.06
+		rock_mesh.height = 1.65
+		rock.mesh = rock_mesh
+		rock.position.y = -0.76
+		rock.scale = Vector3(spec[4].x * 0.82, 1.0, spec[4].z * 0.82)
+		rock.material_override = stone
+		island.add_child(rock)
+
+		# A few broken stone ledges make the floating silhouette less spherical.
+		for ledge_index in range(2):
+			var ledge := MeshInstance3D.new()
+			var ledge_mesh := BoxMesh.new()
+			ledge_mesh.size = Vector3(0.46, 0.16, 0.34)
+			ledge.mesh = ledge_mesh
+			ledge.material_override = stone
+			ledge.position = Vector3((-0.48 if ledge_index == 0 else 0.43), -0.48, 0.22 * side)
+			ledge.rotation.y = 0.24 * side
+			island.add_child(ledge)
+
+	# Tiny amber beacons hint at distant inhabited stations without competing with
+	# the interactable props inside the cabin.
+	for beacon_spec in [
+		[Vector3(-11.0, 2.2, -4.5), Color(1.0, 0.53, 0.20)],
+		[Vector3(11.4, 2.7, -2.5), Color(1.0, 0.67, 0.31)],
+		[Vector3(-10.6, 2.5, 3.4), Color(0.65, 0.78, 1.0)]
+	]:
+		var beacon := OmniLight3D.new()
+		beacon.name = "DistantStationBeacon"
+		beacon.position = beacon_spec[0]
+		beacon.light_color = beacon_spec[1]
+		beacon.light_energy = 0.42
+		beacon.omni_range = 2.8
+		beacon.shadow_enabled = false
+		vista.add_child(beacon)
+
 
 func _create_interactable(label: String, pos: Vector3, color: Color, kind: String, size := Vector3(0.32, 0.16, 0.24)) -> Node3D:
 	var item := Node3D.new()
