@@ -118,6 +118,19 @@ func _run_first_slice() -> void:
 	if not _check(lid != null and is_equal_approx(lid.rotation.x, deg_to_rad(-72.0)), "chest lid did not reach the open position"):
 		return
 
+	# The chest reward must exist as a visible, inspectable 3D photograph after the reveal beat.
+	var photo := chest.get_node_or_null("SunsetPhotograph") as Node3D
+	if not _check(photo != null and photo.visible, "the sunset photograph did not appear after the chest reveal"):
+		return
+	if not _check(photo.is_in_group("interactables") and photo.get_node_or_null("StationName") != null, "the photograph is not a readable interactable reward"):
+		return
+	game.call("_close_story_card")
+	player.global_position = photo.global_position + Vector3(0.0, 0.0, 0.22)
+	game.call("_interact")
+	if not _check(bool(game.get("story_card_open")) and str(game.get("story_body").text).contains("SUNSET STATION"), "inspecting the photograph did not reveal its station clue"):
+		return
+	game.call("_close_story_card")
+
 	# The player must be able to leave the first carriage and activate the clock.
 	game.call("_close_story_card")
 	player.global_position = station_clock.global_position + Vector3(0.0, -2.2, 0.1)
@@ -147,6 +160,10 @@ func _run_first_slice() -> void:
 	if not _check(bool(resumed_game.get("letter_read")), "saved letter progress was not restored"):
 		return
 	if not _check(bool(resumed_game.get("chest_open")), "saved chest progress was not restored"):
+		return
+	var resumed_chest := resumed_game.get_node_or_null("MemoryChest") as Node3D
+	var resumed_photo := resumed_chest.get_node_or_null("SunsetPhotograph") as Node3D if resumed_chest else null
+	if not _check(resumed_photo != null and resumed_photo.visible, "saved chest progress did not restore the visible photograph reward"):
 		return
 	print("FIRST_SLICE_TESTS_PASSED: key -> letter -> memory chest -> sunset photograph -> save/resume")
 	resumed_game.queue_free()
