@@ -14,6 +14,9 @@ window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 window/handheld/orientation=1
 
+[filesystem]
+import/blender/enabled=false
+
 [rendering]
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
