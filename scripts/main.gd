@@ -1018,7 +1018,7 @@ func _build_world_intro() -> void:
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.48, 0.43, 0.54)
-	env.ambient_light_energy = 0.92
+	env.ambient_light_energy = 1.12
 	env.fog_enabled = true
 	env.fog_light_color = Color(0.19, 0.25, 0.36)
 	env.fog_density = 0.008
@@ -1040,13 +1040,13 @@ func _build_world_intro() -> void:
 	var warm := OmniLight3D.new()
 	warm.position = Vector3(30.0, 5.0, 0.0)
 	warm.light_color = Color(1.0, 0.56, 0.25)
-	warm.light_energy = 1.55
+	warm.light_energy = 1.85
 	warm.omni_range = 18.0
 	world_intro_root.add_child(warm)
 	var moon_fill := DirectionalLight3D.new()
 	moon_fill.rotation_degrees = Vector3(-38.0, -25.0, 0.0)
 	moon_fill.light_color = Color(0.48, 0.62, 1.0)
-	moon_fill.light_energy = 0.82
+	moon_fill.light_energy = 1.0
 	world_intro_root.add_child(moon_fill)
 
 	# The old isolated oval islands are intentionally removed: the world below is built as connected terrain around the railway.
