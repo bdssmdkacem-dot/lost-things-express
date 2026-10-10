@@ -140,7 +140,7 @@ for side in (-1, 1):
             sx = x + side * 0.115
             spoke_obj = cube("Wheel spoke", (sx, 0.66 + math.sin(angle) * 0.27, z + math.cos(angle) * 0.27), (0.055, 0.055, 0.50), STEEL, 0.012)
             spoke_obj.rotation_euler.x = angle
-    cube("Longitudinal coupling rod", (side * 1.48, 0.66, -0.035), (0.09, 0.10, 4.55), STEEL, 0.035)
+    cube("LocomotiveConnectingRod_L" if side < 0 else "LocomotiveConnectingRod_R", (side * 1.48, 0.66, -0.035), (0.09, 0.10, 4.55), STEEL, 0.035)
     for z in wheel_zs:
         cyl("Connecting rod brass pin", (side * 1.54, 0.66, z), 0.095, 0.12, BRASS_LIGHT, (0, math.pi / 2, 0), 32, 0.01)
 
