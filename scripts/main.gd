@@ -124,6 +124,7 @@ func _build_world() -> void:
 				for side in [-1.0, 1.0]:
 					_collision_box("Seat collision", Vector3(side * 1.78, 0.76, seat_z), Vector3(1.35, 1.48, 1.24))
 			_collision_box("Carriage front boundary", Vector3(0, 1.6, 5.85), Vector3(5.6, 3.2, 0.12))
+			_build_next_clock_compartment()
 		else:
 			push_warning("Carriage GLB exists but did not import as a PackedScene; using fallback geometry.")
 			_build_procedural_carriage()
@@ -135,6 +136,63 @@ func _build_world() -> void:
 	# Place the letter visibly on the aisle-side edge of an ivory-marble table.
 	_create_interactable("Torn Letter", Vector3(1.95, 0.83, 1.15), Color(0.86, 0.77, 0.59), "letter")
 	_create_interactable("Memory Chest", Vector3(0.0, 0.45, -4.45), Color(0.33, 0.12, 0.055), "chest", Vector3(0.95, 0.75, 0.65))
+	_create_clock_interactable()
+
+func _create_clock_interactable() -> void:
+	var clock := Node3D.new()
+	clock.name = "StationClock"
+	clock.position = Vector3(0.0, 2.30, -12.08)
+	clock.set_meta("kind", "clock")
+	clock.set_meta("display_name", "Station Clock")
+	clock.add_to_group("interactables")
+	add_child(clock)
+	if ResourceLoader.exists("res://assets/models/train_carriage.glb"):
+		var rim := MeshInstance3D.new()
+		rim.name = "ClockBrassRim"
+		var rim_mesh := CylinderMesh.new()
+		rim_mesh.top_radius = 0.40
+		rim_mesh.bottom_radius = 0.40
+		rim_mesh.height = 0.08
+		rim.mesh = rim_mesh
+		var brass := StandardMaterial3D.new()
+		brass.albedo_color = Color(0.68, 0.43, 0.17)
+		brass.metallic = 0.72
+		brass.roughness = 0.3
+		rim.material_override = brass
+		rim.rotation_degrees.x = 90.0
+		clock.add_child(rim)
+		var face := MeshInstance3D.new()
+		face.name = "ClockIvoryFace"
+		var face_mesh := CylinderMesh.new()
+		face_mesh.top_radius = 0.34
+		face_mesh.bottom_radius = 0.34
+		face_mesh.height = 0.09
+		face.mesh = face_mesh
+		var ivory := StandardMaterial3D.new()
+		ivory.albedo_color = Color(0.87, 0.79, 0.62)
+		ivory.roughness = 0.72
+		face.material_override = ivory
+		face.rotation_degrees.x = 90.0
+		face.position.z = -0.035
+		clock.add_child(face)
+		for hand_spec in [Vector3(0.0, 0.10, -0.09), Vector3(0.13, -0.03, -0.10)]:
+			var clock_hand := MeshInstance3D.new()
+			var hand_mesh := BoxMesh.new()
+			hand_mesh.size = Vector3(0.025, 0.23 if hand_spec.x == 0.0 else 0.16, 0.018)
+			clock_hand.mesh = hand_mesh
+			var dark := StandardMaterial3D.new()
+			dark.albedo_color = Color(0.10, 0.075, 0.045)
+			clock_hand.material_override = dark
+			clock_hand.position = hand_spec
+			clock.add_child(clock_hand)
+
+func _build_next_clock_compartment() -> void:
+	# The doorway leads into a second playable carriage, not a blocked decorative wall.
+	_box("Clock carriage floor", Vector3(0, -0.10, -9.15), Vector3(5.56, 0.20, 6.35), Color(0.10, 0.045, 0.028), false)
+	_box("Clock carriage ceiling", Vector3(0, 3.38, -9.15), Vector3(5.56, 0.18, 6.35), Color(0.075, 0.045, 0.032), false)
+	_box("Clock carriage left wall", Vector3(-2.78, 1.62, -9.15), Vector3(0.16, 3.24, 6.35), Color(0.12, 0.055, 0.035), false)
+	_box("Clock carriage right wall", Vector3(2.78, 1.62, -9.15), Vector3(0.16, 3.24, 6.35), Color(0.12, 0.055, 0.035), false)
+	_box("Clock carriage end wall", Vector3(0, 1.62, -12.32), Vector3(5.56, 3.24, 0.18), Color(0.075, 0.026, 0.016), false)
 
 func _build_procedural_carriage() -> void:
 	# Carriage shell. These simple meshes validate scale and mechanics only.
@@ -219,6 +277,7 @@ func _build_first_person_hands() -> void:
 	first_person_hands = Node3D.new()
 	first_person_hands.name = "FirstPersonHands"
 	first_person_hands.position = Vector3.ZERO
+	first_person_hands.visible = false
 	camera.add_child(first_person_hands)
 
 	var sleeve_material := StandardMaterial3D.new()
@@ -264,6 +323,7 @@ func _build_first_person_hands() -> void:
 		palm.mesh = palm_mesh
 		palm.material_override = skin_material
 		palm.position = Vector3(side * 0.30, -0.20, -0.71)
+		palm.scale = Vector3(1.12, 0.78, 0.72)
 		first_person_hands.add_child(palm)
 
 		# Four short fingers make the silhouette read as a hand at phone size.
@@ -271,8 +331,8 @@ func _build_first_person_hands() -> void:
 			var finger := MeshInstance3D.new()
 			finger.name = "Finger_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
 			var finger_mesh := CapsuleMesh.new()
-			finger_mesh.radius = 0.022
-			finger_mesh.height = 0.095
+			finger_mesh.radius = [0.019, 0.021, 0.021, 0.018][finger_index]
+			finger_mesh.height = [0.082, 0.105, 0.101, 0.078][finger_index]
 			finger.mesh = finger_mesh
 			finger.material_override = skin_material
 			finger.position = Vector3(side * 0.30 + (finger_index - 1.5) * 0.042, -0.245, -0.79)
@@ -298,6 +358,7 @@ func _play_hand_action(action: String) -> void:
 		hand_action_tween.kill()
 	first_person_hands.position = Vector3.ZERO
 	first_person_hands.rotation = Vector3.ZERO
+	first_person_hands.visible = true
 	hand_action_tween = create_tween()
 	hand_action_tween.set_parallel(true)
 	match action:
@@ -314,6 +375,10 @@ func _play_hand_action(action: String) -> void:
 	hand_action_tween.tween_interval(0.12)
 	hand_action_tween.tween_property(first_person_hands, "position", Vector3.ZERO, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	hand_action_tween.parallel().tween_property(first_person_hands, "rotation", Vector3.ZERO, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	hand_action_tween.tween_callback(func() -> void:
+		if is_instance_valid(first_person_hands):
+			first_person_hands.visible = false
+	)
 
 func _build_ui() -> void:
 	var canvas := CanvasLayer.new()
@@ -536,7 +601,8 @@ func _physics_process(_delta: float) -> void:
 	player.velocity.y = 0.0
 	player.move_and_slide()
 	player.position.x = clampf(player.position.x, -2.25, 2.25)
-	player.position.z = clampf(player.position.z, -5.1, 5.1)
+	var rear_limit := -15.0 if chest_open else -5.1
+	player.position.z = clampf(player.position.z, rear_limit, 5.1)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -622,6 +688,13 @@ func _interact() -> void:
 			nearby_object.set_meta("display_name", "Letter read")
 			_set_status("The letter contains a message about returning what was forgotten.")
 			_show_story_card("A MESSAGE LEFT BEHIND", "“When the clock strikes three times, return what the traveler forgot.”\n\nThe letter is written on old parchment. The memory chest may hold the answer.", "CLOSE LETTER")
+		"clock":
+			if not chest_open:
+				_set_status("The next carriage is still sealed. Complete the memory chest first.")
+			else:
+				_play_hand_action("take")
+				_set_status("The station clock begins to chime. A new route is awakening beyond this carriage.")
+				_show_story_card("THE CLOCK THAT OPENS WORLDS", "Three quiet chimes ripple through the train. The rails outside shimmer, and the next world begins to appear beyond the windows.", "CONTINUE")
 		"chest":
 			if chest_open:
 				_show_story_card("SUNSET STATION", "The photograph shows a station glowing beneath a copper sunset. It is more than a memory — it is a clue to a place missing from every map.", "CLOSE PHOTOGRAPH")
