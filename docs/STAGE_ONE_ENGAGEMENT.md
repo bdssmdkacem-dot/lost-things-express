@@ -47,4 +47,22 @@ The first 10–15 minutes should feel like entering a beautiful, lonely train wi
 - [ ] Emulator launch is reported as passed only if it actually ran; skipped KVM testing is not a pass.
 - [ ] Install and play the complete first-stage sequence on a real Android device and inspect screenshots/video before visual approval.
 
+
+## Latest visual refinement pass — 2026-10-10
+
+Implemented in source and committed to GitHub; these changes are **not yet visually approved**:
+
+- Added an emerald jacquard aisle runner with a subtle procedural weave, paired antique-gold borders, and repeating diamond/stitch motifs in the Blender carriage generator.
+- Corrected the reward photograph backing to an upright card so the copper sunset artwork, brass frame, and station name share the same readable face. Added regression assertions for card orientation and title placement.
+- Added a low-cost exterior vista visible through the carriage windows: six floating-island silhouettes with tapered rock undersides and a few restrained distant station beacons. This is visual-only and does not change player controls or collision.
+- Added locomotive boiler bands, whistle fittings, connecting rods/joints, and a restrained translucent steam plume to the establishing shot.
+- Added automated assertions for the exterior vista and locomotive details. The asset-generation workflow is expected to regenerate the committed Blender source, GLB, and preview after the generator change.
+
+### Remaining approval blockers
+
+- Inspect the regenerated assets/blender/train_carriage_preview.png at mobile aspect ratio and compare it to the original user-supplied carriage reference.
+- Inspect the actual Godot render for window vista visibility, carpet scale/readability, steam transparency, photograph reveal, and station-name legibility.
+- Install the newest successful APK on a physical Android phone and test chest opening, photo inspection, touch movement/look, doorway clearance, and arrival in the next carriage.
+- Do not claim complete asset quality or visual approval until these checks have actual screenshots/video or device observations attached.
+
 Do not mark the first stage complete until the relevant gates have been observed. A successful code commit or CI build alone is not visual/gameplay approval.
