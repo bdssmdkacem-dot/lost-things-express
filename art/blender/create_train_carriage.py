@@ -293,19 +293,35 @@ def create_carriage():
     island_mat = material("Exterior | floating island teal", (0.055, 0.19, 0.20, 1), roughness=0.9)
     stone_mat = material("Exterior | old stone", (0.19, 0.22, 0.27, 1), roughness=0.88)
     distant_gold = material("Exterior | clockwork gold", (0.68, 0.34, 0.09, 1), metallic=0.35, roughness=0.38, emission=0.25)
+    # Put a distinct silhouette in each window's actual first-person sightline.
+    # The camera is at x=0,z=4.72; solving the projection at the window plane avoids
+    # leaving the fantasy scenery hidden behind a side pier when viewed down the aisle.
+    window_centers = (-4.0, -1.8, 0.4, 2.6, 4.7)
     for side in (-1, 1):
-        # A continuous dusk backdrop, kept well beyond the window plane.
         cube("Exterior | endless twilight", (side * 5.35, 2.0, 0.0), (0.08, 5.8, 13.5), sky_mat, 0.0, shell)
-        for idx, z in enumerate((-4.8, -2.0, 1.1, 4.3), 1):
-            # Floating landforms, distant castle towers and warm clock faces.
-            cube("Exterior | floating island %d" % idx, (side * (4.65 + (idx % 2) * 0.28), 0.85 + (idx % 2) * 0.22, z),
-                 (0.65, 0.24, 1.25), island_mat, 0.12, details)
-            cube("Exterior | castle tower %d" % idx, (side * 4.55, 1.55 + (idx % 2) * 0.24, z + 0.12),
-                 (0.25, 0.95 + (idx % 2) * 0.28, 0.28), stone_mat, 0.035, details)
-            cube("Exterior | tower roof %d" % idx, (side * 4.55, 2.12 + (idx % 2) * 0.24, z + 0.12),
-                 (0.34, 0.12, 0.36), distant_gold, 0.035, details)
-        for idx, z in enumerate((-3.0, 3.2), 1):
-            uv_sphere("Exterior | distant moon %d" % idx, (side * 4.95, 2.95, z), (0.10, 0.10, 0.10), distant_gold)
+        for idx, window_z in enumerate(window_centers, 1):
+            tower_z = 4.72 + (window_z - 4.72) * (3.55 / 2.70)
+            island_z = 4.72 + (window_z - 4.72) * (3.25 / 2.70)
+            island_y = 1.56 if idx % 2 else 1.64
+            # Floating island: broad horizontal silhouette along the lower pane.
+            cube("Exterior | floating island %d" % idx, (side * 3.25, island_y, island_z),
+                 (0.95, 0.22, 1.18), island_mat, 0.10, details)
+            # Tower and roof are larger and brighter than the former distant pinpricks.
+            tower_height = 0.82 + (idx % 2) * 0.18
+            cube("Exterior | castle tower %d" % idx, (side * 3.55, 2.03, tower_z),
+                 (0.26, tower_height, 0.34), stone_mat, 0.035, details)
+            cube("Exterior | tower roof %d" % idx, (side * 3.55, 2.03 + tower_height * 0.60, tower_z),
+                 (0.38, 0.13, 0.44), distant_gold, 0.035, details)
+            cube("Exterior | tower window %d" % idx, (side * 3.50, 2.04, tower_z + 0.18),
+                 (0.025, 0.16, 0.055), distant_gold, 0.008, details)
+            if idx in (1, 3, 5):
+                # A slim illuminated waterfall hangs below selected floating islands.
+                cube("Exterior | luminous waterfall %d" % idx, (side * 3.18, 1.27, island_z + 0.28),
+                     (0.045, 0.42, 0.10), distant_gold, 0.015, details)
+        for idx, window_z in enumerate((-3.0, 3.2), 1):
+            moon_z = 4.72 + (window_z - 4.72) * (4.75 / 2.70)
+            uv_sphere("Exterior | distant moon %d" % idx, (side * 4.75, 2.92, moon_z),
+                      (0.13, 0.13, 0.13), distant_gold)
 
     # Paired upholstered benches, with cushions, piping and brass feet.
     for z in (-3.6, -0.5, 2.8):
@@ -544,6 +560,10 @@ def create_carriage():
         ((1.65, 2.85, 0.0), 420, (1.0, 0.68, 0.42), 2.2),
         ((-1.65, 2.85, 3.4), 360, (1.0, 0.57, 0.30), 2.0),
         ((0.0, 2.55, 0.0), 220, (0.48, 0.70, 1.0), 3.5),
+        # Warm practical light spills through the open portal into the next carriage.
+        ((-1.45, 2.85, -7.7), 500, (1.0, 0.52, 0.28), 2.4),
+        ((1.45, 2.85, -10.25), 460, (1.0, 0.66, 0.38), 2.4),
+        ((0.0, 2.55, -8.9), 190, (0.48, 0.70, 1.0), 3.0),
     ), 1):
         bpy.ops.object.light_add(type="AREA", location=pos)
         light = bpy.context.object
@@ -552,7 +572,7 @@ def create_carriage():
         light.data.color = color
         light.data.shape = "DISK"
         light.data.size = size
-        target = Vector((0.0, 1.0, 0.0))
+        target = Vector((0.0, 1.05, -9.1)) if pos[2] < -6.0 else Vector((0.0, 1.0, 0.0))
         direction = target - light.location
         light.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
 
