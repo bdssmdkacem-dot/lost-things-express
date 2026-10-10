@@ -1390,6 +1390,116 @@ func _build_world_intro() -> void:
 				turret_cap.material_override = roof_material
 				world_intro_root.add_child(turret_cap)
 
+
+		# Signature architecture and terrain give every stop a different fantasy identity.
+		# 0 — crooked lantern village: clustered timber houses, offset roofs and chimney stacks.
+		if landmark_index == 0:
+			for house_index in range(4):
+				var hx := landmark_base.x + float(house_index - 1) * 1.28
+				var hz := landmark_base.z + 2.0 + float(house_index % 2) * 0.72
+				var house_height := 0.95 + float(house_index % 3) * 0.32
+				_intro_box("Lantern village timber cottage", Vector3(hx, 0.30 + house_height * 0.5, hz), Vector3(0.95, house_height, 0.92), Color(0.23, 0.105, 0.065), 0.12)
+				var cottage_roof := _intro_box("Lantern village steep roof", Vector3(hx, 0.35 + house_height + 0.22, hz), Vector3(1.18, 0.18, 1.15), Color(0.13, 0.045, 0.035), 0.24)
+				cottage_roof.rotation.z = -0.18 if house_index % 2 == 0 else 0.18
+				_intro_box("Cottage amber door", Vector3(hx, 0.42, hz - 0.475), Vector3(0.22, 0.54, 0.035), Color(0.95, 0.43, 0.12), 0.08)
+		# 1 — enormous clock keep with a readable brass clock face and hands.
+		elif landmark_index == 1:
+			var clock_center := landmark_base + Vector3(-0.77, 2.65, -0.76)
+			var clock_ring := MeshInstance3D.new()
+			clock_ring.name = "Giant clock tower brass dial"
+			var clock_ring_mesh := TorusMesh.new()
+			clock_ring_mesh.inner_radius = 0.64
+			clock_ring_mesh.outer_radius = 0.76
+			clock_ring.mesh = clock_ring_mesh
+			clock_ring.rotation.z = PI / 2.0
+			clock_ring.position = clock_center
+			var clock_gold := StandardMaterial3D.new()
+			clock_gold.albedo_color = Color(0.82, 0.58, 0.23)
+			clock_gold.metallic = 0.8
+			clock_gold.roughness = 0.22
+			clock_ring.material_override = clock_gold
+			world_intro_root.add_child(clock_ring)
+			var dial := _intro_box("Giant clock tower ivory dial", clock_center, Vector3(0.075, 1.20, 1.20), Color(0.84, 0.76, 0.58), 0.15)
+			var hour_hand := _intro_box("Giant clock tower hour hand", clock_center + Vector3(-0.07, 0.13, -0.08), Vector3(0.06, 0.48, 0.07), Color(0.08, 0.11, 0.13), 0.55)
+			hour_hand.rotation.x = -0.42
+			var minute_hand := _intro_box("Giant clock tower minute hand", clock_center + Vector3(-0.075, -0.10, 0.20), Vector3(0.06, 0.66, 0.06), Color(0.08, 0.11, 0.13), 0.55)
+			minute_hand.rotation.x = 0.32
+			_intro_box("Clock tower pendulum chamber", landmark_base + Vector3(0.0, -0.42, 0.24), Vector3(1.05, 0.82, 0.42), Color(0.075, 0.055, 0.035), 0.48)
+		# 2 — crenellated fortress with a broad wall and four distinct towers.
+		elif landmark_index == 2:
+			_intro_box("Sky fortress curtain wall", landmark_base + Vector3(0.0, 0.78, 1.18), Vector3(4.1, 1.45, 0.38), Color(0.22, 0.20, 0.19), 0.08)
+			for battlement_index in range(7):
+				_intro_box("Sky fortress wall merlon", landmark_base + Vector3(-1.78 + float(battlement_index) * 0.59, 1.68, 1.18), Vector3(0.30, 0.32, 0.40), Color(0.29, 0.26, 0.23), 0.06)
+			for tower_side in [-1.0, 1.0]:
+				for tower_depth in [-1.0, 1.0]:
+					var fortress_tower := MeshInstance3D.new()
+					fortress_tower.name = "Sky fortress corner tower"
+					var fortress_mesh := CylinderMesh.new()
+					fortress_mesh.top_radius = 0.28
+					fortress_mesh.bottom_radius = 0.42
+					fortress_mesh.height = 2.55
+					fortress_mesh.radial_segments = 10
+					fortress_tower.mesh = fortress_mesh
+					fortress_tower.position = landmark_base + Vector3(tower_side * 1.8, 1.25, tower_depth * 0.2 + 1.15)
+					fortress_tower.material_override = stone_material
+					world_intro_root.add_child(fortress_tower)
+					var battlement_cap := _intro_box("Sky fortress tower cap", fortress_tower.position + Vector3(0.0, 1.35, 0.0), Vector3(0.70, 0.13, 0.70), roof_material.albedo_color, 0.32)
+		# 3 — crystal ravine: irregular luminous shards rise from broken blue rock strata.
+		elif landmark_index == 3:
+			for crystal_index in range(7):
+				var crystal_angle := TAU * float(crystal_index) / 7.0
+				var crystal_height := 1.0 + float((crystal_index * 3) % 5) * 0.52
+				var crystal := MeshInstance3D.new()
+				crystal.name = "Crystal ravine prism %02d" % crystal_index
+				var crystal_mesh := CylinderMesh.new()
+				crystal_mesh.top_radius = 0.015
+				crystal_mesh.bottom_radius = 0.34 + float(crystal_index % 2) * 0.12
+				crystal_mesh.height = crystal_height
+				crystal_mesh.radial_segments = 5
+				crystal.mesh = crystal_mesh
+				crystal.position = landmark_base + Vector3(cos(crystal_angle) * 1.65, crystal_height * 0.5 - 0.1, 1.0 + sin(crystal_angle) * 1.3)
+				crystal.rotation.z = sin(crystal_angle) * 0.14
+				var crystal_mat := StandardMaterial3D.new()
+				crystal_mat.albedo_color = Color(0.12, 0.47 + float(crystal_index % 3) * 0.08, 0.78, 0.84)
+				crystal_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+				crystal_mat.metallic = 0.24
+				crystal_mat.roughness = 0.18
+				crystal_mat.emission_enabled = true
+				crystal_mat.emission = Color(0.04, 0.18, 0.42)
+				crystal_mat.emission_energy_multiplier = 0.55
+				crystal.material_override = crystal_mat
+				world_intro_root.add_child(crystal)
+		# 4 — ancient skywood: a giant tree, suspended timber platforms and rope-like bridges.
+		else:
+			var tree_trunk := MeshInstance3D.new()
+			tree_trunk.name = "Ancient skywood trunk"
+			var trunk_mesh := CylinderMesh.new()
+			trunk_mesh.top_radius = 0.55
+			trunk_mesh.bottom_radius = 0.94
+			trunk_mesh.height = 5.2
+			trunk_mesh.radial_segments = 12
+			tree_trunk.mesh = trunk_mesh
+			tree_trunk.position = landmark_base + Vector3(0.0, 2.25, 1.0)
+			var bark := StandardMaterial3D.new()
+			bark.albedo_color = Color(0.16, 0.075, 0.04)
+			bark.roughness = 0.96
+			tree_trunk.material_override = bark
+			world_intro_root.add_child(tree_trunk)
+			for bough_index in range(5):
+				var bough := MeshInstance3D.new()
+				bough.name = "Ancient skywood luminous canopy"
+				var bough_mesh := SphereMesh.new()
+				bough_mesh.radius = 1.0
+				bough.mesh = bough_mesh
+				bough.scale = Vector3(1.05 + float(bough_index % 2) * 0.3, 0.70, 1.0)
+				bough.position = landmark_base + Vector3(float(bough_index - 2) * 0.72, 4.1 + float(bough_index % 2) * 0.7, 0.85 + float(bough_index % 3) * 0.25)
+				var canopy := StandardMaterial3D.new()
+				canopy.albedo_color = Color(0.055, 0.23 + float(bough_index % 2) * 0.08, 0.17)
+				canopy.roughness = 0.88
+				bough.material_override = canopy
+				world_intro_root.add_child(bough)
+			_intro_box("Skywood suspended platform", landmark_base + Vector3(0.0, 1.0, 2.2), Vector3(3.4, 0.20, 1.0), Color(0.22, 0.12, 0.065), 0.18)
+
 	# Warm guide lamps mounted to the connected railway repeat into the distance.
 	for z in range(-24, 39, 6):
 		var lamp_x := 30.0 + sin(float(z) * 0.072) * 2.1
