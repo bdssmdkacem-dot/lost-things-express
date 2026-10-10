@@ -20,9 +20,9 @@ os.makedirs(BLEND_DIR, exist_ok=True)
 
 # Locked project palette.
 COLORS = {
-    "mahogany": (0.105, 0.028, 0.013, 1),
+    "mahogany": (0.072, 0.018, 0.009, 1),
     "dark_wood": (0.034, 0.009, 0.005, 1),
-    "wood_light": (0.165, 0.043, 0.016, 1),
+    "wood_light": (0.115, 0.029, 0.012, 1),
     "brass": (0.43, 0.19, 0.045, 1),
     "brass_highlight": (0.62, 0.35, 0.095, 1),
     "velvet": (0.035, 0.24, 0.115, 1),
@@ -105,7 +105,7 @@ MATS = {
 }
 
 # Define seat upholstery before any seat geometry references it.
-seat_leather = material("Seats | emerald green leather", (0.012, 0.105, 0.043, 1), roughness=0.40)
+seat_leather = material("Seats | deep emerald green leather", (0.006, 0.068, 0.027, 1), roughness=0.36)
 
 def assign(obj, mat):
     obj.data.materials.append(mat)
@@ -339,8 +339,8 @@ def create_carriage():
                 uv_sphere("Seat | brass upholstery stud", (x + dx, 1.10, z - 0.512), (0.025, 0.025, 0.018), MATS["brass_highlight"])
 
     # A tailored runner makes the central aisle feel like a first-class sleeper carriage.
-    rug_mat = material("Interior | emerald velvet runner", (0.008, 0.085, 0.032, 1), roughness=0.92)
-    rug_red = material("Interior | woven antique gold motif", (0.38, 0.21, 0.045, 1), roughness=0.82)
+    rug_mat = material("Interior | deep emerald woven runner", (0.004, 0.040, 0.017, 1), roughness=0.88)
+    rug_red = material("Interior | woven antique gold motif", (0.24, 0.125, 0.028, 1), metallic=0.12, roughness=0.76)
     cube("Aisle | tailored emerald runner", (0, 0.045, 0), (0.88, 0.035, 11.25), rug_mat, 0.025, details)
     for z in [(-5.15 + i * 0.52) for i in range(20)]:
         cube("Runner | antique-gold woven lozenge", (0, 0.068, z), (0.24, 0.012, 0.24), rug_red, 0.018, details)
@@ -354,7 +354,7 @@ def create_carriage():
     marble = material("Tables | warm ivory marble", (0.66, 0.64, 0.57, 1), roughness=0.27)
     table_gold = material("Tables | polished brass", (0.64, 0.36, 0.095, 1), metallic=0.78, roughness=0.22)
     lamp_glass = material("Reading lamps | amber glass", (1.0, 0.47, 0.12, 1), roughness=0.24, emission=1.4)
-    luggage_leather = material("Overhead luggage | oxblood leather", (0.16, 0.035, 0.022, 1), roughness=0.48)
+    luggage_leather = material("Overhead luggage | oxblood leather", (0.22, 0.045, 0.028, 1), roughness=0.42)
     luggage_inlay = material("Overhead luggage | brass straps", (0.72, 0.43, 0.14, 1), metallic=0.68, roughness=0.26)
     for z in (-2.05, 1.15, 4.30):
         for side in (-1, 1):
@@ -374,17 +374,17 @@ def create_carriage():
             cube("Luggage rack | brass outer rail", (side * 2.34, 2.72, z), (0.045, 0.16, 2.12), MATS["brass_highlight"], 0.018, details)
             for dz in (-0.92, 0.92):
                 cube("Luggage rack | brass support", (side * 2.28, 2.48, z + dz), (0.07, 0.28, 0.07), table_gold, 0.018, details)
-            cube("Luggage | leather suitcase", (x, 2.79, z), (0.44, 0.25, 0.62), luggage_leather, 0.045, details)
+            cube("Luggage | leather suitcase", (side * 1.90, 2.82, z), (0.56, 0.30, 0.78), luggage_leather, 0.055, details)
             for dx in (-0.12, 0.12):
-                cube("Luggage | brass suitcase band", (x + dx, 2.79, z), (0.035, 0.26, 0.64), luggage_inlay, 0.008, details)
-            cube("Luggage | brass handle", (x, 2.93, z), (0.13, 0.025, 0.035), table_gold, 0.01, details)
+                cube("Luggage | brass suitcase band", (side * 1.90 + dx * 1.25, 2.82, z), (0.045, 0.31, 0.80), luggage_inlay, 0.012, details)
+            cube("Luggage | brass handle", (side * 1.90, 2.99, z), (0.17, 0.03, 0.04), table_gold, 0.012, details)
 
     # Emerald upholstered ceiling panels and tailored velvet curtains establish the requested signature palette.
     emerald_ceiling = material("Ceiling | emerald woven velvet", (0.012, 0.115, 0.058, 1), roughness=0.86)
     for panel_z in (-4.4, -2.6, -0.8, 1.0, 2.8, 4.6):
         cube("Ceiling | emerald upholstered inset", (0, 3.365, panel_z), (4.75, 0.035, 1.38), emerald_ceiling, 0.045, details)
-    curtain_mat = material("Curtains | deep emerald velvet", (0.012, 0.22, 0.095, 1), roughness=0.88)
-    curtain_fold = material("Curtains | raised emerald folds", (0.016, 0.25, 0.10, 1), roughness=0.84)
+    curtain_mat = material("Curtains | deep emerald velvet", (0.006, 0.105, 0.042, 1), roughness=0.86)
+    curtain_fold = material("Curtains | raised emerald folds", (0.010, 0.14, 0.052, 1), roughness=0.82)
     for side in (-1, 1):
         for z in (-4.0, -1.8, 0.4, 2.6, 4.7):
             for zz in (z - 0.66, z + 0.66):
@@ -435,6 +435,15 @@ def create_carriage():
             for dz in (-0.13, 0.13):
                 cylinder("Lantern | corner brace", (x + dx, 2.88, z + dz), 0.014, 0.30, MATS["brass_highlight"], vertices=8)
 
+    # Three visible centerline ceiling fixtures echo the reference carriage and
+    # remain readable from the first-person camera (the side sconces are mostly peripheral).
+    for idx, z in enumerate((-3.8, 0.0, 3.7), 1):
+        cylinder("Ceiling lamp %d | brass ceiling rose" % idx, (0, 3.31, z), 0.14, 0.07, MATS["brass_highlight"], vertices=24)
+        cylinder("Ceiling lamp %d | brass drop stem" % idx, (0, 3.18, z), 0.035, 0.22, MATS["brass"], vertices=16)
+        cube("Ceiling lamp %d | amber opal shade" % idx, (0, 3.02, z), (0.30, 0.14, 0.30), MATS["lantern"], 0.045, details)
+        for dx in (-0.17, 0.17):
+            cylinder("Ceiling lamp %d | brass shade rim" % idx, (dx, 3.02, z), 0.018, 0.15, MATS["brass_highlight"], vertices=10)
+
     # Repeated rivets along trim establish the locomotive's engineered feel.
     for side in (-1, 1):
         for z in [(-5.5 + i * 0.5) for i in range(23)]:
@@ -443,7 +452,7 @@ def create_carriage():
     # Production pass: layered window casings, tailored upholstery, engraved trim,
     # and focal storytelling props. Keep geometry readable at mobile camera distance.
     trim_shadow = material("Carved trim | shadow", (0.045, 0.018, 0.012, 1), roughness=0.42)
-    velvet_highlight = material("Emerald leather | raised piping", (0.022, 0.19, 0.075, 1), roughness=0.58)
+    velvet_highlight = material("Emerald leather | raised piping", (0.012, 0.12, 0.046, 1), roughness=0.50)
     inlay = material("Wood inlay | warm brass line", (0.82, 0.53, 0.22, 1), metallic=0.58, roughness=0.29)
     leather = material("Luggage | oxblood leather", (0.19, 0.035, 0.025, 1), roughness=0.58)
 
