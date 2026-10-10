@@ -1045,50 +1045,7 @@ func _build_world_intro() -> void:
 	moon_fill.light_energy = 0.82
 	world_intro_root.add_child(moon_fill)
 
-	for island in [
-		[Vector3(24.0, 0.8, -4.0), Vector3(6.5, 1.0, 5.0), Color(0.10, 0.19, 0.16)],
-		[Vector3(36.5, 1.6, -7.0), Vector3(5.0, 1.0, 4.0), Color(0.13, 0.16, 0.24)],
-		[Vector3(31.5, 4.0, -11.0), Vector3(4.0, 0.8, 3.5), Color(0.19, 0.14, 0.23)]
-	]:
-		var island_mesh := MeshInstance3D.new()
-		var island_shape := SphereMesh.new()
-		island_shape.radius = 1.0
-		island_shape.height = 1.0
-		island_mesh.mesh = island_shape
-		island_mesh.scale = island[1]
-		island_mesh.position = island[0]
-		var island_mat := StandardMaterial3D.new()
-		island_mat.albedo_color = island[2]
-		island_mat.roughness = 0.96
-		island_mesh.material_override = island_mat
-		world_intro_root.add_child(island_mesh)
-
-		# Give each floating island a readable rocky underside instead of a flat
-		# oval silhouette; the warm/cool lighting should reveal its taper at phone size.
-		var island_rock := MeshInstance3D.new()
-		island_rock.name = "FloatingIslandRock_%02d" % (world_intro_root.get_child_count())
-		var island_rock_mesh := CylinderMesh.new()
-		island_rock_mesh.top_radius = 0.82
-		island_rock_mesh.bottom_radius = 0.055
-		island_rock_mesh.height = 1.65
-		island_rock.mesh = island_rock_mesh
-		island_rock.scale = Vector3(island[1].x * 0.78, 1.0, island[1].z * 0.78)
-		island_rock.position = Vector3(island[0].x, island[0].y - island[1].y * 0.78, island[0].z)
-		var island_rock_mat := StandardMaterial3D.new()
-		island_rock_mat.albedo_color = Color(0.065, 0.075, 0.105)
-		island_rock_mat.roughness = 0.98
-		island_rock.material_override = island_rock_mat
-		world_intro_root.add_child(island_rock)
-
-		for ledge_index in range(2):
-			var ledge := MeshInstance3D.new()
-			var ledge_mesh := BoxMesh.new()
-			ledge_mesh.size = Vector3(0.62, 0.16, 0.42)
-			ledge.mesh = ledge_mesh
-			ledge.material_override = island_rock_mat
-			ledge.position = Vector3(island[0].x + (-0.52 if ledge_index == 0 else 0.47), island[0].y - 0.42, island[0].z + 0.18)
-			ledge.rotation.y = 0.22 if ledge_index == 0 else -0.28
-			world_intro_root.add_child(ledge)
+	# The old isolated oval islands are intentionally removed: the world below is built as connected terrain around the railway.
 
 	# A continuous, gently bending railway runs through the entire establishing
 	# vista. Closely spaced sleepers and overlapping rail sections remove the
