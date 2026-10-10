@@ -395,9 +395,9 @@ func _play_hand_action(action: String) -> void:
 			hand_action_tween.parallel().tween_property(part, "rotation_degrees", Vector3(-12.0, 0.0, thumb_roll), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	hand_action_tween.tween_callback(func() -> void:
 		# Keep the letter visible in both hands while its message is being read.
-		if action != "read" and is_instance_valid(first_person_hands):
+		if (action != "read" or not is_instance_valid(held_letter_prop)) and is_instance_valid(first_person_hands):
 			first_person_hands.visible = false
-		if action != "read" and is_instance_valid(held_key_prop):
+		if is_instance_valid(held_key_prop):
 			held_key_prop.queue_free()
 			held_key_prop = null
 	)
