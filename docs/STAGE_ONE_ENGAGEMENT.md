@@ -69,11 +69,11 @@ Do not mark the first stage complete until the relevant gates have been observed
 
 ## Source-reference lock — 2026-10-10
 
-The user explicitly requested continuing without creating a new SUNSET STATION image. The reference binaries have now been uploaded to `art/reference/` under their original, non-standard filenames. The exact verified paths are listed in `art/reference/README.md` and the source comment in `scripts/main.gd` points to those paths.
+The user explicitly requested continuing without creating a new SUNSET STATION image and has now explicitly selected `art/reference/file_00000000a27081f4a16c023a7b226ef1.png` as the **primary visual reference**. It is present in the repository and linked from `art/reference/README.md`. Use this exact file as the source of truth for the opening train scene and its overall art direction. Preserve it unchanged.
 
-Do not rename, modify, or replace the supplied images merely to match the earlier suggested filenames. The original concept-board names `قطار الأشياء المفقودة بين الغيوم.png` and `1000173104.png`, and the earlier expected screenshot name `Screenshot_20261009_175342~2.jpg`, were not found in the current directory listing; do not claim they are present or guess which uploaded file is equivalent. Visually inspect the uploaded references to assign precise roles.
+The previously proposed concept-board filenames `قطار الأشياء المفقودة بين الغيوم.png` and `1000173104.png`, and the earlier expected screenshot name `Screenshot_20261009_175342~2.jpg`, are not present under those exact names. They are no longer blockers for adopting the user-selected primary image. Do not rename or replace the supplied image merely to match an earlier proposed filename.
 
-Do not generate a replacement station image. Use the supplied station photograph as the target for the existing physical in-game photo card. Reference upload is now present, but visual approval is still pending until the actual scene render is compared side by side with the images and the first stage is tested on a real Android device.
+Do not generate a replacement station image. Use the supplied station photograph/reference as the target for the existing physical in-game photo card. Primary-reference selection is confirmed, but **visual approval of the game remains pending** until an actual scene render is compared side by side with the selected reference and the first stage is tested on a real Android device.
 
 
 ## Interaction reliability and visual review — 2026-10-10
