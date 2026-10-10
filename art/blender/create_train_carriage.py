@@ -241,8 +241,7 @@ def create_carriage():
                  (0.16, 1.24, -5.975 - cursor), MATS["mahogany"], 0.02, shell)
 
         for idx, z in enumerate(window_centers, 1):
-            cube("Next carriage | midnight window %d" % idx, (side * 2.685, 2.05, z),
-                 (0.025, 0.98, 1.18), MATS["glass"], 0.01, details)
+            # The next compartment also uses open window apertures; distant scenery remains visible.
             for y in (1.50, 2.60):
                 cube("Next carriage | brass window rail", (side * 2.61, y, z),
                      (0.12, 0.06, 1.28), MATS["brass"], 0.015, details)
@@ -279,8 +278,9 @@ def create_carriage():
         x_glass = side * 2.745
         x_frame = side * 2.68
         for index, z in enumerate((-4.0, -1.8, 0.4, 2.6, 4.7), 1):
-            cube("Window %d | midnight glass" % index, (x_glass, 2.05, z),
-                 (0.028, 1.03, 1.34), MATS["glass"], 0.012, details)
+            # Keep the aperture open in this first slice. A solid GL Compatibility
+            # pane reads as painted blue plastic and hides the important fantasy view.
+            # Brass rails and the exterior silhouettes define the glazing at gameplay scale.
             for y in (1.49, 2.61):
                 cube("Window brass lintel", (x_frame, y, z), (0.13, 0.075, 1.48), MATS["brass"], 0.018, details)
             for zz in (z - 0.72, z + 0.72):
@@ -290,9 +290,9 @@ def create_carriage():
     # A small fantasy world sits outside the windows so the carriage never reads as a sealed box.
     # These simple, low-poly silhouettes are intentionally outside the shell and visible through the glass.
     sky_mat = material("Exterior | twilight blue", (0.025, 0.085, 0.16, 1), roughness=0.95)
-    island_mat = material("Exterior | floating island teal", (0.055, 0.19, 0.20, 1), roughness=0.9)
-    stone_mat = material("Exterior | old stone", (0.19, 0.22, 0.27, 1), roughness=0.88)
-    distant_gold = material("Exterior | clockwork gold", (0.68, 0.34, 0.09, 1), metallic=0.35, roughness=0.38, emission=0.25)
+    island_mat = material("Exterior | floating island teal", (0.08, 0.26, 0.27, 1), roughness=0.9)
+    stone_mat = material("Exterior | old stone", (0.30, 0.36, 0.41, 1), roughness=0.88)
+    distant_gold = material("Exterior | clockwork gold", (0.76, 0.43, 0.12, 1), metallic=0.28, roughness=0.38, emission=0.45)
     # Put a distinct silhouette in each window's actual first-person sightline.
     # The camera is at x=0,z=4.72; solving the projection at the window plane avoids
     # leaving the fantasy scenery hidden behind a side pier when viewed down the aisle.
