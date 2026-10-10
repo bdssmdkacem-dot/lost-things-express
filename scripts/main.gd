@@ -33,6 +33,9 @@ var story_title: Label
 var story_body: Label
 var story_continue: Button
 var story_card_open := false
+var world_intro_active := false
+var world_intro_root: Node3D
+var world_intro_camera: Camera3D
 
 func _ready() -> void:
 	_setup_input_map()
@@ -44,7 +47,8 @@ func _ready() -> void:
 		_set_status("Welcome back. The photograph points to Sunset Station.")
 	else:
 		_set_status("The train has arrived at a station that appears on no map.")
-		_show_story_card("THE STATION THAT FORGOT ITS NAME", "The train never stopped at ordinary stations. Tonight, it had forgotten even the name of its destination.\n\nExplore the carriage. Something important has been left behind.", "BEGIN EXPLORING")
+	_build_world_intro()
+	_show_story_card("THE LOST THINGS EXPRESS", "A forgotten train travels along brass-lit rails between floating islands and cloud kingdoms. Step aboard to begin the first mystery.", "ENTER STAGE ONE")
 
 func _setup_input_map() -> void:
 	_add_key_action("move_forward", KEY_W)
@@ -558,7 +562,7 @@ func _build_story_overlay(root: Control) -> void:
 	story_continue.add_theme_color_override("font_color", Color(1.0, 0.90, 0.66))
 	story_continue.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.12, 0.22, 0.20, 1.0), Color(0.72, 0.47, 0.19, 1.0), 12, 10))
 	story_continue.add_theme_stylebox_override("pressed", _ui_panel_style(Color(0.78, 0.48, 0.12, 1.0), Color(1.0, 0.84, 0.42, 1.0), 12, 10))
-	story_continue.pressed.connect(_close_story_card)
+	story_continue.pressed.connect(_on_story_continue_pressed)
 	content.add_child(story_continue)
 
 func _show_story_card(title_text: String, body_text: String, button_text: String) -> void:
@@ -572,6 +576,143 @@ func _show_story_card(title_text: String, body_text: String, button_text: String
 	var fade := create_tween()
 	story_overlay.modulate.a = 0.0
 	fade.tween_property(story_overlay, "modulate:a", 1.0, 0.22)
+
+func _on_story_continue_pressed() -> void:
+	if world_intro_active:
+		_enter_stage_one()
+	else:
+		_close_story_card()
+
+func _build_world_intro() -> void:
+	world_intro_active = true
+	world_intro_root = Node3D.new()
+	world_intro_root.name = "WorldsTrainIntro"
+	add_child(world_intro_root)
+
+	var environment := WorldEnvironment.new()
+	var env := Environment.new()
+	env.background_mode = Environment.BG_SKY
+	var sky := Sky.new()
+	var sky_mat := ProceduralSkyMaterial.new()
+	sky_mat.sky_top_color = Color(0.018, 0.045, 0.13)
+	sky_mat.sky_horizon_color = Color(0.22, 0.16, 0.22)
+	sky_mat.ground_bottom_color = Color(0.035, 0.025, 0.08)
+	sky_mat.ground_horizon_color = Color(0.15, 0.10, 0.16)
+	sky.sky_material = sky_mat
+	env.sky = sky
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color(0.62, 0.56, 0.69)
+	env.ambient_light_energy = 0.9
+	environment.environment = env
+	world_intro_root.add_child(environment)
+
+	world_intro_camera = Camera3D.new()
+	world_intro_camera.name = "WorldsIntroCamera"
+	world_intro_camera.position = Vector3(30.0, 6.0, 16.0)
+	world_intro_root.add_child(world_intro_camera)
+	world_intro_camera.look_at(Vector3(30.0, 1.8, 0.0), Vector3.UP)
+	world_intro_camera.current = true
+
+	var warm := OmniLight3D.new()
+	warm.position = Vector3(30.0, 5.0, 0.0)
+	warm.light_color = Color(1.0, 0.56, 0.25)
+	warm.light_energy = 3.2
+	warm.omni_range = 16.0
+	world_intro_root.add_child(warm)
+	var moon_fill := DirectionalLight3D.new()
+	moon_fill.rotation_degrees = Vector3(-38.0, -25.0, 0.0)
+	moon_fill.light_color = Color(0.48, 0.62, 1.0)
+	moon_fill.light_energy = 0.65
+	world_intro_root.add_child(moon_fill)
+
+	for island in [
+		[Vector3(24.0, 0.8, -4.0), Vector3(6.5, 1.0, 5.0), Color(0.10, 0.19, 0.16)],
+		[Vector3(36.5, 1.6, -7.0), Vector3(5.0, 1.0, 4.0), Color(0.13, 0.16, 0.24)],
+		[Vector3(31.5, 4.0, -11.0), Vector3(4.0, 0.8, 3.5), Color(0.19, 0.14, 0.23)]
+	]:
+		var island_mesh := MeshInstance3D.new()
+		var island_shape := SphereMesh.new()
+		island_shape.radius = 1.0
+		island_shape.height = 1.0
+		island_mesh.mesh = island_shape
+		island_mesh.scale = island[1]
+		island_mesh.position = island[0]
+		var island_mat := StandardMaterial3D.new()
+		island_mat.albedo_color = island[2]
+		island_mat.roughness = 0.96
+		island_mesh.material_override = island_mat
+		world_intro_root.add_child(island_mesh)
+
+	for z in range(-12, 17, 2):
+		_intro_box("Railway sleeper", Vector3(30.0, 0.0, float(z)), Vector3(4.2, 0.16, 0.34), Color(0.20, 0.095, 0.05))
+	for x in [28.65, 31.35]:
+		_intro_box("Polished rail", Vector3(x, 0.16, 2.0), Vector3(0.13, 0.16, 30.0), Color(0.52, 0.55, 0.60), 0.82)
+
+	_intro_box("Locomotive chassis", Vector3(30.0, 1.05, 0.2), Vector3(2.8, 0.42, 6.8), Color(0.035, 0.095, 0.075), 0.35)
+	_intro_box("Locomotive boiler", Vector3(30.0, 1.85, -1.1), Vector3(1.55, 1.35, 4.7), Color(0.025, 0.14, 0.105), 0.42)
+	_intro_box("Locomotive cab", Vector3(30.0, 2.05, 2.55), Vector3(2.5, 2.0, 1.8), Color(0.035, 0.11, 0.085), 0.35)
+	_intro_box("Cab window", Vector3(30.0, 2.38, 1.61), Vector3(1.6, 0.9, 0.06), Color(0.055, 0.20, 0.27), 0.15)
+	_intro_box("Brass boiler band", Vector3(30.0, 1.85, -2.2), Vector3(1.63, 1.40, 0.11), Color(0.70, 0.42, 0.13), 0.78)
+	_intro_box("Front buffer beam", Vector3(30.0, 0.95, -3.25), Vector3(2.45, 0.34, 0.35), Color(0.38, 0.055, 0.04), 0.25)
+	_intro_box("Cowcatcher", Vector3(30.0, 0.55, -3.65), Vector3(2.0, 0.12, 0.85), Color(0.18, 0.20, 0.20), 0.7)
+	_intro_box("Chimney", Vector3(30.0, 2.85, -2.1), Vector3(0.52, 0.85, 0.52), Color(0.055, 0.065, 0.06), 0.45)
+	_intro_box("Chimney cap", Vector3(30.0, 3.28, -2.1), Vector3(0.78, 0.12, 0.78), Color(0.67, 0.42, 0.14), 0.78)
+	_intro_box("Headlamp brass housing", Vector3(30.0, 2.0, -3.52), Vector3(0.62, 0.62, 0.30), Color(0.72, 0.43, 0.13), 0.8)
+	_intro_box("Headlamp glowing glass", Vector3(30.0, 2.0, -3.70), Vector3(0.39, 0.39, 0.08), Color(1.0, 0.72, 0.32), 0.1)
+	for x in [28.55, 31.45]:
+		for z in [-2.35, 0.1, 2.25]:
+			var wheel := MeshInstance3D.new()
+			var wheel_mesh := CylinderMesh.new()
+			wheel_mesh.top_radius = 0.53
+			wheel_mesh.bottom_radius = 0.53
+			wheel_mesh.height = 0.18
+			wheel.mesh = wheel_mesh
+			wheel.position = Vector3(x, 0.73, z)
+			wheel.rotation_degrees.z = 90.0
+			var wheel_mat := StandardMaterial3D.new()
+			wheel_mat.albedo_color = Color(0.055, 0.06, 0.065)
+			wheel_mat.metallic = 0.72
+			wheel_mat.roughness = 0.34
+			wheel.material_override = wheel_mat
+			world_intro_root.add_child(wheel)
+
+	_intro_box("Passenger carriage body", Vector3(30.0, 2.0, 7.6), Vector3(3.8, 2.7, 7.0), Color(0.035, 0.12, 0.085), 0.38)
+	_intro_box("Passenger carriage roof", Vector3(30.0, 3.45, 7.6), Vector3(4.0, 0.25, 7.2), Color(0.07, 0.045, 0.035), 0.3)
+	for z in [5.0, 6.8, 8.6, 10.4]:
+		for x in [28.02, 31.98]:
+			_intro_box("Carriage window brass frame", Vector3(x, 2.25, z), Vector3(0.08, 0.95, 0.72), Color(0.67, 0.40, 0.13), 0.78)
+			_intro_box("Carriage window glass", Vector3(x + (0.05 if x > 30.0 else -0.05), 2.25, z), Vector3(0.035, 0.72, 0.53), Color(0.06, 0.18, 0.25), 0.12)
+
+	for control in [status_label, objective_label, prompt_label, interact_button, inventory_button]:
+		if is_instance_valid(control):
+			control.visible = false
+
+func _intro_box(label: String, pos: Vector3, size: Vector3, color: Color, metallic := 0.12) -> MeshInstance3D:
+	var visual := MeshInstance3D.new()
+	visual.name = label
+	visual.position = pos
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	visual.mesh = mesh
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.metallic = metallic
+	material.roughness = 0.42
+	visual.material_override = material
+	world_intro_root.add_child(visual)
+	return visual
+
+func _enter_stage_one() -> void:
+	world_intro_active = false
+	if is_instance_valid(world_intro_root):
+		world_intro_root.queue_free()
+	camera.current = true
+	for control in [status_label, objective_label, prompt_label, interact_button, inventory_button]:
+		if is_instance_valid(control):
+			control.visible = true
+	_close_story_card()
+	if not chest_open:
+		_show_story_card("THE STATION THAT FORGOT ITS NAME", "The train never stopped at ordinary stations. Tonight, it had forgotten even the name of its destination.\n\nExplore the carriage. Something important has been left behind.", "BEGIN EXPLORING")
 
 func _close_story_card() -> void:
 	if not is_instance_valid(story_overlay):
