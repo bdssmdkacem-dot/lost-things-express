@@ -479,7 +479,9 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 	var card := MeshInstance3D.new()
 	card.name = "PhotographCard"
 	var card_mesh := BoxMesh.new()
-	card_mesh.size = Vector3(0.46, 0.012, 0.31)
+	# The photograph is an upright card: image, frame and lettering all share
+	# the same XY face instead of intersecting a horizontal slab.
+	card_mesh.size = Vector3(0.46, 0.31, 0.012)
 	card.mesh = card_mesh
 	card.material_override = card_material
 	photo.add_child(card)
