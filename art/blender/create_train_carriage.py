@@ -341,19 +341,27 @@ def create_carriage():
     # A tailored runner makes the central aisle feel like a first-class sleeper carriage.
     rug_mat = material("Interior | deep emerald woven runner", (0.004, 0.040, 0.017, 1), roughness=0.88)
     rug_red = material("Interior | woven antique gold motif", (0.24, 0.125, 0.028, 1), metallic=0.12, roughness=0.76)
-    cube("Aisle | tailored emerald runner", (0, 0.045, 0), (0.88, 0.035, 11.25), rug_mat, 0.025, details)
-    for z in [(-5.15 + i * 0.52) for i in range(20)]:
-        cube("Runner | antique-gold woven lozenge", (0, 0.068, z), (0.24, 0.012, 0.24), rug_red, 0.018, details)
-    for x in (-0.40, 0.40):
-        cube("Runner | brass woven border", (x, 0.069, 0), (0.025, 0.012, 11.05), MATS["brass_highlight"], 0.008, details)
-    cube("Next carriage | emerald runner", (0, 0.045, -9.15), (0.86, 0.035, 6.0), rug_mat, 0.02, details)
-    for z in (-11.55, -10.95, -10.35, -9.75, -9.15, -8.55, -7.95, -7.35):
-        cube("Next carriage | gold runner motif", (0, 0.068, z), (0.20, 0.012, 0.20), rug_red, 0.015, details)
+    # Broaden the runner and rotate its repeating motifs into a tailored diamond weave.
+    cube("Aisle | tailored emerald runner", (0, 0.045, 0), (1.30, 0.035, 11.25), rug_mat, 0.025, details)
+    for motif_index, z in enumerate([(-5.15 + i * 0.52) for i in range(20)]):
+        motif = cube("Runner | antique-gold woven diamond", (0, 0.068, z), (0.19, 0.012, 0.19), rug_red, 0.018, details)
+        motif.rotation_euler[1] = math.radians(45.0)
+        if motif_index % 2 == 0:
+            cube("Runner | central brass stitch", (0, 0.077, z), (0.045, 0.009, 0.045), MATS["brass_highlight"], 0.008, details)
+    for x in (-0.61, 0.61):
+        cube("Runner | outer brass woven border", (x, 0.069, 0), (0.025, 0.012, 11.05), MATS["brass_highlight"], 0.008, details)
+    for x in (-0.65, 0.65):
+        cube("Runner | inner walnut piping", (x, 0.067, 0), (0.018, 0.010, 11.00), MATS["dark_wood"], 0.006, details)
+    cube("Next carriage | emerald runner", (0, 0.045, -9.15), (1.12, 0.035, 6.0), rug_mat, 0.02, details)
+    for motif_index, z in enumerate((-11.55, -10.95, -10.35, -9.75, -9.15, -8.55, -7.95, -7.35)):
+        motif = cube("Next carriage | gold runner diamond", (0, 0.068, z), (0.16, 0.012, 0.16), rug_red, 0.015, details)
+        motif.rotation_euler[1] = math.radians(45.0)
 
     # Small first-class marble tables and brass reading lamps, placed between seating rows.
     marble = material("Tables | warm ivory marble", (0.66, 0.64, 0.57, 1), roughness=0.27)
     table_gold = material("Tables | polished brass", (0.64, 0.36, 0.095, 1), metallic=0.78, roughness=0.22)
-    lamp_glass = material("Reading lamps | amber glass", (1.0, 0.47, 0.12, 1), roughness=0.24, emission=1.4)
+    lamp_glass = material("Reading lamps | amber glass", (0.92, 0.31, 0.055, 1), roughness=0.30, emission=0.65)
+    lamp_bulb = material("Reading lamps | warm filament", (1.0, 0.56, 0.19, 1), roughness=0.28, emission=0.95)
     luggage_leather = material("Overhead luggage | oxblood leather", (0.22, 0.045, 0.028, 1), roughness=0.42)
     luggage_inlay = material("Overhead luggage | brass straps", (0.72, 0.43, 0.14, 1), metallic=0.68, roughness=0.26)
     # Keep side tables on the aisle-facing edge, in the gaps between benches.
@@ -372,22 +380,22 @@ def create_carriage():
             lamp_shade.name = "Reading lamp | sculpted amber shade"
             assign(lamp_shade, lamp_glass)
             bevel(lamp_shade, 0.012, 2)
-            uv_sphere("Reading lamp | glowing bulb", (x, 1.105, z), (0.038, 0.045, 0.038), lamp_glass)
+            uv_sphere("Reading lamp | glowing bulb", (x, 1.105, z), (0.024, 0.030, 0.024), lamp_bulb)
 
     # Slimmer overhead racks keep the eye-line and emerald ceiling visible while
     # retaining period-train luggage as a readable detail at phone size.
     for z in (-3.6, -0.5, 2.8):
         for side in (-1, 1):
-            x = side * 2.20
-            cube("Luggage rack | walnut shelf", (x, 2.62, z), (0.48, 0.060, 1.95), MATS["mahogany"], 0.028, details)
-            cube("Luggage rack | brass outer rail", (side * 2.42, 2.70, z), (0.035, 0.12, 1.88), MATS["brass_highlight"], 0.014, details)
-            for dz in (-0.82, 0.82):
-                cube("Luggage rack | brass support", (side * 2.32, 2.48, z + dz), (0.055, 0.24, 0.055), table_gold, 0.014, details)
-            suitcase_x = side * 2.08
-            cube("Luggage | leather suitcase", (suitcase_x, 2.80, z), (0.40, 0.23, 0.62), luggage_leather, 0.045, details)
-            for dx in (-0.095, 0.095):
-                cube("Luggage | brass suitcase band", (suitcase_x + dx, 2.80, z), (0.035, 0.24, 0.64), luggage_inlay, 0.010, details)
-            cube("Luggage | brass handle", (suitcase_x, 2.94, z), (0.14, 0.025, 0.035), table_gold, 0.010, details)
+            x = side * 2.32
+            cube("Luggage rack | dark walnut shelf", (x, 2.62, z), (0.36, 0.055, 1.88), MATS["dark_wood"], 0.025, details)
+            cube("Luggage rack | brass outer rail", (side * 2.50, 2.69, z), (0.030, 0.11, 1.80), MATS["brass_highlight"], 0.012, details)
+            for dz in (-0.78, 0.78):
+                cube("Luggage rack | brass support", (side * 2.40, 2.48, z + dz), (0.045, 0.22, 0.045), table_gold, 0.012, details)
+            suitcase_x = side * 2.25
+            cube("Luggage | leather suitcase", (suitcase_x, 2.78, z), (0.30, 0.20, 0.58), luggage_leather, 0.040, details)
+            for dx in (-0.075, 0.075):
+                cube("Luggage | brass suitcase band", (suitcase_x + dx, 2.78, z), (0.026, 0.21, 0.60), luggage_inlay, 0.008, details)
+            cube("Luggage | brass handle", (suitcase_x, 2.91, z), (0.12, 0.022, 0.030), table_gold, 0.008, details)
 
     # Emerald upholstered ceiling panels and tailored velvet curtains establish the requested signature palette.
     emerald_ceiling = material("Ceiling | emerald woven velvet", (0.012, 0.115, 0.058, 1), roughness=0.86)
