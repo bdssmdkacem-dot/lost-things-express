@@ -213,6 +213,11 @@ func _run_first_slice() -> void:
 	var resumed_game := packed_scene.instantiate() as Node3D
 	root.add_child(resumed_game)
 	await process_frame
+	if not _check(is_equal_approx(float(resumed_game.get("look_sensitivity")), 0.006), "look sensitivity was not restored on relaunch"):
+		return
+	var resumed_slider := resumed_game.get("look_sensitivity_slider") as HSlider
+	if not _check(resumed_slider != null and is_equal_approx(resumed_slider.value, 0.006), "settings slider did not reflect the saved look sensitivity"):
+		return
 	if not _check(bool(resumed_game.get("has_key")), "saved key progress was not restored"):
 		return
 	var resumed_hands := resumed_game.get("first_person_hands") as Node3D
