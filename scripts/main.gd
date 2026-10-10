@@ -459,7 +459,9 @@ func _create_held_letter_prop() -> void:
 	var sheet := MeshInstance3D.new()
 	sheet.name = "AgedParchment"
 	var sheet_mesh := BoxMesh.new()
-	sheet_mesh.size = Vector3(0.58, 0.012, 0.36)
+	# Hold the parchment upright toward the camera; a flat horizontal sheet was
+	# almost edge-on in the actual gameplay capture and made the clue unreadable.
+	sheet_mesh.size = Vector3(0.46, 0.30, 0.012)
 	sheet.mesh = sheet_mesh
 	sheet.material_override = parchment
 	held_letter_prop.add_child(sheet)
@@ -468,10 +470,9 @@ func _create_held_letter_prop() -> void:
 	message.name = "LetterMessage"
 	message.text = "WHEN THE CLOCK\nSTRIKES THREE TIMES,\nRETURN WHAT THE\nTRAVELER FORGOT.\nDO NOT LET THE CLOCK\nFINISH."
 	message.font_size = 24
-	message.pixel_size = 0.0016
+	message.pixel_size = 0.00125
 	message.modulate = Color(0.19, 0.075, 0.028)
-	message.position = Vector3(0.0, 0.011, -0.005)
-	message.rotation_degrees.x = -90.0
+	message.position = Vector3(0.0, 0.0, -0.008)
 	message.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 	held_letter_prop.add_child(message)
 
