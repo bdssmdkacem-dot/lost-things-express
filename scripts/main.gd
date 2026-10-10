@@ -1091,10 +1091,8 @@ func _build_world_intro() -> void:
 		for side in [-1.0, 1.0]:
 			var land := MeshInstance3D.new()
 			land.name = "ConnectedWorldTerrain_%02d_%s" % [world_index, "L" if side < 0.0 else "R"]
-			var land_mesh := SphereMesh.new()
-			land_mesh.radius = 1.0
-			land_mesh.height = 1.0
-			land.mesh = land_mesh
+			# Irregular radial terrain crown instead of a smooth oval placeholder.
+			land.mesh = _build_terrain_crown(world_index)
 			land.scale = Vector3(4.8, 0.82, 6.0)
 			land.position = Vector3(world_x + side * 6.2, -0.52 + sin(float(world_index) * 0.7) * 0.24, world_z)
 			var land_mat := StandardMaterial3D.new()
