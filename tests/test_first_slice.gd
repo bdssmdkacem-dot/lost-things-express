@@ -27,6 +27,16 @@ func _run_first_slice() -> void:
 	if not _check(key != null and letter != null and chest != null, "one or more story props are missing"):
 		return
 
+	# First-person hands are a required part of every story interaction, not an optional visual.
+	var hands := game.get("first_person_hands") as Node3D
+	var camera := game.get("camera") as Camera3D
+	if not _check(hands != null and camera != null, "first-person hands or camera were not created"):
+		return
+	if not _check(hands.get_child_count() >= 14, "first-person hands are missing sleeves, cuffs, palms, or fingers"):
+		return
+	if not _check(hands.get_parent() == camera, "first-person hands are not attached to the camera view"):
+		return
+
 	# A chest must not open until both clues have been found and understood.
 	player.global_position = chest.global_position + Vector3(0.0, 0.0, 0.35)
 	# _interact must refresh proximity itself, as it does on a real button tap.
