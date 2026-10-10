@@ -6,8 +6,11 @@ func _initialize() -> void:
 func _run_first_slice() -> void:
 	# Keep this test deterministic even if it is rerun in a reused editor profile.
 	var save_path := ProjectSettings.globalize_path("user://first_stage_progress.cfg")
+	var settings_path := ProjectSettings.globalize_path("user://first_stage_settings.cfg")
 	if FileAccess.file_exists("user://first_stage_progress.cfg"):
 		DirAccess.remove_absolute(save_path)
+	if FileAccess.file_exists("user://first_stage_settings.cfg"):
+		DirAccess.remove_absolute(settings_path)
 	var packed_scene := load("res://scenes/main.tscn") as PackedScene
 	if not _check(packed_scene != null, "main scene could not be loaded"):
 		return
@@ -164,6 +167,27 @@ func _run_first_slice() -> void:
 	if not _check(bool(game.get("story_card_open")) and str(game.get("story_body").text).contains("SUNSET STATION"), "inspecting the photograph did not reveal its station clue"):
 		return
 	game.call("_close_story_card")
+
+	# Pause must freeze movement, expose settings, and persist look sensitivity.
+	var before_pause_position := player.global_position
+	game.call("_toggle_pause_menu")
+	if not _check(bool(game.get("game_paused")) and (game.get("pause_overlay") as ColorRect).visible, "pause menu did not open as a modal overlay"):
+		return
+	game.call("_physics_process", 0.1)
+	if not _check(player.global_position.distance_to(before_pause_position) < 0.001, "player moved while the pause menu was open"):
+		return
+	var sensitivity_slider := game.get("look_sensitivity_slider") as HSlider
+	if not _check(sensitivity_slider != null, "pause menu is missing the look sensitivity setting"):
+		return
+	sensitivity_slider.value = 0.006
+	if not _check(is_equal_approx(float(game.get("look_sensitivity")), 0.006), "look sensitivity slider did not update the active camera setting"):
+		return
+	var saved_settings := ConfigFile.new()
+	if not _check(saved_settings.load("user://first_stage_settings.cfg") == OK and is_equal_approx(float(saved_settings.get_value("settings", "look_sensitivity", 0.0)), 0.006), "look sensitivity setting was not persisted"):
+		return
+	game.call("_toggle_pause_menu")
+	if not _check(not bool(game.get("game_paused")) and not (game.get("pause_overlay") as ColorRect).visible, "resume did not close the pause menu"):
+		return
 
 	# The player must be able to leave the first carriage and activate the clock.
 	game.call("_close_story_card")
