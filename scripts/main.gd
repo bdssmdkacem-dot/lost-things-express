@@ -1089,6 +1089,10 @@ func _physics_process(_delta: float) -> void:
 	player.position.z = clampf(player.position.z, rear_limit, 5.1)
 
 func _input(event: InputEvent) -> void:
+	# Story cards must block gameplay input as well as draw above it; otherwise
+	# a swipe over dialogue can rotate the camera or leave a touch joystick latched.
+	if story_card_open:
+		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_E:
 			_interact()
