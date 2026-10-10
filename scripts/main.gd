@@ -384,6 +384,41 @@ func _play_hand_action(action: String) -> void:
 			first_person_hands.visible = false
 	)
 
+func _create_held_key_prop() -> void:
+	if is_instance_valid(held_key_prop):
+		held_key_prop.queue_free()
+	held_key_prop = Node3D.new()
+	held_key_prop.name = "HeldBrassKey"
+	held_key_prop.position = Vector3(0.31, -0.19, -0.88)
+	first_person_hands.add_child(held_key_prop)
+	var brass := StandardMaterial3D.new()
+	brass.albedo_color = Color(0.92, 0.61, 0.19)
+	brass.metallic = 0.82
+	brass.roughness = 0.22
+	var ring := MeshInstance3D.new()
+	var ring_mesh := TorusMesh.new()
+	ring_mesh.inner_radius = 0.018
+	ring_mesh.outer_radius = 0.036
+	ring.mesh = ring_mesh
+	ring.material_override = brass
+	ring.position = Vector3(-0.07, 0.01, 0.0)
+	held_key_prop.add_child(ring)
+	var shaft := MeshInstance3D.new()
+	var shaft_mesh := BoxMesh.new()
+	shaft_mesh.size = Vector3(0.18, 0.014, 0.014)
+	shaft.mesh = shaft_mesh
+	shaft.material_override = brass
+	shaft.position = Vector3(0.035, 0.01, 0.0)
+	held_key_prop.add_child(shaft)
+	for tooth_position in [0.08, 0.13]:
+		var tooth := MeshInstance3D.new()
+		var tooth_mesh := BoxMesh.new()
+		tooth_mesh.size = Vector3(0.018, 0.034, 0.016)
+		tooth.mesh = tooth_mesh
+		tooth.material_override = brass
+		tooth.position = Vector3(tooth_position, -0.006, 0.0)
+		held_key_prop.add_child(tooth)
+
 func _build_ui() -> void:
 	var canvas := CanvasLayer.new()
 	add_child(canvas)
@@ -817,6 +852,7 @@ func _interact() -> void:
 		"key":
 			if not has_key:
 				has_key = true
+				_create_held_key_prop()
 				_play_hand_action("take")
 				nearby_object.queue_free()
 				_set_status("The brass key is warm, as if someone held it only moments ago.")
