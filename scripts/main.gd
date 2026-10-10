@@ -37,6 +37,7 @@ var world_intro_active := false
 var world_intro_root: Node3D
 var world_intro_camera: Camera3D
 var held_key_prop: Node3D
+var held_letter_prop: Node3D
 
 func _ready() -> void:
 	_setup_input_map()
@@ -393,12 +394,63 @@ func _play_hand_action(action: String) -> void:
 			var thumb_roll := 34.0 if part.name.ends_with("R") else -34.0
 			hand_action_tween.parallel().tween_property(part, "rotation_degrees", Vector3(-12.0, 0.0, thumb_roll), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	hand_action_tween.tween_callback(func() -> void:
-		if is_instance_valid(first_person_hands):
+		# Keep the letter visible in both hands while its message is being read.
+		if action != "read" and is_instance_valid(first_person_hands):
 			first_person_hands.visible = false
-		if is_instance_valid(held_key_prop):
+		if action != "read" and is_instance_valid(held_key_prop):
 			held_key_prop.queue_free()
 			held_key_prop = null
 	)
+
+func _create_held_letter_prop() -> void:
+	if is_instance_valid(held_letter_prop):
+		held_letter_prop.queue_free()
+	held_letter_prop = Node3D.new()
+	held_letter_prop.name = "HeldReadableLetter"
+	held_letter_prop.position = Vector3(0.0, -0.23, -0.78)
+	held_letter_prop.rotation_degrees = Vector3(-8.0, 0.0, 0.0)
+	first_person_hands.add_child(held_letter_prop)
+
+	var parchment := StandardMaterial3D.new()
+	parchment.albedo_color = Color(0.84, 0.73, 0.52)
+	parchment.roughness = 0.94
+	var sheet := MeshInstance3D.new()
+	sheet.name = "AgedParchment"
+	var sheet_mesh := BoxMesh.new()
+	sheet_mesh.size = Vector3(0.39, 0.012, 0.29)
+	sheet.mesh = sheet_mesh
+	sheet.material_override = parchment
+	held_letter_prop.add_child(sheet)
+
+	var ink := StandardMaterial3D.new()
+	ink.albedo_color = Color(0.16, 0.075, 0.035)
+	ink.roughness = 0.9
+	for line_spec in [
+		[Vector3(-0.015, 0.009, -0.075), Vector3(0.27, 0.003, 0.006)],
+		[Vector3(0.015, 0.009, -0.043), Vector3(0.29, 0.003, 0.006)],
+		[Vector3(-0.005, 0.009, -0.011), Vector3(0.25, 0.003, 0.006)],
+		[Vector3(0.0, 0.009, 0.021), Vector3(0.28, 0.003, 0.006)],
+		[Vector3(-0.015, 0.009, 0.053), Vector3(0.26, 0.003, 0.006)],
+		[Vector3(-0.045, 0.009, 0.085), Vector3(0.18, 0.003, 0.006)]
+	]:
+		var stroke := MeshInstance3D.new()
+		var stroke_mesh := BoxMesh.new()
+		stroke_mesh.size = line_spec[1]
+		stroke.mesh = stroke_mesh
+		stroke.material_override = ink
+		stroke.position = line_spec[0]
+		held_letter_prop.add_child(stroke)
+
+	var message := Label3D.new()
+	message.name = "LetterMessage"
+	message.text = "WHEN THE CLOCK\nSTRIKES THREE TIMES,\nRETURN WHAT THE\nTRAVELER FORGOT."
+	message.font_size = 32
+	message.pixel_size = 0.0017
+	message.modulate = Color(0.19, 0.075, 0.028)
+	message.position = Vector3(0.0, 0.011, -0.005)
+	message.rotation_degrees.x = -90.0
+	message.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+	held_letter_prop.add_child(message)
 
 func _create_held_key_prop() -> void:
 	if is_instance_valid(held_key_prop):
@@ -815,6 +867,12 @@ func _close_story_card() -> void:
 		return
 	story_overlay.visible = false
 	story_card_open = false
+	# Keep the physical parchment in view until the player closes the letter.
+	if is_instance_valid(held_letter_prop):
+		held_letter_prop.queue_free()
+		held_letter_prop = null
+		if is_instance_valid(first_person_hands):
+			first_person_hands.visible = false
 
 func _process(_delta: float) -> void:
 	_update_nearby()
@@ -921,6 +979,7 @@ func _interact() -> void:
 			else:
 				_set_status("You already have the key.")
 		"letter":
+			_create_held_letter_prop()
 			_play_hand_action("read")
 			letter_read = true
 			nearby_object.set_meta("display_name", "Letter read")
