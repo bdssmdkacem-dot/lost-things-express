@@ -694,13 +694,30 @@ func _build_world_intro() -> void:
 		island_mesh.material_override = island_mat
 		world_intro_root.add_child(island_mesh)
 
-	for z in range(-12, 17, 2):
-		_intro_box("Railway sleeper", Vector3(30.0, 0.0, float(z)), Vector3(4.2, 0.16, 0.34), Color(0.20, 0.095, 0.05))
-	for x in [28.65, 31.35]:
-		_intro_box("Polished rail", Vector3(x, 0.16, 2.0), Vector3(0.13, 0.16, 30.0), Color(0.52, 0.55, 0.60), 0.82)
+	for z in range(-14, 19, 2):
+		var curve_x := 30.0 + sin(float(z) * 0.115) * 2.4
+		_intro_box("Railway sleeper", Vector3(curve_x, 0.0, float(z)), Vector3(4.2, 0.16, 0.34), Color(0.20, 0.095, 0.05))
+		for rail_side in [-1.0, 1.0]:
+			var rail := _intro_box("Curved polished rail", Vector3(curve_x + rail_side * 1.34, 0.16, float(z)), Vector3(0.13, 0.16, 2.2), Color(0.52, 0.55, 0.60), 0.82)
+			rail.rotation.y = cos(float(z) * 0.115) * 0.16
+	
 
 	_intro_box("Locomotive chassis", Vector3(30.0, 1.05, 0.2), Vector3(2.8, 0.42, 6.8), Color(0.035, 0.095, 0.075), 0.35)
-	_intro_box("Locomotive boiler", Vector3(30.0, 1.85, -1.1), Vector3(1.55, 1.35, 4.7), Color(0.025, 0.14, 0.105), 0.42)
+	var boiler := MeshInstance3D.new()
+	boiler.name = "Rounded green steam boiler"
+	var boiler_mesh := CylinderMesh.new()
+	boiler_mesh.top_radius = 0.76
+	boiler_mesh.bottom_radius = 0.76
+	boiler_mesh.height = 4.7
+	boiler.mesh = boiler_mesh
+	boiler.position = Vector3(30.0, 1.85, -1.1)
+	boiler.rotation_degrees.x = 90.0
+	var boiler_mat := StandardMaterial3D.new()
+	boiler_mat.albedo_color = Color(0.025, 0.14, 0.105)
+	boiler_mat.metallic = 0.52
+	boiler_mat.roughness = 0.28
+	boiler.material_override = boiler_mat
+	world_intro_root.add_child(boiler)
 	_intro_box("Locomotive cab", Vector3(30.0, 2.05, 2.55), Vector3(2.5, 2.0, 1.8), Color(0.035, 0.11, 0.085), 0.35)
 	_intro_box("Cab window", Vector3(30.0, 2.38, 1.61), Vector3(1.6, 0.9, 0.06), Color(0.055, 0.20, 0.27), 0.15)
 	_intro_box("Brass boiler band", Vector3(30.0, 1.85, -2.2), Vector3(1.63, 1.40, 0.11), Color(0.70, 0.42, 0.13), 0.78)
@@ -709,7 +726,35 @@ func _build_world_intro() -> void:
 	_intro_box("Chimney", Vector3(30.0, 2.85, -2.1), Vector3(0.52, 0.85, 0.52), Color(0.055, 0.065, 0.06), 0.45)
 	_intro_box("Chimney cap", Vector3(30.0, 3.28, -2.1), Vector3(0.78, 0.12, 0.78), Color(0.67, 0.42, 0.14), 0.78)
 	_intro_box("Headlamp brass housing", Vector3(30.0, 2.0, -3.52), Vector3(0.62, 0.62, 0.30), Color(0.72, 0.43, 0.13), 0.8)
-	_intro_box("Headlamp glowing glass", Vector3(30.0, 2.0, -3.70), Vector3(0.39, 0.39, 0.08), Color(1.0, 0.72, 0.32), 0.1)
+	var headlamp_glass := MeshInstance3D.new()
+	headlamp_glass.name = "Glowing round headlamp lens"
+	var headlamp_mesh := SphereMesh.new()
+	headlamp_mesh.radius = 0.21
+	headlamp_mesh.height = 0.42
+	headlamp_glass.mesh = headlamp_mesh
+	headlamp_glass.position = Vector3(30.0, 2.0, -3.72)
+	var glow_material := StandardMaterial3D.new()
+	glow_material.albedo_color = Color(1.0, 0.66, 0.24)
+	glow_material.emission_enabled = true
+	glow_material.emission = Color(1.0, 0.48, 0.12)
+	glow_material.emission_energy_multiplier = 2.8
+	headlamp_glass.material_override = glow_material
+	world_intro_root.add_child(headlamp_glass)
+	var headlamp_light := OmniLight3D.new()
+	headlamp_light.position = Vector3(30.0, 2.0, -4.0)
+	headlamp_light.light_color = Color(1.0, 0.52, 0.20)
+	headlamp_light.light_energy = 4.2
+	headlamp_light.omni_range = 10.0
+	world_intro_root.add_child(headlamp_light)
+	var nameplate := Label3D.new()
+	nameplate.name = "Lost and Found nameplate"
+	nameplate.text = "Lost & Found"
+	nameplate.font_size = 48
+	nameplate.pixel_size = 0.003
+	nameplate.modulate = Color(1.0, 0.72, 0.36)
+	nameplate.position = Vector3(30.0, 1.46, -3.78)
+	nameplate.rotation_degrees.y = 180.0
+	world_intro_root.add_child(nameplate)
 	for x in [28.55, 31.45]:
 		for z in [-2.35, 0.1, 2.25]:
 			var wheel := MeshInstance3D.new()
