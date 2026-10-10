@@ -36,6 +36,7 @@ var story_card_open := false
 var world_intro_active := false
 var world_intro_root: Node3D
 var world_intro_camera: Camera3D
+var held_key_prop: Node3D
 
 func _ready() -> void:
 	_setup_input_map()
