@@ -2,21 +2,25 @@
 
 These are the project's source-of-truth visual references. Preserve originals unchanged; do not replace them with AI-generated approximations.
 
-## Primary concept board
-- Original library filename: `قطار الأشياء المفقودة بين الغيوم.png`
-- Intended repository path: `art/reference/lost-things-express-primary-reference.png`
-- Role: master visual direction for the locomotive, carriage, explorer and animal companions, floating islands, castles, lighting, palette, and mobile presentation.
+## Approved primary visual reference
 
-## Alternate / wide concept capture
-- Original library filename: `1000173104.png`
-- Intended repository path: `art/reference/lost-things-express-concept-wide.png`
-- Role: wider crop of the same concept board; retain as a secondary composition reference.
+- **Approved source-of-truth image:** `art/reference/file_00000000a27081f4a16c023a7b226ef1.png`
+- **GitHub file:** https://github.com/bdssmdkacem-dot/lost-things-express/blob/main/art/reference/file_00000000a27081f4a16c023a7b226ef1.png
+- **Raw image:** https://raw.githubusercontent.com/bdssmdkacem-dot/lost-things-express/main/art/reference/file_00000000a27081f4a16c023a7b226ef1.png
+- **Role:** primary visual target for the opening locomotive/train, connected carriages, explorer and companions, floating islands, architecture, lighting, palette, and mobile composition.
+- Preserve the binary unchanged. Do not rename, overwrite, or replace it with an AI-generated approximation.
+
+The user explicitly selected this existing repository image as the primary reference on 2026-10-10. It takes precedence over the previously proposed filename `قطار الأشياء المفقودة بين الغيوم.png`, which is not present in the repository. Do not block work on renaming or locating that earlier filename.
+
+## Other reference captures
+
+The other supplied PNG and JPG files in this folder remain supplementary references. Do not assume they are the same image or change their names without explicit approval. The previously proposed alternate `1000173104.png` is not required for the primary-reference approval because the user selected the committed PNG above.
 
 ## Acceptance rule
 A generated model or successful CI build is not proof of visual fidelity. Review screenshots/renders side by side with the references and record material differences before approving assets for the game.
 
 ## Archival status
-The original images have been located in the ChatGPT Library, but their binary files have not yet been committed into this repository. Do not mark the archive complete until both image files exist at the paths above and have been verified.
+The approved primary reference is committed at the exact path listed above and has been selected by the user. The separate historical concept-board filenames are not required for the current source-of-truth reference.
 
 
 ## Permanent interaction and scene reference standard (added 2026-10-10)
