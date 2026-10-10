@@ -355,12 +355,12 @@ func _build_first_person_hands() -> void:
 		var palm := MeshInstance3D.new()
 		palm.name = "Hand_%s" % ("L" if side < 0.0 else "R")
 		var palm_mesh := SphereMesh.new()
-		palm_mesh.radius = 0.062
-		palm_mesh.height = 0.105
+		palm_mesh.radius = 0.044
+		palm_mesh.height = 0.09
 		palm.mesh = palm_mesh
 		palm.material_override = skin_material
-		palm.position = Vector3(side * 0.27, -0.17, -0.58)
-		palm.scale = Vector3(1.08, 0.86, 0.68)
+		palm.position = Vector3(side * 0.31, -0.16, -0.58)
+		palm.scale = Vector3(1.25, 0.88, 0.54)
 		first_person_hands.add_child(palm)
 
 		# Four short fingers make the silhouette read as a hand at phone size.
@@ -368,11 +368,11 @@ func _build_first_person_hands() -> void:
 			var finger := MeshInstance3D.new()
 			finger.name = "Finger_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
 			var finger_mesh := CapsuleMesh.new()
-			finger_mesh.radius = [0.013, 0.014, 0.014, 0.012][finger_index]
-			finger_mesh.height = [0.060, 0.070, 0.068, 0.056][finger_index]
+			finger_mesh.radius = [0.010, 0.011, 0.011, 0.009][finger_index]
+			finger_mesh.height = [0.046, 0.052, 0.050, 0.042][finger_index]
 			finger.mesh = finger_mesh
 			finger.material_override = skin_material
-			finger.position = Vector3(side * 0.255 + (finger_index - 1.5) * 0.032, -0.205, -0.59)
+			finger.position = Vector3(side * 0.29 + (finger_index - 1.5) * 0.022, -0.19 - finger_index * 0.006, -0.59)
 			finger.rotation_degrees.x = -18.0
 			first_person_hands.add_child(finger)
 
@@ -384,7 +384,7 @@ func _build_first_person_hands() -> void:
 		thumb_mesh.height = 0.066
 		thumb.mesh = thumb_mesh
 		thumb.material_override = skin_material
-		thumb.position = Vector3(side * 0.255 + side * 0.065, -0.17, -0.57)
+		thumb.position = Vector3(side * 0.23, -0.16, -0.57)
 		thumb.rotation_degrees = Vector3(-12.0, 0.0, side * 34.0)
 		first_person_hands.add_child(thumb)
 
