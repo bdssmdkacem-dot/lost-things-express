@@ -177,7 +177,13 @@ func _run_first_slice() -> void:
 		return
 	var photo_card := photo.get_node_or_null("PhotographCard") as MeshInstance3D
 	var photo_mesh := photo_card.mesh as BoxMesh if photo_card else null
-	if not _check(photo_mesh != null and photo_mesh.size.y > photo_mesh.size.z * 10.0, "the photograph backing is not oriented as a readable upright card"):
+	if not _check(photo_mesh != null and photo_mesh.size.y > photo_mesh.size.x and photo_mesh.size.z < 0.02, "the photograph backing is not a portrait-format upright keepsake"):
+		return
+	if not _check(str(photo.get_meta("station_photo_source", "")) == "art/reference/file_00000000a27081f4a16c023a7b226ef1.png", "the station photograph is not tied to the supplied source reference"):
+		return
+	var source_photo := photo.get_node_or_null("StationPhotoFromUserReference") as MeshInstance3D
+	var source_photo_material := source_photo.material_override as StandardMaterial3D if source_photo else null
+	if not _check(source_photo_material != null and source_photo_material.albedo_texture != null, "the physical photo card did not load the station photograph from the supplied reference"):
 		return
 	var station_label := photo.get_node_or_null("StationName") as Label3D
 	if not _check(station_label != null and station_label.position.y > -0.16 and station_label.position.y < 0.0, "the station name is not positioned on the photograph face"):
