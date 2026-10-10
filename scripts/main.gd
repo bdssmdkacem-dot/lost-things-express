@@ -1212,17 +1212,7 @@ func _build_world_intro() -> void:
 			lantern.material_override = lantern_mat
 			world_intro_root.add_child(lantern)
 
-	for z in range(-27, 42, 1):
-		var curve_x := 30.0 + sin(float(z) * 0.072) * 2.1
-		var track_y := 0.0 + sin(float(z) * 0.09) * 0.035
-		var sleeper := _intro_box("Railway sleeper %02d" % (z + 27), Vector3(curve_x, track_y, float(z)), Vector3(4.05, 0.15, 0.24), Color(0.105, 0.047, 0.027), 0.04)
-		sleeper.rotation.y = cos(float(z) * 0.072) * 0.145
-		for rail_side in [-1.0, 1.0]:
-			var rail := _intro_box("Continuous steel rail %02d" % (z + 27), Vector3(curve_x + rail_side * 1.28, track_y + 0.15, float(z)), Vector3(0.115, 0.17, 1.08), Color(0.39, 0.43, 0.47), 0.84)
-			rail.rotation.y = cos(float(z) * 0.072) * 0.145
-			var plate := _intro_box("Rail fastening plate", Vector3(curve_x + rail_side * 1.28, track_y + 0.085, float(z)), Vector3(0.24, 0.035, 0.19), Color(0.29, 0.23, 0.15), 0.62)
-			plate.rotation.y = cos(float(z) * 0.072) * 0.145
-	
+
 
 	var locomotive_path := "res://assets/models/lost_things_locomotive.glb"
 	var locomotive_scene := load(locomotive_path) as PackedScene if ResourceLoader.exists(locomotive_path) else null
