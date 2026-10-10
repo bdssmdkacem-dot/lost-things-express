@@ -1,7 +1,7 @@
 import bpy
 import math
 import os
-from mathutils import Vector
+from mathutils import Vector, Matrix
 
 """
 Production locomotive for The Lost Things Express.
@@ -270,5 +270,12 @@ for obj in bpy.context.scene.objects:
     if obj.type == "MESH" or obj.type == "CURVE":
         obj.select_set(True)
 bpy.context.view_layer.objects.active = next((o for o in bpy.context.scene.objects if o.select_get()), None)
+# All authored dimensions above intentionally use the game's Y-up coordinates.
+# Blender is Z-up; pre-rotate the asset before glTF export so Godot receives
+# the boiler length on Z and the wheels/cab vertical on Y instead of a sideways train.
+axis_fix = Matrix.Rotation(math.radians(90.0), 4, "X")
+for obj in bpy.context.scene.objects:
+    if obj.type in {"MESH", "CURVE"} and obj.select_get():
+        obj.matrix_world = axis_fix @ obj.matrix_world
 bpy.ops.export_scene.gltf(filepath=os.path.join(MODEL_DIR, "lost_things_locomotive.glb"), export_format="GLB", use_selection=True, export_apply=True)
 print("LOCOMOTIVE_ASSET_GENERATED: blend, GLB and preview")
