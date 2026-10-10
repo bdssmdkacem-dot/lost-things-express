@@ -31,7 +31,11 @@ func _ready() -> void:
 	_build_world()
 	_build_player()
 	_build_ui()
-	_set_status("The train has arrived at a station that appears on no map.")
+	_load_progress()
+	if chest_open:
+		_set_status("Welcome back. The photograph points to Sunset Station.")
+	else:
+		_set_status("The train has arrived at a station that appears on no map.")
 
 func _setup_input_map() -> void:
 	_add_key_action("move_forward", KEY_W)
@@ -395,6 +399,42 @@ func _interact() -> void:
 				_set_status("The chest opens! Inside is an old photograph and a new destination: Sunset Station.")
 		_:
 			_set_status("Nothing happens here yet.")
+	_save_progress()
+
+func _save_progress() -> void:
+	# Persist the first-stage puzzle so closing the app does not erase progress.
+	var config := ConfigFile.new()
+	config.set_value("progress", "has_key", has_key)
+	config.set_value("progress", "letter_read", letter_read)
+	config.set_value("progress", "chest_open", chest_open)
+	var error := config.save("user://first_stage_progress.cfg")
+	if error != OK:
+		push_warning("Could not save first-stage progress (error %d)." % error)
+
+func _load_progress() -> void:
+	var path := "user://first_stage_progress.cfg"
+	if not FileAccess.file_exists(path):
+		return
+	var config := ConfigFile.new()
+	if config.load(path) != OK:
+		push_warning("Saved first-stage progress could not be read; starting a new puzzle.")
+		return
+	has_key = bool(config.get_value("progress", "has_key", false))
+	letter_read = bool(config.get_value("progress", "letter_read", false))
+	chest_open = bool(config.get_value("progress", "chest_open", false))
+	if has_key:
+		var key := get_node_or_null("BrassKey")
+		if key:
+			key.queue_free()
+	var letter := get_node_or_null("TornLetter")
+	if letter and letter_read:
+		letter.set_meta("display_name", "Letter read")
+	var chest := get_node_or_null("MemoryChest")
+	if chest and chest_open:
+		chest.set_meta("display_name", "Open chest")
+		var lid := chest.get_node_or_null("Lid") as Node3D
+		if lid:
+			lid.rotation.x = deg_to_rad(-72.0)
 
 func _toggle_inventory() -> void:
 	inventory_open = not inventory_open
