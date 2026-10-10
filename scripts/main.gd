@@ -395,7 +395,7 @@ func _inventory_count() -> int:
 func _inventory_text() -> String:
 	var lines := ["INVENTORY"]
 	lines.append("• Brass key" if has_key else "• Brass key — not found")
-	lines.append("• Torn letter (read)" if letter_read else "• Torn letter — unread")	
+	lines.append("• Torn letter (read)" if letter_read else "• Torn letter — unread")
 	lines.append("• Sunset photograph" if chest_open else "• Memory chest reward — undiscovered")
 	return "\\n".join(lines)
 
