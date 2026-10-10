@@ -1467,7 +1467,7 @@ func _inventory_text() -> String:
 
 func _objective_text() -> String:
 	if chest_open:
-		return "Objective complete: Get ready to leave Sunset Station."
+		return "Stage one complete: continue to the clock in the next carriage."
 	if not has_key:
 		return "Objective: Find the brass key near the seats."
 	if not letter_read:
