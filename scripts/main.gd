@@ -894,6 +894,47 @@ func _build_world_intro() -> void:
 	_intro_box("Cowcatcher", Vector3(30.0, 0.55, -3.65), Vector3(2.0, 0.12, 0.85), Color(0.18, 0.20, 0.20), 0.7)
 	_intro_box("Chimney", Vector3(30.0, 2.85, -2.1), Vector3(0.52, 0.85, 0.52), Color(0.055, 0.065, 0.06), 0.45)
 	_intro_box("Chimney cap", Vector3(30.0, 3.28, -2.1), Vector3(0.78, 0.12, 0.78), Color(0.67, 0.42, 0.14), 0.78)
+
+	# Layered boiler bands, a whistle and restrained steam puffs break up the
+	# locomotive's large silhouette while remaining inexpensive on mobile GPUs.
+	for band_z in [-2.65, -1.65, -0.55, 0.55]:
+		var boiler_band := MeshInstance3D.new()
+		boiler_band.name = "Boiler Brass Band"
+		var band_mesh := CylinderMesh.new()
+		band_mesh.top_radius = 0.785
+		band_mesh.bottom_radius = 0.785
+		band_mesh.height = 0.075
+		boiler_band.mesh = band_mesh
+		boiler_band.position = Vector3(30.0, 1.85, band_z)
+		boiler_band.rotation_degrees.x = 90.0
+		var band_material := StandardMaterial3D.new()
+		band_material.albedo_color = Color(0.72, 0.43, 0.13)
+		band_material.metallic = 0.82
+		band_material.roughness = 0.24
+		boiler_band.material_override = band_material
+		world_intro_root.add_child(boiler_band)
+
+	_intro_box("Boiler whistle base", Vector3(30.0, 2.61, -0.85), Vector3(0.22, 0.10, 0.22), Color(0.70, 0.43, 0.14), 0.82)
+	_intro_box("Boiler whistle", Vector3(30.0, 2.78, -0.85), Vector3(0.10, 0.26, 0.10), Color(0.66, 0.39, 0.12), 0.78)
+	var smoke_material := StandardMaterial3D.new()
+	smoke_material.albedo_color = Color(0.66, 0.73, 0.80, 0.26)
+	smoke_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	smoke_material.roughness = 1.0
+	for smoke_spec in [
+		[Vector3(30.0, 3.76, -2.15), Vector3(0.52, 0.40, 0.52)],
+		[Vector3(30.35, 4.12, -2.32), Vector3(0.42, 0.34, 0.43)],
+		[Vector3(29.68, 4.34, -2.48), Vector3(0.34, 0.28, 0.35)]
+	]:
+		var steam := MeshInstance3D.new()
+		steam.name = "Soft steam plume"
+		var steam_mesh := SphereMesh.new()
+		steam_mesh.radius = 1.0
+		steam_mesh.height = 2.0
+		steam.mesh = steam_mesh
+		steam.position = smoke_spec[0]
+		steam.scale = smoke_spec[1]
+		steam.material_override = smoke_material
+		world_intro_root.add_child(steam)
 	_intro_box("Headlamp brass housing", Vector3(30.0, 2.0, -3.52), Vector3(0.62, 0.62, 0.30), Color(0.72, 0.43, 0.13), 0.8)
 	var headlamp_glass := MeshInstance3D.new()
 	headlamp_glass.name = "Glowing round headlamp lens"
@@ -940,6 +981,28 @@ func _build_world_intro() -> void:
 			wheel_mat.roughness = 0.34
 			wheel.material_override = wheel_mat
 			world_intro_root.add_child(wheel)
+
+	# Exposed side rods connect the visible wheel centers so the engine reads as
+	# a mechanical locomotive rather than a static green box on wheels.
+	for side in [-1.0, 1.0]:
+		var rod := _intro_box("LocomotiveConnectingRod_%s" % ("L" if side < 0.0 else "R"),
+			Vector3(30.0 + side * 1.54, 0.73, -0.05), Vector3(0.075, 0.09, 4.95),
+			Color(0.42, 0.45, 0.46), 0.82)
+		rod.rotation.y = 0.0
+		for joint_z in [-2.35, 0.1, 2.25]:
+			var joint := MeshInstance3D.new()
+			joint.name = "Connecting rod brass joint"
+			var joint_mesh := SphereMesh.new()
+			joint_mesh.radius = 0.095
+			joint_mesh.height = 0.19
+			joint.mesh = joint_mesh
+			joint.position = Vector3(30.0 + side * 1.56, 0.73, joint_z)
+			var joint_material := StandardMaterial3D.new()
+			joint_material.albedo_color = Color(0.69, 0.43, 0.14)
+			joint_material.metallic = 0.78
+			joint_material.roughness = 0.28
+			joint.material_override = joint_material
+			world_intro_root.add_child(joint)
 
 	_intro_box("Passenger carriage body", Vector3(30.0, 2.0, 7.6), Vector3(3.8, 2.7, 7.0), Color(0.035, 0.12, 0.085), 0.38)
 	_intro_box("Passenger carriage roof", Vector3(30.0, 3.45, 7.6), Vector3(4.0, 0.25, 7.2), Color(0.07, 0.045, 0.035), 0.3)
