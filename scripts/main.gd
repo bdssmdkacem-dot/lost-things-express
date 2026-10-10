@@ -329,35 +329,35 @@ func _build_first_person_hands() -> void:
 		var arm := MeshInstance3D.new()
 		arm.name = "Sleeve_%s" % ("L" if side < 0.0 else "R")
 		var arm_mesh := CapsuleMesh.new()
-		arm_mesh.radius = 0.082
-		arm_mesh.height = 0.40
+		arm_mesh.radius = 0.060
+		arm_mesh.height = 0.34
 		arm.mesh = arm_mesh
 		arm.material_override = sleeve_material
-		arm.position = Vector3(side * 0.30, -0.46, -0.65)
+		arm.position = Vector3(side * 0.265, -0.43, -0.65)
 		arm.rotation_degrees = Vector3(0.0, 0.0, side * -24.0)
 		first_person_hands.add_child(arm)
 
 		var cuff := MeshInstance3D.new()
 		cuff.name = "BrassCuff_%s" % ("L" if side < 0.0 else "R")
 		var cuff_mesh := CylinderMesh.new()
-		cuff_mesh.top_radius = 0.084
-		cuff_mesh.bottom_radius = 0.084
-		cuff_mesh.height = 0.055
+		cuff_mesh.top_radius = 0.063
+		cuff_mesh.bottom_radius = 0.063
+		cuff_mesh.height = 0.045
 		cuff.mesh = cuff_mesh
 		cuff.material_override = cuff_material
-		cuff.position = Vector3(side * 0.30, -0.305, -0.69)
+		cuff.position = Vector3(side * 0.265, -0.305, -0.69)
 		cuff.rotation_degrees.z = side * -24.0
 		first_person_hands.add_child(cuff)
 
 		var palm := MeshInstance3D.new()
 		palm.name = "Hand_%s" % ("L" if side < 0.0 else "R")
 		var palm_mesh := SphereMesh.new()
-		palm_mesh.radius = 0.092
-		palm_mesh.height = 0.14
+		palm_mesh.radius = 0.073
+		palm_mesh.height = 0.12
 		palm.mesh = palm_mesh
 		palm.material_override = skin_material
-		palm.position = Vector3(side * 0.30, -0.19, -0.68)
-		palm.scale = Vector3(1.08, 0.76, 0.70)
+		palm.position = Vector3(side * 0.255, -0.17, -0.68)
+		palm.scale = Vector3(1.10, 0.82, 0.68)
 		first_person_hands.add_child(palm)
 
 		# Four short fingers make the silhouette read as a hand at phone size.
@@ -365,11 +365,11 @@ func _build_first_person_hands() -> void:
 			var finger := MeshInstance3D.new()
 			finger.name = "Finger_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
 			var finger_mesh := CapsuleMesh.new()
-			finger_mesh.radius = [0.016, 0.018, 0.018, 0.015][finger_index]
-			finger_mesh.height = [0.075, 0.091, 0.089, 0.070][finger_index]
+			finger_mesh.radius = [0.013, 0.014, 0.014, 0.012][finger_index]
+			finger_mesh.height = [0.060, 0.070, 0.068, 0.056][finger_index]
 			finger.mesh = finger_mesh
 			finger.material_override = skin_material
-			finger.position = Vector3(side * 0.30 + (finger_index - 1.5) * 0.039, -0.225, -0.75)
+			finger.position = Vector3(side * 0.255 + (finger_index - 1.5) * 0.032, -0.205, -0.75)
 			finger.rotation_degrees.x = -18.0
 			first_person_hands.add_child(finger)
 
@@ -377,11 +377,11 @@ func _build_first_person_hands() -> void:
 		var thumb := MeshInstance3D.new()
 		thumb.name = "Thumb_%s" % ("L" if side < 0.0 else "R")
 		var thumb_mesh := CapsuleMesh.new()
-		thumb_mesh.radius = 0.019
-		thumb_mesh.height = 0.078
+		thumb_mesh.radius = 0.015
+		thumb_mesh.height = 0.066
 		thumb.mesh = thumb_mesh
 		thumb.material_override = skin_material
-		thumb.position = Vector3(side * 0.30 + side * 0.085, -0.19, -0.72)
+		thumb.position = Vector3(side * 0.255 + side * 0.065, -0.17, -0.72)
 		thumb.rotation_degrees = Vector3(-12.0, 0.0, side * 34.0)
 		first_person_hands.add_child(thumb)
 
@@ -472,7 +472,8 @@ func _create_held_letter_prop() -> void:
 	message.font_size = 24
 	message.pixel_size = 0.00125
 	message.modulate = Color(0.19, 0.075, 0.028)
-	message.position = Vector3(0.0, 0.0, -0.008)
+	# The camera is on the +Z side of the card; keep the ink on the visible face.
+	message.position = Vector3(0.0, 0.0, 0.009)
 	message.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 	held_letter_prop.add_child(message)
 
