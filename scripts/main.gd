@@ -32,6 +32,9 @@ var look_sensitivity_slider: HSlider
 var look_sensitivity_label: Label
 var gameplay_hud_controls: Array[Control] = []
 var game_paused := false
+var world_environment: WorldEnvironment
+var carriage_environment: Environment
+var intro_environment: Environment
 var inventory_open := false
 var yaw := 0.0
 var pitch := -0.04
@@ -106,6 +109,8 @@ func _build_world() -> void:
 	environment.ambient_light_energy = 0.45
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	world.environment = environment
+	world_environment = world
+	carriage_environment = environment
 	add_child(world)
 
 	var sun := DirectionalLight3D.new()
@@ -995,7 +1000,6 @@ func _build_world_intro() -> void:
 	world_intro_root.name = "WorldsTrainIntro"
 	add_child(world_intro_root)
 
-	var environment := WorldEnvironment.new()
 	var env := Environment.new()
 	env.background_mode = Environment.BG_SKY
 	var sky := Sky.new()
@@ -1007,10 +1011,11 @@ func _build_world_intro() -> void:
 	sky.sky_material = sky_mat
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.62, 0.56, 0.69)
-	env.ambient_light_energy = 0.9
-	environment.environment = env
-	world_intro_root.add_child(environment)
+	env.ambient_light_color = Color(0.48, 0.43, 0.54)
+	env.ambient_light_energy = 0.45
+	intro_environment = env
+	if is_instance_valid(world_environment):
+		world_environment.environment = intro_environment
 
 	world_intro_camera = Camera3D.new()
 	world_intro_camera.name = "WorldsIntroCamera"
@@ -1022,13 +1027,13 @@ func _build_world_intro() -> void:
 	var warm := OmniLight3D.new()
 	warm.position = Vector3(30.0, 5.0, 0.0)
 	warm.light_color = Color(1.0, 0.56, 0.25)
-	warm.light_energy = 3.2
+	warm.light_energy = 1.15
 	warm.omni_range = 16.0
 	world_intro_root.add_child(warm)
 	var moon_fill := DirectionalLight3D.new()
 	moon_fill.rotation_degrees = Vector3(-38.0, -25.0, 0.0)
 	moon_fill.light_color = Color(0.48, 0.62, 1.0)
-	moon_fill.light_energy = 0.65
+	moon_fill.light_energy = 0.30
 	world_intro_root.add_child(moon_fill)
 
 	for island in [
@@ -1133,14 +1138,14 @@ func _build_world_intro() -> void:
 	glow_material.albedo_color = Color(1.0, 0.66, 0.24)
 	glow_material.emission_enabled = true
 	glow_material.emission = Color(1.0, 0.48, 0.12)
-	glow_material.emission_energy_multiplier = 2.8
+	glow_material.emission_energy_multiplier = 1.8
 	headlamp_glass.material_override = glow_material
 	world_intro_root.add_child(headlamp_glass)
 	var headlamp_light := OmniLight3D.new()
 	headlamp_light.position = Vector3(30.0, 2.0, -4.0)
 	headlamp_light.light_color = Color(1.0, 0.52, 0.20)
-	headlamp_light.light_energy = 4.2
-	headlamp_light.omni_range = 10.0
+	headlamp_light.light_energy = 2.2
+	headlamp_light.omni_range = 8.0
 	world_intro_root.add_child(headlamp_light)
 	var nameplate := Label3D.new()
 	nameplate.name = "Lost and Found nameplate"
@@ -1218,6 +1223,9 @@ func _intro_box(label: String, pos: Vector3, size: Vector3, color: Color, metall
 
 func _enter_stage_one() -> void:
 	world_intro_active = false
+	# Switch the single active WorldEnvironment instead of adding a second one.
+	if is_instance_valid(world_environment) and carriage_environment != null:
+		world_environment.environment = carriage_environment
 	if is_instance_valid(world_intro_root):
 		world_intro_root.queue_free()
 	camera.current = true
