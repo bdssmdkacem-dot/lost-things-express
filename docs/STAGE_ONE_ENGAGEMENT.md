@@ -12,7 +12,7 @@ The first 10–15 minutes should feel like entering a beautiful, lonely train wi
 2. **The warm brass key:** locate and collect the key. Give clear pickup feedback and a short unsettling response from the carriage.
 3. **The torn letter:** pick up/read the physical paper; preserve the physical letter between the hands while its message is readable. The clue should add a new question, not merely repeat the objective.
 4. **The memory chest:** the key and letter together explain why the chest matters. The lock, hands, lid hinge and revealed photograph must behave as one coherent physical interaction.
-5. **The reveal:** a short silence/lighting beat, an inspectable photograph, and a specific lead to Sunset Station. The next-stage promise must be clear, but stage two must not be represented as playable until it exists.
+5. **The reveal:** the chest lid rotates at its hinge, then a physical 3D photograph rises into view with a restrained copper glow. The photograph is a separate interactable: inspecting it reveals the stamped `SUNSET STATION` clue. The photo, its interaction target, and the open lid are reconstructed after save/resume. The next-stage promise must be clear, but stage two must not be represented as playable until it exists.
 
 ## Engagement rules
 
@@ -35,7 +35,8 @@ The first 10–15 minutes should feel like entering a beautiful, lonely train wi
 - [ ] A first-time player can identify the objective and complete key → letter → chest without outside instructions.
 - [ ] Touch movement/look and INTERACT work reliably on the target Android phone.
 - [ ] Interactable range and prompt always match the actual target; no stale tap target.
-- [ ] The key pickup, paper reading, lock, hinged lid and photograph are physically coherent.
+- [x] Automated test covers key pickup, paper reading, hinged chest lid, delayed 3D photograph reveal, photograph inspection and save/resume reconstruction.
+- [ ] Visually inspect the photograph composition, hinge timing and glow on the target phone; automated assertions are not visual approval.
 - [ ] The clock/doorway is reachable after the chest sequence; no invisible collision blocks the player.
 - [ ] Save, close, relaunch and verify the exact puzzle state is restored.
 - [ ] Story beats improve tension without camera/input conflicts or excessive mobile performance cost.
