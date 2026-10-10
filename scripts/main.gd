@@ -467,6 +467,40 @@ func _create_held_letter_prop() -> void:
 	held_letter_prop.add_child(message)
 
 
+func _load_station_photo_texture() -> Texture2D:
+	# Use the actual station photograph embedded in the user's supplied reference.
+	# This crops the original at runtime; no replacement station image is generated or committed.
+	const reference_path := "res://art/reference/file_00000000a27081f4a16c023a7b226ef1.png"
+	if not ResourceLoader.exists(reference_path):
+		push_warning("Station photo reference is missing: " + reference_path)
+		return null
+	var reference_texture := load(reference_path) as Texture2D
+	if reference_texture == null:
+		push_warning("Station photo reference could not be loaded.")
+		return null
+	var source_image := reference_texture.get_image()
+	if source_image == null or source_image.is_empty():
+		push_warning("Station photo reference returned an empty image.")
+		return null
+	var source_width := source_image.get_width()
+	var source_height := source_image.get_height()
+	# Crop the printed station photograph from the center reference card, leaving
+	# its frame and title to the physical in-game card itself.
+	var crop := Rect2i(
+		roundi(source_width * 0.395),
+		roundi(source_height * 0.550),
+		roundi(source_width * 0.245),
+		roundi(source_height * 0.240)
+	)
+	crop.position.x = clampi(crop.position.x, 0, source_width - crop.size.x)
+	crop.position.y = clampi(crop.position.y, 0, source_height - crop.size.y)
+	var cropped_photo := source_image.get_region(crop)
+	if cropped_photo.is_empty():
+		push_warning("Station photo crop was empty.")
+		return null
+	return ImageTexture.create_from_image(cropped_photo)
+
+
 func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D:
 	var existing := chest.get_node_or_null("SunsetPhotograph") as Node3D
 	if existing:
@@ -481,32 +515,32 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 	photo.visible = not reveal_delayed
 	photo.set_meta("kind", "photograph")
 	photo.set_meta("display_name", "Sunset Photograph")
+	photo.set_meta("station_photo_source", "art/reference/file_00000000a27081f4a16c023a7b226ef1.png")
 	chest.add_child(photo)
 	if photo.visible:
 		photo.add_to_group("interactables")
 
 	var card_material := StandardMaterial3D.new()
 	card_material.albedo_color = Color(0.78, 0.66, 0.46)
-	card_material.roughness = 0.86
+	card_material.roughness = 0.88
 	var card := MeshInstance3D.new()
 	card.name = "PhotographCard"
 	var card_mesh := BoxMesh.new()
-	# The photograph is an upright card: image, frame and lettering all share
-	# the same XY face instead of intersecting a horizontal slab.
-	card_mesh.size = Vector3(0.46, 0.31, 0.012)
+	# A portrait-format keepsake with a landscape photograph on the upper half.
+	card_mesh.size = Vector3(0.38, 0.42, 0.012)
 	card.mesh = card_mesh
 	card.material_override = card_material
 	photo.add_child(card)
 
 	var frame_material := StandardMaterial3D.new()
-	frame_material.albedo_color = Color(0.72, 0.43, 0.14)
-	frame_material.metallic = 0.72
-	frame_material.roughness = 0.28
+	frame_material.albedo_color = Color(0.66, 0.39, 0.13)
+	frame_material.metallic = 0.62
+	frame_material.roughness = 0.34
 	for frame_spec in [
-		[Vector3(-0.225, 0.0, 0.012), Vector3(0.018, 0.30, 0.018)],
-		[Vector3(0.225, 0.0, 0.012), Vector3(0.018, 0.30, 0.018)],
-		[Vector3(0.0, 0.145, 0.012), Vector3(0.46, 0.018, 0.018)],
-		[Vector3(0.0, -0.145, 0.012), Vector3(0.46, 0.018, 0.018)]
+		[Vector3(-0.181, 0.0, 0.012), Vector3(0.018, 0.40, 0.018)],
+		[Vector3(0.181, 0.0, 0.012), Vector3(0.018, 0.40, 0.018)],
+		[Vector3(0.0, 0.201, 0.012), Vector3(0.38, 0.018, 0.018)],
+		[Vector3(0.0, -0.201, 0.012), Vector3(0.38, 0.018, 0.018)]
 	]:
 		var frame_piece := MeshInstance3D.new()
 		var frame_mesh := BoxMesh.new()
@@ -516,64 +550,59 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 		frame_piece.position = frame_spec[0]
 		photo.add_child(frame_piece)
 
-	var sky_material := StandardMaterial3D.new()
-	sky_material.albedo_color = Color(0.78, 0.29, 0.16)
-	sky_material.emission_enabled = true
-	sky_material.emission = Color(0.48, 0.10, 0.035)
-	sky_material.emission_energy_multiplier = 0.45
-	var sky := MeshInstance3D.new()
-	var sky_mesh := BoxMesh.new()
-	sky_mesh.size = Vector3(0.39, 0.20, 0.008)
-	sky.mesh = sky_mesh
-	sky.material_override = sky_material
-	sky.position = Vector3(0.0, 0.025, 0.010)
-	photo.add_child(sky)
-
-	var sun_material := StandardMaterial3D.new()
-	sun_material.albedo_color = Color(1.0, 0.69, 0.28)
-	sun_material.emission_enabled = true
-	sun_material.emission = Color(1.0, 0.32, 0.06)
-	sun_material.emission_energy_multiplier = 1.25
-	var sun := MeshInstance3D.new()
-	var sun_mesh := SphereMesh.new()
-	sun_mesh.radius = 0.043
-	sun_mesh.height = 0.086
-	sun.mesh = sun_mesh
-	sun.material_override = sun_material
-	sun.position = Vector3(0.075, 0.035, 0.019)
-	sun.scale = Vector3(1.0, 1.0, 0.18)
-	photo.add_child(sun)
-
-	for ridge_spec in [
-		[Vector3(-0.015, -0.035, 0.020), Vector3(0.39, 0.035, 0.010), Color(0.23, 0.12, 0.10)],
-		[Vector3(0.0, -0.072, 0.022), Vector3(0.39, 0.035, 0.010), Color(0.075, 0.12, 0.095)]
-	]:
-		var ridge := MeshInstance3D.new()
-		var ridge_mesh := BoxMesh.new()
-		ridge_mesh.size = ridge_spec[1]
-		ridge.mesh = ridge_mesh
-		var ridge_material := StandardMaterial3D.new()
-		ridge_material.albedo_color = ridge_spec[2]
-		ridge_material.roughness = 0.9
-		ridge.material_override = ridge_material
-		ridge.position = ridge_spec[0]
-		photo.add_child(ridge)
+	var photo_texture := _load_station_photo_texture()
+	if photo_texture != null:
+		var photo_face := MeshInstance3D.new()
+		photo_face.name = "StationPhotoFromUserReference"
+		var photo_face_mesh := BoxMesh.new()
+		photo_face_mesh.size = Vector3(0.342, 0.222, 0.004)
+		photo_face.mesh = photo_face_mesh
+		var photo_material := StandardMaterial3D.new()
+		photo_material.albedo_texture = photo_texture
+		photo_material.roughness = 0.92
+		photo_material.metallic = 0.0
+		photo_face.material_override = photo_material
+		photo_face.position = Vector3(0.0, 0.055, 0.010)
+		photo.add_child(photo_face)
+	else:
+		# Safe non-art fallback: matte paper only, never synthesize a substitute station scene.
+		var photo_matte := MeshInstance3D.new()
+		photo_matte.name = "StationPhotoReferenceUnavailable"
+		var matte_mesh := BoxMesh.new()
+		matte_mesh.size = Vector3(0.342, 0.222, 0.004)
+		photo_matte.mesh = matte_mesh
+		var matte_material := StandardMaterial3D.new()
+		matte_material.albedo_color = Color(0.23, 0.16, 0.11)
+		matte_material.roughness = 1.0
+		photo_matte.material_override = matte_material
+		photo_matte.position = Vector3(0.0, 0.055, 0.010)
+		photo.add_child(photo_matte)
 
 	var station_name := Label3D.new()
 	station_name.name = "StationName"
 	station_name.text = "SUNSET STATION"
-	station_name.font_size = 30
-	station_name.pixel_size = 0.0015
+	station_name.font_size = 24
+	station_name.pixel_size = 0.00125
 	station_name.modulate = Color(0.16, 0.075, 0.035)
-	station_name.position = Vector3(0.0, -0.112, 0.024)
+	station_name.position = Vector3(0.0, -0.135, 0.024)
 	station_name.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 	photo.add_child(station_name)
+
+	var seal := MeshInstance3D.new()
+	seal.name = "StationPhotoSeal"
+	var seal_mesh := TorusMesh.new()
+	seal_mesh.inner_radius = 0.006
+	seal_mesh.outer_radius = 0.012
+	seal.mesh = seal_mesh
+	seal.material_override = frame_material
+	seal.position = Vector3(0.0, -0.185, 0.024)
+	photo.add_child(seal)
 
 	var glow := OmniLight3D.new()
 	glow.name = "PhotographGlow"
 	glow.light_color = Color(1.0, 0.43, 0.17)
-	glow.light_energy = 0.32
-	glow.omni_range = 1.4
+	glow.light_energy = 0.22
+	glow.omni_range = 1.15
 	glow.position = Vector3(0.0, 0.08, 0.20)
 	glow.shadow_enabled = false
 	photo.add_child(glow)
