@@ -40,11 +40,10 @@ A premium fantasy train adventure where players explore strange stations, discov
 1. Open the [Android APK workflow](https://github.com/bdssmdkacem-dot/lost-things-express/actions/workflows/android-apk.yml).
 2. Open the latest successful **Android APK** run and download the artifact named `The-Lost-Things-Express-Android-APK`.
 3. The downloaded artifact is a **ZIP archive**. Extract it first; install the inner `TheLostThingsExpress.apk` file, not the ZIP.
-4. Extract and install the inner `TheLostThingsExpress.apk`, not the ZIP.
-5. The workflow requires APK signature verification, 4-byte alignment, the correct package/version, manifest and both native libraries. CI also attempts an Android 14 emulator launch, but standard Ubuntu runners may lack KVM so that smoke test is non-blocking; physical-device verification is still required.
-6. If a previous test APK was signed with a different temporary key, uninstall that old test app once before installing this build. CI now caches a stable debug keystore for subsequent builds so upgrades can use the same test certificate while the cache is retained.
+4. The workflow gates publishing on APK signature verification, 4-byte alignment, the correct package/version, manifest and both native libraries.
+5. If a previous test APK was signed with a different temporary key, uninstall that old test app once before installing this build. CI now caches a stable debug keystore for subsequent builds so upgrades can use the same test certificate while the cache is retained.
 
-The CI artifact is a **debug/testing build**, not a release-signed Google Play build. The emulator test checks installation and process startup in CI; it does not replace testing controls, graphics, performance and the puzzle on the target physical phone.
+The CI artifact is a **debug/testing build**, not a release-signed Google Play build. CI also attempts an emulator install-and-launch check, but standard Ubuntu runners may lack KVM; that step is currently non-blocking and is not evidence of a passed emulator test. Installation, controls, graphics, performance and the puzzle still need verification on the target physical phone.
 
 ## Current state
 
