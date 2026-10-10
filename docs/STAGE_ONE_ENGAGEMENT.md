@@ -66,3 +66,9 @@ Implemented in source and committed to GitHub; these changes are **not yet visua
 - Do not claim complete asset quality or visual approval until these checks have actual screenshots/video or device observations attached.
 
 Do not mark the first stage complete until the relevant gates have been observed. A successful code commit or CI build alone is not visual/gameplay approval.
+
+## Source-reference lock — 2026-10-10
+
+The user explicitly requested continuing without creating a new SUNSET STATION image. Treat the supplied image attachments documented in `art/reference/README.md` as the visual source references for the opening train shot, carriage, chest, letter and station photo. Do not use image generation to replace or reinterpret them. Match the in-game 3D assets and the existing physical photo card to these references.
+
+The source paths are documented and referenced from `scripts/main.gd`, but the original binary images still need to be copied unchanged into `art/reference/` and verified in the repository. Until then, reference-driven visual review is not fully reproducible from a clean checkout. Do not claim final visual approval or mark the reference archive complete until the files exist, the scene is rendered, and the rendered output is compared side by side with the supplied originals.
