@@ -22,9 +22,12 @@ func _run_first_slice() -> void:
 	var key := game.get_node_or_null("BrassKey") as Node3D
 	var letter := game.get_node_or_null("TornLetter") as Node3D
 	var chest := game.get_node_or_null("MemoryChest") as Node3D
+	var station_clock := game.get_node_or_null("StationClock") as Node3D
 	if not _check(player != null, "player was not created"):
 		return
 	if not _check(key != null and letter != null and chest != null, "one or more story props are missing"):
+		return
+	if not _check(station_clock != null and station_clock.is_in_group("interactables"), "the next carriage clock interaction is missing"):
 		return
 
 	# First-person hands are a required part of every story interaction, not an optional visual.
@@ -38,16 +41,22 @@ func _run_first_slice() -> void:
 		return
 	if not _check(hands.get_parent() == camera, "first-person hands are not attached to the camera view"):
 		return
+	if not _check(not hands.visible, "first-person hands must stay hidden during normal exploration"):
+		return
 
 	# Each interaction gesture must visibly move the view model and then restore it.
 	# This checks animation behavior without changing player movement or camera input.
 	for action_name in ["take", "read", "open"]:
 		game.call("_play_hand_action", action_name)
 		var active_hand_tween := game.get("hand_action_tween") as Tween
+		if not _check(hands.visible, "hands did not appear for interaction: " + action_name):
+			return
 		if not _check(active_hand_tween != null and active_hand_tween.is_running(), "hand action did not start its animation: " + action_name):
 			return
 		await create_timer(0.80).timeout
 		if not _check(hands.position.distance_to(Vector3.ZERO) < 0.01, "hand action did not return to neutral: " + action_name):
+			return
+		if not _check(not hands.visible, "hands stayed visible after interaction: " + action_name):
 			return
 
 	# A chest must not open until both clues have been found and understood.
@@ -90,6 +99,11 @@ func _run_first_slice() -> void:
 	if not _check(lid != null and is_equal_approx(lid.rotation.x, deg_to_rad(-72.0)), "chest lid did not reach the open position"):
 		return
 	if not _check(int(game.call("_inventory_count")) == 3, "inventory does not show the three completed story items"):
+		return
+	# Once the chest is open, the rear boundary must no longer trap the player in carriage one.
+	player.position = Vector3(0.0, 0.1, -14.0)
+	game.call("_physics_process", 0.0)
+	if not _check(player.position.z < -5.1, "the player is still blocked from reaching the clock carriage"):
 		return
 	if not _check(str(game.call("_objective_text")).to_lower().contains("complete"), "completion objective was not displayed"):
 		return
