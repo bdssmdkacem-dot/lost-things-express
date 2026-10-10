@@ -1016,7 +1016,7 @@ func _build_intro_passenger_cars() -> void:
 		var trim_color: Color = livery["trim"]
 		var roof_color: Color = livery["roof"]
 		var window_color: Color = livery["window"]
-		var coach_type := ["LUXURY SLEEPER", "OBSERVATION SALOON", "POST & LUGGAGE"][coach_index]
+		var coach_type: String = ["LUXURY SLEEPER", "OBSERVATION SALOON", "POST & LUGGAGE"][coach_index]
 		_intro_box(coach_type + " underframe", Vector3(30.0, 0.83, z), Vector3(2.62, 0.36, 7.7), Color(0.025, 0.03, 0.034), 0.62)
 		_intro_box(coach_type + " lower brass sill", Vector3(30.0, 1.12, z), Vector3(2.66, 0.10, 7.62), trim_color, 0.76)
 		_intro_box(coach_type + " enamel body", Vector3(30.0, 1.94, z), Vector3(2.48, 1.62, 7.35), body_color, 0.38)
@@ -1074,30 +1074,30 @@ func _build_intro_passenger_cars() -> void:
 				wheel.rotation.z = PI / 2.0
 				wheel.position = Vector3(30.0 + side * 1.30, 0.57, z + axle_z)
 				var wheel_mat := StandardMaterial3D.new()
-			wheel_mat.albedo_color = Color(0.025, 0.03, 0.035)
-			wheel_mat.metallic = 0.72
-			wheel_mat.roughness = 0.36
-			wheel.material_override = wheel_mat
-			world_intro_root.add_child(wheel)
-			var hub := MeshInstance3D.new()
-			hub.name = coach_type + " brass wheel hub"
-			var hub_mesh := CylinderMesh.new()
-			hub_mesh.top_radius = 0.105
-			hub_mesh.bottom_radius = 0.105
-			hub_mesh.height = 0.205
-			hub.mesh = hub_mesh
-			hub.rotation.z = PI / 2.0
-			hub.position = Vector3(30.0 + side * 1.39, 0.57, z + axle_z)
-			var hub_mat := StandardMaterial3D.new()
-			hub_mat.albedo_color = trim_color
-			hub_mat.metallic = 0.8
-			hub_mat.roughness = 0.24
-			hub.material_override = hub_mat
-			world_intro_root.add_child(hub)
-			var bogie := _intro_box(coach_type + " bogie frame", Vector3(30.0 + side * 1.27, 0.61, z + (axle_z / abs(axle_z)) * 2.35), Vector3(0.16, 0.18, 1.12), Color(0.07, 0.075, 0.08), 0.62)
+				wheel_mat.albedo_color = Color(0.025, 0.03, 0.035)
+				wheel_mat.metallic = 0.72
+				wheel_mat.roughness = 0.36
+				wheel.material_override = wheel_mat
+				world_intro_root.add_child(wheel)
+				var hub := MeshInstance3D.new()
+				hub.name = coach_type + " brass wheel hub"
+				var hub_mesh := CylinderMesh.new()
+				hub_mesh.top_radius = 0.105
+				hub_mesh.bottom_radius = 0.105
+				hub_mesh.height = 0.205
+				hub.mesh = hub_mesh
+				hub.rotation.z = PI / 2.0
+				hub.position = Vector3(30.0 + side * 1.39, 0.57, z + axle_z)
+				var hub_mat := StandardMaterial3D.new()
+				hub_mat.albedo_color = trim_color
+				hub_mat.metallic = 0.8
+				hub_mat.roughness = 0.24
+				hub.material_override = hub_mat
+				world_intro_root.add_child(hub)
+				var bogie := _intro_box(coach_type + " bogie frame", Vector3(30.0 + side * 1.27, 0.61, z + (axle_z / abs(axle_z)) * 2.35), Vector3(0.16, 0.18, 1.12), Color(0.07, 0.075, 0.08), 0.62)
 		# Brass end lamps and a short visible coupling bridge tie the carriages together.
 		for end_sign in [-1.0, 1.0]:
-			var end_z := z + end_sign * 3.72
+			var end_z: float = z + end_sign * 3.72
 			for side in [-1.0, 1.0]:
 				var end_lamp := MeshInstance3D.new()
 				end_lamp.name = coach_type + " end marker lamp"
