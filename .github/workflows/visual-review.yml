@@ -39,11 +39,12 @@ jobs:
         run: |
           set -euxo pipefail
           LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --script tests/capture_first_stage.gd
-          test -s build/visual_review/01_train_intro.png
-          test -s build/visual_review/02_carriage_opening.png
-          test -s build/visual_review/03_physical_letter.png
-          test -s build/visual_review/04_chest_reveal.png
-          test -s build/visual_review/05_pause_settings.png
+          test -s build/visual_review/01_title_card.png
+          test -s build/visual_review/02_train_intro.png
+          test -s build/visual_review/03_carriage_opening.png
+          test -s build/visual_review/04_physical_letter.png
+          test -s build/visual_review/05_chest_reveal.png
+          test -s build/visual_review/06_pause_settings.png
           file build/visual_review/*.png
 
       - name: Upload Godot visual review images
