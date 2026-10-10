@@ -455,28 +455,9 @@ func _create_held_letter_prop() -> void:
 	sheet.material_override = parchment
 	held_letter_prop.add_child(sheet)
 
-	var ink := StandardMaterial3D.new()
-	ink.albedo_color = Color(0.16, 0.075, 0.035)
-	ink.roughness = 0.9
-	for line_spec in [
-		[Vector3(-0.015, 0.009, -0.105), Vector3(0.30, 0.003, 0.006)],
-		[Vector3(0.015, 0.009, -0.073), Vector3(0.32, 0.003, 0.006)],
-		[Vector3(-0.005, 0.009, -0.041), Vector3(0.28, 0.003, 0.006)],
-		[Vector3(0.0, 0.009, -0.009), Vector3(0.31, 0.003, 0.006)],
-		[Vector3(-0.015, 0.009, 0.023), Vector3(0.29, 0.003, 0.006)],
-		[Vector3(-0.045, 0.009, 0.055), Vector3(0.22, 0.003, 0.006)]
-	]:
-		var stroke := MeshInstance3D.new()
-		var stroke_mesh := BoxMesh.new()
-		stroke_mesh.size = line_spec[1]
-		stroke.mesh = stroke_mesh
-		stroke.material_override = ink
-		stroke.position = line_spec[0]
-		held_letter_prop.add_child(stroke)
-
 	var message := Label3D.new()
 	message.name = "LetterMessage"
-	message.text = "WHEN THE CLOCK\nSTRIKES THREE TIMES,\nRETURN WHAT THE\nTRAVELER FORGOT.\nDO NOT LET IT FINISH."
+	message.text = "WHEN THE CLOCK\nSTRIKES THREE TIMES,\nRETURN WHAT THE\nTRAVELER FORGOT.\nDO NOT LET THE CLOCK\nFINISH."
 	message.font_size = 20
 	message.pixel_size = 0.00135
 	message.modulate = Color(0.19, 0.075, 0.028)
