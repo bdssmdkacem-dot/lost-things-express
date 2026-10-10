@@ -104,7 +104,12 @@ func _build_world() -> void:
 			_collision_box("Carriage floor collision", Vector3(0, -0.12, 0), Vector3(5.6, 0.24, 11.8))
 			_collision_box("Carriage left boundary", Vector3(-2.78, 1.6, 0), Vector3(0.12, 3.2, 11.8))
 			_collision_box("Carriage right boundary", Vector3(2.78, 1.6, 0), Vector3(0.12, 3.2, 11.8))
-			_collision_box("Carriage rear boundary", Vector3(0, 1.6, -5.85), Vector3(5.6, 3.2, 0.12))
+			_collision_box("Carriage rear left pier", Vector3(-2.32, 1.65, -5.85), Vector3(1.16, 3.3, 0.12))
+			_collision_box("Carriage rear right pier", Vector3(2.32, 1.65, -5.85), Vector3(1.16, 3.3, 0.12))
+			_collision_box("Carriage rear doorway lintel", Vector3(0, 2.98, -5.85), Vector3(3.48, 0.64, 0.12))
+			for seat_z in [-3.6, -0.5, 2.8]:
+				for side in [-1.0, 1.0]:
+					_collision_box("Seat collision", Vector3(side * 1.78, 0.76, seat_z), Vector3(1.35, 1.48, 1.24))
 			_collision_box("Carriage front boundary", Vector3(0, 1.6, 5.85), Vector3(5.6, 3.2, 0.12))
 		else:
 			push_warning("Carriage GLB exists but did not import as a PackedScene; using fallback geometry.")
@@ -123,7 +128,18 @@ func _build_procedural_carriage() -> void:
 	_box("Ceiling", Vector3(0, 3.5, 0), Vector3(5.8, 0.18, 12.0), Color(0.09, 0.045, 0.032))
 	_box("Left wall", Vector3(-2.85, 1.65, 0), Vector3(0.18, 3.3, 12.0), Color(0.12, 0.055, 0.035))
 	_box("Right wall", Vector3(2.85, 1.65, 0), Vector3(0.18, 3.3, 12.0), Color(0.12, 0.055, 0.035))
-	_box("Rear wall", Vector3(0, 1.65, -5.95), Vector3(5.8, 3.3, 0.18), Color(0.10, 0.045, 0.03))
+	_box("Rear wall left pier", Vector3(-2.32, 1.65, -5.95), Vector3(1.16, 3.3, 0.18), Color(0.10, 0.045, 0.03))
+	_box("Rear wall right pier", Vector3(2.32, 1.65, -5.95), Vector3(1.16, 3.3, 0.18), Color(0.10, 0.045, 0.03))
+	_box("Rear wall doorway lintel", Vector3(0, 2.98, -5.95), Vector3(3.48, 0.64, 0.18), Color(0.10, 0.045, 0.03))
+	_box("Doorway left walnut jamb", Vector3(-1.74, 1.34, -5.80), Vector3(0.13, 2.68, 0.16), Color(0.30, 0.105, 0.045), false)
+	_box("Doorway right walnut jamb", Vector3(1.74, 1.34, -5.80), Vector3(0.13, 2.68, 0.16), Color(0.30, 0.105, 0.045), false)
+	_box("Next compartment floor", Vector3(0, -0.10, -9.15), Vector3(5.56, 0.20, 6.35), Color(0.075, 0.026, 0.016), false)
+	_box("Next compartment ceiling", Vector3(0, 3.38, -9.15), Vector3(5.56, 0.18, 6.35), Color(0.075, 0.026, 0.016), false)
+	_box("Next compartment left wall", Vector3(-2.78, 1.62, -9.15), Vector3(0.16, 3.24, 6.35), Color(0.12, 0.055, 0.035), false)
+	_box("Next compartment right wall", Vector3(2.78, 1.62, -9.15), Vector3(0.16, 3.24, 6.35), Color(0.12, 0.055, 0.035), false)
+	_box("Next compartment distant wall", Vector3(0, 1.62, -12.32), Vector3(5.56, 3.24, 0.18), Color(0.075, 0.026, 0.016), false)
+	_box("Next compartment clock frame", Vector3(0, 2.32, -12.19), Vector3(1.12, 0.92, 0.10), Color(0.30, 0.105, 0.045), false)
+	_box("Next compartment clock face", Vector3(0, 2.32, -12.12), Vector3(0.45, 0.45, 0.04), Color(0.72, 0.59, 0.37), false)
 	_box("Front wall", Vector3(0, 1.65, 5.95), Vector3(5.8, 3.3, 0.18), Color(0.10, 0.045, 0.03))
 
 	for x in [-2.72, 2.72]:
@@ -474,6 +490,27 @@ func _create_interactable(label: String, pos: Vector3, color: Color, kind: Strin
 	item.add_child(visual)
 
 	if kind == "chest":
+		# Brass straps and a front clasp make the central suitcase readable at mobile scale.
+		var trim_material := StandardMaterial3D.new()
+		trim_material.albedo_color = Color(0.78, 0.48, 0.16)
+		trim_material.metallic = 0.78
+		trim_material.roughness = 0.24
+		for band_x in [-size.x * 0.32, size.x * 0.32]:
+			var band_mesh := BoxMesh.new()
+			band_mesh.size = Vector3(0.04, size.y * 0.82, 0.025)
+			var band := MeshInstance3D.new()
+			band.mesh = band_mesh
+			band.material_override = trim_material
+			band.position = Vector3(band_x, 0.0, size.z * 0.5 + 0.015)
+			item.add_child(band)
+		var clasp_mesh := BoxMesh.new()
+		clasp_mesh.size = Vector3(0.15, 0.14, 0.04)
+		var clasp := MeshInstance3D.new()
+		clasp.mesh = clasp_mesh
+		clasp.material_override = trim_material
+		clasp.position = Vector3(0.0, -0.02, size.z * 0.5 + 0.025)
+		item.add_child(clasp)
+
 		# Rotate the lid around a real rear hinge instead of around its center.
 		var hinge := Node3D.new()
 		hinge.name = "Lid"
@@ -488,6 +525,13 @@ func _create_interactable(label: String, pos: Vector3, color: Color, kind: Strin
 		lid_visual.position = Vector3(0, 0, size.z * 0.42)
 		lid_visual.material_override = material
 		hinge.add_child(lid_visual)
+		var lid_trim_mesh := BoxMesh.new()
+		lid_trim_mesh.size = Vector3(size.x * 0.90, 0.025, 0.025)
+		var lid_trim := MeshInstance3D.new()
+		lid_trim.mesh = lid_trim_mesh
+		lid_trim.material_override = trim_material
+		lid_trim.position = Vector3(0.0, 0.09, size.z * 0.42)
+		hinge.add_child(lid_trim)
 
 	var glow := OmniLight3D.new()
 	glow.light_color = color
