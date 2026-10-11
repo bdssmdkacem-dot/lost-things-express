@@ -413,8 +413,8 @@ func _build_first_person_hands() -> void:
 			knuckle_mesh.height = finger_radius * 2.1
 			knuckle.mesh = knuckle_mesh
 			knuckle.material_override = skin_material
-			knuckle.position = Vector3(finger_x, finger_y - finger_length * 0.20, -0.583)
-			first_person_hands.add_child(knuckle)
+			knuckle.position = Vector3(0.0, -finger_length * 0.20, 0.002)
+			finger.add_child(knuckle)
 
 			var nail := MeshInstance3D.new()
 			nail.name = "Fingernail_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
@@ -424,8 +424,8 @@ func _build_first_person_hands() -> void:
 			nail.mesh = nail_mesh
 			nail.material_override = nail_material
 			nail.scale = Vector3(0.82, 1.15, 0.24)
-			nail.position = Vector3(finger_x, finger_y + finger_length * 0.36, -0.568)
-			first_person_hands.add_child(nail)
+			nail.position = Vector3(0.0, finger_length * 0.36, 0.017)
+			finger.add_child(nail)
 
 		# Thumb angles inward and rests against the paper edge during inspection.
 		var thumb := MeshInstance3D.new()
