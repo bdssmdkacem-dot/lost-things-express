@@ -1370,9 +1370,11 @@ func _build_world_intro() -> void:
 			var land := MeshInstance3D.new()
 			land.name = "ConnectedWorldTerrain_%02d_%s" % [world_index, "L" if side < 0.0 else "R"]
 			# Irregular radial terrain crown instead of a smooth oval placeholder.
-			land.mesh = _build_terrain_crown(world_index)
-			# Vary each terrain silhouette and elevation so the route crosses distinct biomes,
-			# not five copies of the same floating plate.
+			# Every bank gets its own generated outline; mirrored copies made the
+			# route read as repeated toy islands instead of a broad, inhabited world.
+			var bank_seed := world_index * 2 + (1 if side > 0.0 else 0)
+			land.mesh = _build_terrain_crown(bank_seed)
+			# Distinct widths, heights and silhouettes for both sides of every biome.
 			var terrain_scales := [
 				Vector3(4.55, 1.12, 5.75),
 				Vector3(3.95, 1.38, 5.20),
@@ -1380,11 +1382,12 @@ func _build_world_intro() -> void:
 				Vector3(4.05, 1.18, 6.10),
 				Vector3(4.60, 1.30, 5.85)
 			]
-			land.scale = terrain_scales[world_index]
-			land.position = Vector3(world_x + side * 8.4, -0.52 + sin(float(world_index) * 0.7) * 0.24, world_z)
+			land.scale = terrain_scales[world_index] * Vector3(1.0 + 0.09 * side, 1.0 + 0.08 * sin(float(bank_seed)), 1.0 - 0.06 * side)
+			land.position = Vector3(world_x + side * (8.0 + 0.35 * sin(float(bank_seed) * 1.7)), -0.52 + sin(float(bank_seed) * 0.7) * 0.30, world_z + side * 0.45)
 			var land_mat := StandardMaterial3D.new()
 			var land_colors := [Color(0.25, 0.36, 0.20), Color(0.29, 0.31, 0.39), Color(0.42, 0.23, 0.15), Color(0.17, 0.38, 0.43), Color(0.34, 0.28, 0.43)]
-			land_mat.albedo_color = land_colors[world_index]
+			var biome_color: Color = land_colors[world_index]
+			land_mat.albedo_color = biome_color.lightened(0.07) if side > 0.0 else biome_color.darkened(0.08)
 			land_mat.roughness = 0.98
 			land.material_override = land_mat
 			world_intro_root.add_child(land)
