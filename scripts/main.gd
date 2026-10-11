@@ -1171,6 +1171,22 @@ func _build_world_intro() -> void:
 	moon_fill.light_energy = 1.0
 	world_intro_root.add_child(moon_fill)
 
+	# Warm carriage practicals keep the full connected train readable in the establishing shot;
+	# the locomotive must not be the only illuminated object while the coaches disappear into black.
+	for coach_light_spec in [
+		[Vector3(30.0, 4.0, 9.0), 1.35, 10.0],
+		[Vector3(30.0, 4.0, 18.0), 1.45, 10.5],
+		[Vector3(30.0, 4.0, 27.0), 1.25, 10.0],
+	]:
+		var coach_fill := OmniLight3D.new()
+		coach_fill.name = "TrainCarriageWarmPractical_%02d" % world_intro_root.get_child_count()
+		coach_fill.position = coach_light_spec[0]
+		coach_fill.light_color = Color(1.0, 0.64, 0.38)
+		coach_fill.light_energy = coach_light_spec[1]
+		coach_fill.omni_range = coach_light_spec[2]
+		coach_fill.shadow_enabled = false
+		world_intro_root.add_child(coach_fill)
+
 	# The old isolated oval islands are intentionally removed: the world below is built as connected terrain around the railway.
 
 	# A continuous, gently bending railway runs through the entire establishing
