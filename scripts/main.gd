@@ -1150,12 +1150,13 @@ func _build_world_intro() -> void:
 
 	world_intro_camera = Camera3D.new()
 	world_intro_camera.name = "WorldsIntroCamera"
-	# A three-quarter front view reveals the locomotive face, running gear,
-	# continuous rails, and the connected world behind it in one readable frame.
-	world_intro_camera.position = Vector3(19.5, 5.6, -7.5)
+	# Favor the locomotive's front quarter rather than a side-on overview:
+	# this makes the round smokebox/boiler, headlamp, cowcatcher, and wheel
+	# assemblies readable while the attached passenger coaches remain visible.
+	world_intro_camera.position = Vector3(25.5, 4.25, -8.5)
 	world_intro_root.add_child(world_intro_camera)
-	world_intro_camera.look_at(Vector3(30.0, 1.9, 2.5), Vector3.UP)
-	world_intro_camera.fov = 50.0
+	world_intro_camera.look_at(Vector3(30.0, 1.65, 0.4), Vector3.UP)
+	world_intro_camera.fov = 43.0
 	world_intro_camera.current = true
 
 	var warm := OmniLight3D.new()
