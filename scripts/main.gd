@@ -1834,6 +1834,32 @@ func _build_world_intro() -> void:
 						Vector3(building.position.x, building.position.y + 0.78, building.position.z),
 						Vector3(1.28, 0.16, 1.28), Color(0.15, 0.055, 0.045), 0.08)
 					roof.rotation.z = -0.16 if building_index % 2 == 0 else 0.16
+					# Facade details make the settlement read as built architecture from the moving train.
+					var front_door := _intro_box("World house recessed timber door",
+						Vector3(building.position.x, building.position.y - 0.12, building.position.z - 0.535),
+						Vector3(0.25, 0.58, 0.045), Color(0.075, 0.043, 0.028), 0.035)
+					var door_lintel := _intro_box("World house door lintel",
+						Vector3(building.position.x, building.position.y + 0.19, building.position.z - 0.56),
+						Vector3(0.36, 0.055, 0.05), Color(0.52, 0.34, 0.17), 0.06)
+					var door_handle := _intro_box("World house brass door handle",
+						Vector3(building.position.x + 0.075, building.position.y - 0.13, building.position.z - 0.565),
+						Vector3(0.035, 0.055, 0.018), Color(0.83, 0.58, 0.23), 0.25)
+					for window_side in [-1.0, 1.0]:
+						var window_frame := _intro_box("World house window timber frame",
+							Vector3(building.position.x + window_side * 0.34, building.position.y + 0.19, building.position.z - 0.54),
+							Vector3(0.22, 0.29, 0.055), Color(0.48, 0.30, 0.15), 0.045)
+						var window_glass := _intro_box("World house warm window glass",
+							Vector3(building.position.x + window_side * 0.34, building.position.y + 0.19, building.position.z - 0.575),
+							Vector3(0.145, 0.205, 0.025), Color(1.0, 0.48, 0.17), 0.025)
+						var glass_material := StandardMaterial3D.new()
+						glass_material.albedo_color = Color(1.0, 0.38, 0.12)
+						glass_material.emission_enabled = true
+						glass_material.emission = Color(1.0, 0.22, 0.055)
+						glass_material.emission_energy_multiplier = 0.55
+						window_glass.material_override = glass_material
+						var mullion := _intro_box("World house window mullion",
+							Vector3(building.position.x + window_side * 0.34, building.position.y + 0.19, building.position.z - 0.592),
+							Vector3(0.018, 0.205, 0.012), Color(0.22, 0.12, 0.055), 0.08)
 
 	# Five distant landmarks give each rail-linked world a memorable silhouette.
 	# They are kept beside the track so the locomotive remains the clear focal point.
