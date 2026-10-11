@@ -160,6 +160,20 @@ for i in range(12):
     a = math.tau * i / 12
     sphere("Smokebox rim bolt %02d" % i, (math.cos(a) * 0.535, 1.72 + math.sin(a) * 0.535, -3.115), (0.035, 0.035, 0.025), BRASS_LIGHT, 12, 8)
 
+# Signature brass/enamel crest on both boiler flanks for a recognizable hero locomotive.
+for side in (-1, 1):
+    crest_x = side * 0.735
+    torus("Boiler flank | brass crest outer rim", (crest_x, 1.78, -1.62), 0.285, 0.035, BRASS_LIGHT, (0, math.pi / 2, 0), 48, 10)
+    torus("Boiler flank | enamel inset rim", (crest_x + side * 0.018, 1.78, -1.62), 0.225, 0.022, BRASS, (0, math.pi / 2, 0), 40, 8)
+    cyl("Boiler flank | enamel medallion", (crest_x + side * 0.012, 1.78, -1.62), 0.205, 0.035, GREEN_DARK, (0, math.pi / 2, 0), 48, 0.006)
+    cube("Boiler flank | crest vertical bar", (crest_x + side * 0.042, 1.78, -1.62), (0.035, 0.25, 0.055), BRASS_LIGHT, 0.009)
+    cube("Boiler flank | crest crossbar", (crest_x + side * 0.046, 1.78, -1.62), (0.035, 0.045, 0.24), BRASS_LIGHT, 0.009)
+    for bolt_index in range(8):
+        angle = math.tau * bolt_index / 8.0
+        sphere("Boiler flank | crest rivet",
+            (crest_x + side * 0.055, 1.78 + math.sin(angle) * 0.255, -1.62 + math.cos(angle) * 0.255),
+            (0.027, 0.027, 0.027), BRASS_LIGHT, 12, 8)
+
 # Boiler pipes, formed handrails, couplings, and brackets.
 for side in (-1, 1):
     x = side * 0.77
