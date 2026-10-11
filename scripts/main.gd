@@ -1805,24 +1805,10 @@ func _build_world_intro() -> void:
 				strata_mat.roughness = 0.94
 				strata.material_override = strata_mat
 				world_intro_root.add_child(strata)
-			# Restrained, low cloud wisps sit well beneath the terrain silhouette.
-			# Large translucent spheres read as distracting floating blobs at camera
-			# distance, so keep these small, flattened, and low-contrast.
-			for cloud_index in range(3):
-				var cloud := MeshInstance3D.new()
-				cloud.name = "Low drifting world cloud wisp"
-				var cloud_mesh := SphereMesh.new()
-				cloud_mesh.radius = 1.0
-				cloud_mesh.height = 1.0
-				cloud.mesh = cloud_mesh
-				cloud.scale = Vector3(0.92 + float(cloud_index % 2) * 0.22, 0.16, 0.72 + float(cloud_index % 2) * 0.16)
-				cloud.position = Vector3(land.position.x + float(cloud_index - 1) * 0.82, land.position.y - 3.75 - float(cloud_index % 2) * 0.20, world_z + float(cloud_index % 2) * 1.05)
-				var cloud_mat := StandardMaterial3D.new()
-				cloud_mat.albedo_color = Color(0.34, 0.38, 0.49, 0.22)
-				cloud_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-				cloud_mat.roughness = 1.0
-				cloud.material_override = cloud_mat
-				world_intro_root.add_child(cloud)
+			# Cloud banks are intentionally omitted from this camera-facing zone.
+			# The prior translucent sphere meshes still projected as giant circles
+			# in the sky despite reduced scale; retain the layered island silhouettes
+			# and atmospheric fog instead of adding a distracting cloud primitive.
 
 			# A short stone approach physically joins each land shelf to the
 			# viaduct, so the railway appears to continue into the world.
