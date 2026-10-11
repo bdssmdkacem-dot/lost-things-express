@@ -74,3 +74,14 @@ The Android export preset previously had `package/signed=false`, even though the
 - [ ] Add sound, subtitles, accessibility and cinematic transitions
 - [ ] Build a second playable station only after the first slice passes review
 - [ ] Complete Android device QA, store assets, privacy review and release preparation
+
+
+## Five-world campaign validation (2026-10-11)
+
+- [x] Add automated checks for all five puzzle arenas, puzzle progression, exit gates and both ending branches
+- [x] Correct the ending test setup so it clears intro/transition flags before exercising the choice callbacks
+- [ ] Confirm a fresh Android APK build for the latest campaign changes
+- [ ] Review the latest captured screenshots for all five worlds, the final choice and both epilogues
+- [ ] Complete hands-on Android QA for lighting/readability, puzzle solving, gate transitions and ending choice
+
+Do not mark the five-world campaign complete until the pending build, visual review and device QA checks pass.
