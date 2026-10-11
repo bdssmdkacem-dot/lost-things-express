@@ -225,12 +225,49 @@ func _create_clock_interactable() -> void:
 			clock.add_child(clock_hand)
 
 func _build_next_clock_compartment() -> void:
-	# The doorway leads into a second playable carriage, not a blocked decorative wall.
+	# A richly dressed second carriage sits directly beyond the chest carriage.
 	_box("Clock carriage floor", Vector3(0, -0.10, -9.15), Vector3(5.56, 0.20, 6.35), Color(0.10, 0.045, 0.028), false)
 	_box("Clock carriage ceiling", Vector3(0, 3.38, -9.15), Vector3(5.56, 0.18, 6.35), Color(0.075, 0.045, 0.032), false)
 	_box("Clock carriage left wall", Vector3(-2.78, 1.62, -9.15), Vector3(0.16, 3.24, 6.35), Color(0.12, 0.055, 0.035), false)
 	_box("Clock carriage right wall", Vector3(2.78, 1.62, -9.15), Vector3(0.16, 3.24, 6.35), Color(0.12, 0.055, 0.035), false)
 	_box("Clock carriage end wall", Vector3(0, 1.62, -12.32), Vector3(5.56, 3.24, 0.18), Color(0.075, 0.026, 0.016), false)
+
+	# The double walnut door is deliberately held open, clearly inviting entry.
+	for side in [-1.0, 1.0]:
+		var leaf := _box("Clock compartment open door leaf", Vector3(side * 1.34, 1.34, -5.76), Vector3(0.78, 2.58, 0.12), Color(0.20, 0.065, 0.035), false)
+		leaf.rotation.y = deg_to_rad(-side * 58.0)
+		var inset := _box("Clock door raised walnut inset", Vector3(side * 1.34, 1.36, -5.68), Vector3(0.53, 1.95, 0.045), Color(0.31, 0.105, 0.045), false)
+		inset.rotation.y = deg_to_rad(-side * 58.0)
+		var panel_trim := _box("Clock door brass panel trim", Vector3(side * 1.34, 1.36, -5.645), Vector3(0.045, 1.78, 0.025), Color(0.77, 0.49, 0.19), false)
+		panel_trim.rotation.y = deg_to_rad(-side * 58.0)
+		var handle := _box("Clock door brass handle", Vector3(side * 1.03, 1.35, -5.52), Vector3(0.055, 0.18, 0.055), Color(0.94, 0.70, 0.29), false)
+		handle.rotation.y = deg_to_rad(-side * 58.0)
+
+	# Inlaid carpet runner, walnut wainscoting, brass mouldings and warm carriage lamps.
+	_box("Clock compartment burgundy runner", Vector3(0, 0.015, -9.20), Vector3(1.38, 0.025, 5.75), Color(0.31, 0.035, 0.045), false)
+	_box("Runner gold center stripe", Vector3(0, 0.033, -9.20), Vector3(0.045, 0.012, 5.55), Color(0.86, 0.58, 0.22), false)
+	for side in [-1.0, 1.0]:
+		_box("Clock compartment lower walnut wainscot", Vector3(side * 2.675, 0.82, -9.15), Vector3(0.035, 1.25, 6.05), Color(0.25, 0.075, 0.04), false)
+		_box("Clock compartment brass dado rail", Vector3(side * 2.64, 1.49, -9.15), Vector3(0.06, 0.055, 6.05), Color(0.72, 0.43, 0.15), false)
+		for z in [-11.35, -9.95, -8.55, -7.15]:
+			_box("Clock compartment wall panel", Vector3(side * 2.64, 2.18, z), Vector3(0.055, 1.08, 0.82), Color(0.18, 0.055, 0.035), false)
+			_box("Clock compartment panel gold inset", Vector3(side * 2.60, 2.18, z), Vector3(0.025, 0.88, 0.62), Color(0.45, 0.20, 0.075), false)
+		_box("Clock compartment ceiling brass rib", Vector3(side * 1.75, 3.27, -9.15), Vector3(0.045, 0.045, 6.0), Color(0.60, 0.34, 0.12), false)
+		var lamp := _box("Clock compartment amber wall sconce", Vector3(side * 2.56, 2.55, -7.05), Vector3(0.12, 0.32, 0.20), Color(1.0, 0.59, 0.20), false)
+		var lamp_light := OmniLight3D.new()
+		lamp_light.name = "Clock compartment warm practical light"
+		lamp_light.position = lamp.position + Vector3(-side * 0.20, 0.0, 0.0)
+		lamp_light.light_color = Color(1.0, 0.57, 0.27)
+		lamp_light.light_energy = 0.65
+		lamp_light.omni_range = 4.2
+		add_child(lamp_light)
+
+	# Deep green velvet-backed clock niche gives the objective a visual focal point.
+	_box("Clock niche dark velvet backing", Vector3(0, 2.24, -12.19), Vector3(2.30, 1.72, 0.08), Color(0.035, 0.095, 0.075), false)
+	_box("Clock niche upper brass cornice", Vector3(0, 3.12, -12.12), Vector3(2.55, 0.09, 0.15), Color(0.72, 0.43, 0.15), false)
+	_box("Clock niche lower brass ledge", Vector3(0, 1.36, -12.12), Vector3(2.55, 0.09, 0.15), Color(0.72, 0.43, 0.15), false)
+	for side in [-1.0, 1.0]:
+		_box("Clock niche carved side pilaster", Vector3(side * 1.20, 2.23, -12.12), Vector3(0.10, 1.72, 0.16), Color(0.43, 0.20, 0.075), false)
 
 func _build_procedural_carriage() -> void:
 	# Carriage shell. These simple meshes validate scale and mechanics only.
