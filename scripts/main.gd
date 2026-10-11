@@ -1259,6 +1259,23 @@ func _build_world_intro() -> void:
 				Vector3(span_x + side * 2.05, -0.02, span_z),
 				Vector3(0.22, 0.42, 9.05), Color(0.31, 0.30, 0.29), 0.16)
 			parapet.rotation.y = cos(span_z * 0.072) * 0.145
+		# Repeated stone arch ribs give the viaduct a real bridge silhouette,
+		# rather than reading as a flat platform held up by square posts.
+		for arch_offset in [-3.25, 0.0, 3.25]:
+			var arch := MeshInstance3D.new()
+			arch.name = "Carved stone viaduct arch rib"
+			var arch_mesh := TorusMesh.new()
+			arch_mesh.inner_radius = 1.02
+			arch_mesh.outer_radius = 1.24
+			arch_mesh.rings = 28
+			arch_mesh.ring_segments = 10
+			arch.mesh = arch_mesh
+			arch.position = Vector3(span_x, -1.10, span_z + arch_offset)
+			var arch_mat := StandardMaterial3D.new()
+			arch_mat.albedo_color = Color(0.34, 0.29, 0.25)
+			arch_mat.roughness = 0.94
+			arch.material_override = arch_mat
+			world_intro_root.add_child(arch)
 		for pier_z in [-3.0, 3.0]:
 			for side in [-1.0, 1.0]:
 				var pier := _intro_box("Tapered stone viaduct pier",
