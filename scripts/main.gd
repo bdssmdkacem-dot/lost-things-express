@@ -567,10 +567,10 @@ func _load_station_photo_texture() -> Texture2D:
 	# The previous crop landed on the divider/bright background and produced a
 	# nearly blank glowing card in the chest.
 	var crop := Rect2i(
-		roundi(source_width * 0.365),
-		roundi(source_height * 0.535),
-		roundi(source_width * 0.300),
-		roundi(source_height * 0.455)
+		roundi(source_width * 0.382),
+		roundi(source_height * 0.532),
+		roundi(source_width * 0.282),
+		roundi(source_height * 0.458)
 	)
 	crop.position.x = clampi(crop.position.x, 0, source_width - crop.size.x)
 	crop.position.y = clampi(crop.position.y, 0, source_height - crop.size.y)
@@ -634,8 +634,8 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 	if photo_texture != null:
 		var photo_face := MeshInstance3D.new()
 		photo_face.name = "StationPhotoFromUserReference"
-		var photo_face_mesh := BoxMesh.new()
-		photo_face_mesh.size = Vector3(0.362, 0.402, 0.004)
+		var photo_face_mesh := QuadMesh.new()
+		photo_face_mesh.size = Vector2(0.362, 0.402)
 		photo_face.mesh = photo_face_mesh
 		var photo_material := StandardMaterial3D.new()
 		photo_material.albedo_texture = photo_texture
