@@ -87,7 +87,7 @@ func _capture_first_stage() -> void:
 	# Capture both real ending choices and their distinct epilogues.
 	game.set("world_level_complete", true)
 	game.call("_spawn_world_gate")
-	var final_gate: Node3D = game.get_node_or_null("WorldExitGate")
+	var final_gate: Node3D = (game.get("world_level_root") as Node3D).get_node_or_null("WorldExitGate") if game.get("world_level_root") is Node3D else null
 	if final_gate == null:
 		push_error("VISUAL_CAPTURE_FAILED: final world did not create its exit gate")
 		quit(1)
