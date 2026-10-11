@@ -388,7 +388,58 @@ func _run_first_slice() -> void:
 		var sequence: Array = resumed_game.get("world_puzzle_sequence")
 		if not _check(sequence.size() == 3 and sequence[0] != sequence[1] and sequence[1] != sequence[2], "world %d puzzle sequence is invalid" % (world_index + 1)):
 			return
-	print("FIRST_SLICE_TESTS_PASSED: first-stage story + save/resume + all five playable puzzle arenas")
+	# Solve every world's real interaction sequence, activate its gate, and verify progression.
+	for world_index in range(5):
+		if world_index > 0:
+			resumed_game.call("_start_world_level", world_index)
+			await process_frame
+		var puzzle_sequence: Array = resumed_game.get("world_puzzle_sequence")
+		for order_value in puzzle_sequence:
+			var target: Node3D = null
+			for candidate in resumed_game.get_tree().get_nodes_in_group("interactables"):
+				if candidate is Node3D and candidate.get_meta("kind", "") == "world_puzzle" and int(candidate.get_meta("puzzle_order", -1)) == int(order_value) and candidate.is_visible_in_tree():
+					target = candidate as Node3D
+					break
+			if not _check(target != null, "world %d is missing the next puzzle interaction" % (world_index + 1)):
+				return
+			resumed_game.set("story_card_open", false)
+			var card := resumed_game.get("story_overlay") as Control
+			if card:
+				card.visible = false
+			resumed_game.get("player").global_position = target.global_position + Vector3(0.0, 0.05, 0.5)
+			resumed_game.call("_interact")
+			if bool(resumed_game.get("story_card_open")):
+				resumed_game.call("_close_story_card")
+		if not _check(bool(resumed_game.get("world_level_complete")) and int(resumed_game.get("world_puzzle_progress")) == 3, "world %d puzzle did not complete through interactions" % (world_index + 1)):
+			return
+		var gate: Node3D = null
+		for candidate in resumed_game.get_tree().get_nodes_in_group("interactables"):
+			if candidate is Node3D and candidate.get_meta("kind", "") == "world_gate" and candidate.is_visible_in_tree():
+				gate = candidate as Node3D
+				break
+		if not _check(gate != null, "world %d did not spawn its exit gate after puzzle completion" % (world_index + 1)):
+			return
+		resumed_game.set("story_card_open", false)
+		if resumed_game.get("story_overlay") is Control:
+			(resumed_game.get("story_overlay") as Control).visible = false
+		resumed_game.get("player").global_position = gate.global_position + Vector3(0.0, 0.05, 0.5)
+		resumed_game.call("_interact")
+		if world_index < 4:
+			if not _check(int(resumed_game.get("world_level_index")) == world_index + 1, "exit gate failed to advance from world %d" % (world_index + 1)):
+				return
+		else:
+			if not _check(bool(resumed_game.get("ending_choice_pending")) and (resumed_game.get("story_alternative") as Button).visible, "final gate did not present both ending choices"):
+				return
+			if not _check(str(resumed_game.get("story_body").text).contains("Neither choice changes the past"), "final choice did not explain the story's meaning"):
+				return
+			resumed_game.call("_on_story_alternative_pressed")
+			if not _check(str(resumed_game.get("ending_decision")) == "release" and str(resumed_game.get("story_body").text).contains("MEMORY RELEASED"), "release ending did not resolve into its own epilogue"):
+				return
+			resumed_game.set("ending_choice_pending", true)
+			resumed_game.call("_on_story_continue_pressed")
+			if not _check(str(resumed_game.get("ending_decision")) == "restore" and str(resumed_game.get("story_body").text).contains("MEMORY RESTORED"), "restore ending did not resolve into its own epilogue"):
+				return
+	print("FIRST_SLICE_TESTS_PASSED: first-stage story + all five puzzle solutions + five gates + both ending branches")
 	resumed_game.queue_free()
 	await process_frame
 	quit(0)
