@@ -1017,6 +1017,11 @@ func _update_intro_cinematic(delta: float) -> void:
 	# The train travels forward along -Z while the camera follows more slowly,
 	# creating visible parallax against the stationary railway and world landmarks.
 	intro_train_motion_root.position.z -= delta * 0.42
+	# Follow the same gentle centerline as the rails; translating alone made the
+	# locomotive drift sideways off the curved track during the opening shot.
+	var route_z := intro_train_motion_root.position.z
+	intro_train_motion_root.position.x = 30.0 + sin(route_z * 0.072) * 2.1
+	intro_train_motion_root.rotation.y = cos(route_z * 0.072) * 0.145
 	# The drawbars articulate slightly as the connected consist rolls over track joints.
 	for index in range(intro_couplers.size()):
 		var coupler := intro_couplers[index]
@@ -1025,7 +1030,10 @@ func _update_intro_cinematic(delta: float) -> void:
 			coupler.rotation.x = sin(intro_elapsed * 1.7 + float(index) * 0.65) * 0.014
 	if is_instance_valid(world_intro_camera):
 		world_intro_camera.position.z -= delta * 0.22
-		world_intro_camera.look_at(Vector3(30.0, 1.65, 0.4 - intro_elapsed * 0.22), Vector3.UP)
+		world_intro_camera.position.x = 25.5 + sin(world_intro_camera.position.z * 0.072) * 2.1
+		var camera_target_z := 0.4 - intro_elapsed * 0.22
+		var camera_target_x := 30.0 + sin(camera_target_z * 0.072) * 2.1
+		world_intro_camera.look_at(Vector3(camera_target_x, 1.65, camera_target_z), Vector3.UP)
 	_animate_intro_train_parts(intro_train_motion_root, delta)
 
 func _animate_intro_train_parts(node: Node, delta: float) -> void:
@@ -2145,9 +2153,13 @@ func _build_world_intro() -> void:
 		train_nodes.append(world_intro_root.get_child(child_index))
 	intro_train_motion_root = Node3D.new()
 	intro_train_motion_root.name = "AnimatedConnectedTrainConsist"
+	# Use a pivot at the track center, not the world origin. This lets the whole
+	# consist yaw with the railway without sweeping the train around a huge radius.
+	intro_train_motion_root.position = Vector3(30.0, 0.0, 0.0)
 	world_intro_root.add_child(intro_train_motion_root)
 	for train_node in train_nodes:
 		world_intro_root.remove_child(train_node)
+		train_node.position.x -= 30.0
 		intro_train_motion_root.add_child(train_node)
 
 	# Legacy single-box coach removed: the reviewed three-car consist above is the only intro train body.
