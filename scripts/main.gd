@@ -265,10 +265,24 @@ func _build_procedural_carriage() -> void:
 				_box("Window brass frame", Vector3(side * 2.70, 2.05, zz), Vector3(0.12, 1.18, 0.07), Color(0.63, 0.32, 0.09), false)
 
 	for z in [-3.6, -0.5, 2.8]:
-		_box("Velvet seat", Vector3(-1.78, 0.58, z), Vector3(1.25, 0.65, 1.2), Color(0.30, 0.075, 0.065), false)
-		_box("Seat back", Vector3(-1.78, 1.12, z - 0.48), Vector3(1.25, 0.85, 0.20), Color(0.34, 0.09, 0.07), false)
-		_box("Velvet seat", Vector3(1.78, 0.58, z), Vector3(1.25, 0.65, 1.2), Color(0.30, 0.075, 0.065), false)
-		_box("Seat back", Vector3(1.78, 1.12, z - 0.48), Vector3(1.25, 0.85, 0.20), Color(0.34, 0.09, 0.07), false)
+		for side in [-1.0, 1.0]:
+			_box("Deep velvet seat cushion", Vector3(side * 1.78, 0.58, z), Vector3(1.25, 0.65, 1.2), Color(0.30, 0.075, 0.065), false)
+			_box("Tailored seat back", Vector3(side * 1.78, 1.12, z - 0.48), Vector3(1.25, 0.85, 0.20), Color(0.34, 0.09, 0.07), false)
+			_box("Seat brass armrest", Vector3(side * 1.78 + 0.57, 0.93, z), Vector3(0.08, 0.09, 1.04), Color(0.63, 0.36, 0.12), false)
+			_box("Seat back inset piping", Vector3(side * 1.78, 1.16, z - 0.365), Vector3(0.92, 0.025, 0.025), Color(0.74, 0.43, 0.17), false)
+
+	# Overhead luggage racks: thin brass supports and dark slatted shelves sit
+	# above the window line so the compartment reads as a passenger carriage.
+	for side in [-1.0, 1.0]:
+		for rack_z in [-3.45, -0.85, 1.75, 4.05]:
+			_box("Luggage rack shelf", Vector3(side * 2.05, 2.67, rack_z), Vector3(0.88, 0.075, 1.48), Color(0.12, 0.065, 0.04), false)
+			_box("Luggage rack brass front rail", Vector3(side * 1.62, 2.74, rack_z), Vector3(0.045, 0.07, 1.48), Color(0.70, 0.42, 0.15), false)
+			for support_z in [rack_z - 0.58, rack_z + 0.58]:
+				_box("Luggage rack bracket", Vector3(side * 2.05, 2.49, support_z), Vector3(0.055, 0.34, 0.055), Color(0.60, 0.36, 0.13), false)
+		# Longitudinal roof ribs and a slim inlaid ceiling line add carriage depth.
+		for roof_x in [-1.8, 0.0, 1.8]:
+			_box("Carriage ceiling rib", Vector3(roof_x, 3.36, 0.0), Vector3(0.055, 0.055, 11.5), Color(0.48, 0.27, 0.11), false)
+		_box("Compartment number plaque", Vector3(side * 2.68, 2.90, 0.55), Vector3(0.06, 0.22, 0.48), Color(0.62, 0.38, 0.13), false)
 
 	_add_lantern(Vector3(-2.2, 2.85, -3.8))
 	_add_lantern(Vector3(2.2, 2.85, 0.0))
