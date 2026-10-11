@@ -2553,9 +2553,40 @@ func _build_world_intro() -> void:
 				joint_material.roughness = 0.28
 				joint.material_override = joint_material
 				world_intro_root.add_child(joint)
-	# Do not use translucent sphere meshes for chimney steam: in the intro camera
-	# they render as large, hard-edged discs against the sky. Keep the chimney clean
-	# until a true volumetric/particle plume is available for the mobile renderer.
+	# Mobile-friendly chimney steam: small GPU particles rise and spread naturally.
+	# Avoid oversized translucent static spheres, which read as hard-edged sky discs.
+	var steam := GPUParticles3D.new()
+	steam.name = "Locomotive restrained steam plume"
+	steam.amount = 24
+	steam.lifetime = 1.8
+	steam.preprocess = 1.2
+	steam.explosiveness = 0.0
+	steam.randomness = 0.18
+	steam.emitting = true
+	steam.position = Vector3(30.0, 3.78, -2.15)
+	var steam_process := ParticleProcessMaterial.new()
+	steam_process.direction = Vector3(-0.10, 1.0, -0.12)
+	steam_process.spread = 18.0
+	steam_process.initial_velocity_min = 0.18
+	steam_process.initial_velocity_max = 0.52
+	steam_process.gravity = Vector3(0.0, 0.12, 0.0)
+	steam_process.scale_min = 0.045
+	steam_process.scale_max = 0.095
+	steam_process.color = Color(0.72, 0.77, 0.82, 0.22)
+	steam_process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	steam_process.emission_sphere_radius = 0.10
+	steam.process_material = steam_process
+	var steam_mesh := SphereMesh.new()
+	steam_mesh.radius = 0.075
+	steam_mesh.height = 0.15
+	var steam_material := StandardMaterial3D.new()
+	steam_material.albedo_color = Color(0.72, 0.77, 0.82, 0.22)
+	steam_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	steam_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	steam_material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
+	steam_mesh.material = steam_material
+	steam.draw_pass_1 = steam_mesh
+	world_intro_root.add_child(steam)
 
 	# Gather the locomotive, three distinct coaches, couplers, wheels, rods and steam
 	# into one moving consist. Its identity transform preserves every authored placement.
