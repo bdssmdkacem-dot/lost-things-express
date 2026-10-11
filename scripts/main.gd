@@ -1194,6 +1194,33 @@ func _build_intro_passenger_cars() -> void:
 				hub_mat.roughness = 0.24
 				hub.material_override = hub_mat
 				world_intro_root.add_child(hub)
+				# Eight narrow spokes on the outer wheel face break up the flat disc
+				# and catch the warm brass reflections visible in the reference train.
+				for spoke_index in range(8):
+					var spoke_angle: float = float(spoke_index) * TAU / 8.0
+					var spoke := _intro_box(coach_type + " wheel radial spoke",
+						Vector3(30.0 + side * 1.405,
+							0.57 + sin(spoke_angle) * 0.205,
+							z + axle_z + cos(spoke_angle) * 0.205),
+						Vector3(0.035, 0.035, 0.37), trim_color.darkened(0.18), 0.64)
+					spoke.rotation.x = spoke_angle
+				# A thin raised rim emphasizes the wheel circumference and axle alignment.
+				var rim := MeshInstance3D.new()
+				rim.name = coach_type + " wheel outer rim"
+				var rim_mesh := TorusMesh.new()
+				rim_mesh.inner_radius = 0.315
+				rim_mesh.outer_radius = 0.355
+				rim_mesh.rings = 24
+				rim_mesh.ring_segments = 8
+				rim.mesh = rim_mesh
+				rim.rotation.y = PI / 2.0
+				rim.position = Vector3(30.0 + side * 1.405, 0.57, z + axle_z)
+				var rim_mat := StandardMaterial3D.new()
+				rim_mat.albedo_color = Color(0.36, 0.30, 0.20)
+				rim_mat.metallic = 0.72
+				rim_mat.roughness = 0.34
+				rim.material_override = rim_mat
+				world_intro_root.add_child(rim)
 				var bogie := _intro_box(coach_type + " bogie frame", Vector3(30.0 + side * 1.27, 0.61, z + (axle_z / abs(axle_z)) * 2.35), Vector3(0.16, 0.18, 1.12), Color(0.07, 0.075, 0.08), 0.62)
 		# Brass end lamps and a short visible coupling bridge tie the carriages together.
 		for end_sign in [-1.0, 1.0]:
