@@ -1309,6 +1309,64 @@ func _build_intro_train_couplers() -> void:
 		coupling_pin.material_override = pin_material
 		world_intro_root.add_child(coupling_pin)
 
+		# Two independent brake/steam service hoses hang below the drawbar.
+		# Short rounded segments create a deliberate flexible U rather than a
+		# single rigid bar, and the colored end sockets make each connection legible.
+		for hose_index in range(2):
+			var hose_x: float = 30.0 + (-0.17 if hose_index == 0 else 0.17)
+			var hose_color: Color = Color(0.075, 0.085, 0.09) if hose_index == 0 else Color(0.19, 0.075, 0.045)
+			for segment_index in range(5):
+				var t: float = float(segment_index) / 4.0
+				var hose_z: float = z - 0.40 + t * 0.80
+				var hose_y: float = 0.63 - sin(t * PI) * 0.22
+				var hose_bead := MeshInstance3D.new()
+				hose_bead.name = "Flexible brake hose %02d_%02d" % [hose_index, segment_index]
+				var bead_mesh := SphereMesh.new()
+				bead_mesh.radius = 0.055
+				bead_mesh.height = 0.11
+				hose_bead.mesh = bead_mesh
+				hose_bead.position = Vector3(hose_x, hose_y, hose_z)
+				var hose_material := StandardMaterial3D.new()
+				hose_material.albedo_color = hose_color
+				hose_material.roughness = 0.72
+				hose_bead.material_override = hose_material
+				world_intro_root.add_child(hose_bead)
+			var socket := MeshInstance3D.new()
+			socket.name = "Brake hose brass coupling socket"
+			var socket_mesh := CylinderMesh.new()
+			socket_mesh.top_radius = 0.075
+			socket_mesh.bottom_radius = 0.075
+			socket_mesh.height = 0.12
+			socket.mesh = socket_mesh
+			socket.rotation_degrees.x = 90.0
+			socket.position = Vector3(hose_x, 0.66, z - 0.43)
+			var socket_material := StandardMaterial3D.new()
+			socket_material.albedo_color = Color(0.63, 0.39, 0.15)
+			socket_material.metallic = 0.76
+			socket_material.roughness = 0.3
+			socket.material_override = socket_material
+			world_intro_root.add_child(socket)
+
+		# End plates and paired bolts visually anchor the coupler into both vehicle frames.
+		for side in [-1.0, 1.0]:
+			var mount := _intro_box("Coupler end mounting plate",
+				Vector3(30.0 + float(side) * 0.62, 0.79, z),
+				Vector3(0.10, 0.34, 0.48), Color(0.24, 0.27, 0.29), 0.78)
+			for bolt_y in [0.68, 0.90]:
+				var mount_bolt := MeshInstance3D.new()
+				mount_bolt.name = "Coupler mount brass bolt"
+				var bolt_mesh := SphereMesh.new()
+				bolt_mesh.radius = 0.045
+				bolt_mesh.height = 0.09
+				mount_bolt.mesh = bolt_mesh
+				mount_bolt.position = Vector3(30.0 + float(side) * 0.69, bolt_y, z)
+				var bolt_material := StandardMaterial3D.new()
+				bolt_material.albedo_color = Color(0.68, 0.46, 0.21)
+				bolt_material.metallic = 0.78
+				bolt_material.roughness = 0.28
+				mount_bolt.material_override = bolt_material
+				world_intro_root.add_child(mount_bolt)
+
 func _build_world_intro() -> void:
 	world_intro_active = true
 	world_intro_root = Node3D.new()
