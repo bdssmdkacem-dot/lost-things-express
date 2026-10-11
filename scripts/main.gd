@@ -1219,6 +1219,35 @@ func _build_intro_passenger_cars() -> void:
 				var vent_z := z - 2.35 + float(vent_index) * 0.78
 				_intro_box("Post coach brass ventilation slat", Vector3(28.70, 1.55, vent_z), Vector3(0.06, 0.045, 0.46), trim_color, 0.7)
 
+		# End vestibules, access steps, coach identity plates, and visible suspension
+		# make each carriage read as a passenger rail vehicle rather than a decorated box.
+		for end_sign in [-1.0, 1.0]:
+			var door_z: float = z + end_sign * 3.56
+			var door := _intro_box(coach_type + " recessed end door", Vector3(30.0, 1.91, door_z), Vector3(1.02, 1.30, 0.075), roof_color, 0.16)
+			var door_inset := _intro_box(coach_type + " door inset enamel", Vector3(30.0, 1.93, door_z + end_sign * 0.045), Vector3(0.78, 1.05, 0.035), body_color.darkened(0.16), 0.10)
+			for door_side in [-1.0, 1.0]:
+				_intro_box(coach_type + " door brass stile", Vector3(30.0 + door_side * 0.44, 1.92, door_z + end_sign * 0.075), Vector3(0.035, 1.16, 0.035), trim_color, 0.55)
+			_intro_box(coach_type + " door brass lintel", Vector3(30.0, 2.51, door_z + end_sign * 0.075), Vector3(0.88, 0.035, 0.035), trim_color, 0.55)
+			_intro_box(coach_type + " door handle", Vector3(30.0 + 0.27, 1.91, door_z + end_sign * 0.10), Vector3(0.035, 0.16, 0.035), Color(0.91, 0.69, 0.32), 0.45)
+			# Two anti-slip steps are mounted below the vestibule threshold.
+			for step_index in range(2):
+				_intro_box(coach_type + " vestibule step", Vector3(30.0, 0.69 - float(step_index) * 0.17, door_z), Vector3(1.24 - float(step_index) * 0.12, 0.075, 0.42), Color(0.12, 0.14, 0.15), 0.42)
+				_intro_box(coach_type + " step brass nosing", Vector3(30.0, 0.73 - float(step_index) * 0.17, door_z + end_sign * 0.19), Vector3(1.16 - float(step_index) * 0.12, 0.025, 0.035), trim_color, 0.6)
+		# A long dark underframe spine, transverse beams, and paired suspension springs
+		# provide a readable mechanical layer between body and wheel bogies.
+		_intro_box(coach_type + " central underframe spine", Vector3(30.0, 0.43, z), Vector3(0.30, 0.20, 6.85), Color(0.045, 0.052, 0.058), 0.55)
+		for beam_z in [-2.95, -1.95, 1.95, 2.95]:
+			_intro_box(coach_type + " underframe crossbeam", Vector3(30.0, 0.42, z + beam_z), Vector3(2.45, 0.14, 0.20), Color(0.075, 0.082, 0.086), 0.6)
+		for bogie_z in [-2.35, 2.35]:
+			for side_sign in [-1.0, 1.0]:
+				var spring := _intro_box(coach_type + " suspension spring", Vector3(30.0 + side_sign * 0.82, 0.49, z + bogie_z), Vector3(0.16, 0.22, 0.48), Color(0.24, 0.26, 0.27), 0.55)
+				for coil_index in range(3):
+					_intro_box(coach_type + " suspension coil band", Vector3(30.0 + side_sign * 0.82, 0.42 + float(coil_index) * 0.065, z + bogie_z), Vector3(0.19, 0.025, 0.51), trim_color.darkened(0.55), 0.35)
+		# Raised enamel destination plaque on both flanks; the text stays short enough to read at phone scale.
+		for side_sign in [-1.0, 1.0]:
+			_intro_box(coach_type + " destination plaque backing", Vector3(30.0 + side_sign * 1.285, 1.39, z), Vector3(0.055, 0.22, 1.28), Color(0.045, 0.065, 0.061), 0.18)
+			_intro_box(coach_type + " destination plaque gold rim", Vector3(30.0 + side_sign * 1.32, 1.39, z), Vector3(0.035, 0.17, 1.20), trim_color, 0.15)
+
 	# One articulated gangway per actual gap: avoid overlapping duplicate bellows
 	# from both neighboring coaches, which otherwise read as a solid black block.
 	for gap_spec in [[4.0, 0], [12.6, 1], [21.4, 2]]:
@@ -1391,6 +1420,26 @@ func _build_world_intro() -> void:
 			if z % 6 == 0:
 				var joint := _intro_box("Rail expansion joint", Vector3(rail_x, track_y + 0.15, zf), Vector3(0.145, 0.205, 0.10), Color(0.30, 0.34, 0.37), 0.82)
 				joint.rotation.y = cos(zf * 0.072) * 0.145
+
+	# A complete railway edge treatment: continuous guard rails, outer drain channels,
+	# and stone shoulders visually lock the track to the viaduct instead of leaving it exposed.
+	for z in range(-26, 41, 1):
+		var zf := float(z)
+		var curve_x := 30.0 + sin(zf * 0.072) * 2.1
+		var track_y := sin(zf * 0.09) * 0.035
+		var curve_angle := cos(zf * 0.072) * 0.145
+		for side in [-1.0, 1.0]:
+			var edge_x := curve_x + side * 2.12
+			var shoulder := _intro_box("Railway outer stone shoulder", Vector3(edge_x, track_y - 0.055, zf), Vector3(0.34, 0.24, 1.08), Color(0.26, 0.25, 0.24), 0.12)
+			shoulder.rotation.y = curve_angle
+			var drain := _intro_box("Viaduct drainage channel", Vector3(curve_x + side * 1.84, track_y - 0.18, zf), Vector3(0.12, 0.08, 1.02), Color(0.075, 0.085, 0.092), 0.08)
+			drain.rotation.y = curve_angle
+			# Low safety guard rail on the outside of each running rail.
+			var guard := _intro_box("Continuous outer railway guard rail", Vector3(curve_x + side * 1.92, track_y + 0.19, zf), Vector3(0.075, 0.12, 1.08), Color(0.48, 0.51, 0.52), 0.72)
+			guard.rotation.y = curve_angle
+			if z % 3 == 0:
+				var post := _intro_box("Guard rail anchor post", Vector3(curve_x + side * 2.02, track_y + 0.015, zf), Vector3(0.09, 0.25, 0.12), Color(0.24, 0.25, 0.25), 0.55)
+				post.rotation.y = curve_angle
 
 	# Broad, overlapping land shelves anchor the railway to actual terrain.
 	# Stone viaduct spans bridge the gaps between the inhabited floating worlds.
