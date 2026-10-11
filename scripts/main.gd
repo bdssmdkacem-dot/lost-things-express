@@ -391,9 +391,9 @@ func _build_first_person_hands() -> void:
 		# Four separated fingers with visible joints and small, camera-facing nails.
 		# Their spread follows the palm instead of bunching into a single capsule.
 		for finger_index in range(4):
-			var finger_x := side * 0.315 - side * (0.055 - float(finger_index) * 0.036)
-			var finger_length := [0.105, 0.125, 0.118, 0.096][finger_index]
-			var finger_radius := [0.014, 0.015, 0.014, 0.012][finger_index]
+			var finger_x: float = side * 0.315 - side * (0.055 - float(finger_index) * 0.036)
+			var finger_length: float = [0.105, 0.125, 0.118, 0.096][finger_index]
+			var finger_radius: float = [0.014, 0.015, 0.014, 0.012][finger_index]
 			var finger_y := -0.145 - absf(1.5 - float(finger_index)) * 0.006
 			var finger := MeshInstance3D.new()
 			finger.name = "Finger_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
