@@ -73,6 +73,10 @@ func _run_first_slice() -> void:
 	var steam_process := steam_plume.process_material as ParticleProcessMaterial
 	if not _check(steam_plume.amount >= 32 and steam_plume.lifetime >= 2.0 and steam_process != null and steam_process.scale_min >= 0.4, "the chimney steam is configured too small to read in the actual cinematic render"):
 		return
+	var steam_quad := steam_plume.draw_pass_1 as QuadMesh
+	var steam_material := steam_quad.material as StandardMaterial3D if steam_quad != null else null
+	if not _check(steam_quad != null and steam_material != null and steam_material.albedo_texture != null and steam_material.billboard_mode == BaseMaterial3D.BILLBOARD_PARTICLES, "the chimney steam must use soft-textured billboards rather than hard-edged sphere particles"):
+		return
 	if not _check(intro_root.find_child("Smokebox front door", true, false) != null or intro_root.find_child("Circular locomotive smokebox door", true, false) != null, "the locomotive front still reads as a plain boiler without a crafted smokebox"):
 		return
 	if intro_root.get_node_or_null("ProductionLocomotive") != null:
