@@ -7,6 +7,7 @@ on:
       - "scripts/**"
       - "assets/models/**"
       - "assets/blender/**"
+      - "art/blender/**"
       - "tests/capture_first_stage.gd"
       - ".github/workflows/visual-review.yml"
 
@@ -19,6 +20,18 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install Blender asset generator
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender
+
+      - name: Generate production locomotive from Blender source
+        run: |
+          set -euxo pipefail
+          blender --background --python art/blender/create_locomotive.py
+          test -s assets/models/lost_things_locomotive.glb
+          test -s assets/blender/lost_things_locomotive_preview.png
 
       - name: Install Godot 4.3
         uses: chickensoft-games/setup-godot@v1
