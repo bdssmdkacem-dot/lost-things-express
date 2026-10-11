@@ -57,6 +57,9 @@ var story_card_open := false
 var world_intro_active := false
 var world_intro_root: Node3D
 var world_intro_camera: Camera3D
+var intro_train_motion_root: Node3D
+var intro_elapsed := 0.0
+var intro_stage_prompt_started := false
 var held_key_prop: Node3D
 var held_letter_prop: Node3D
 var suspense_tween: Tween
@@ -74,7 +77,7 @@ func _ready() -> void:
 	else:
 		_set_status("The train has arrived at a station that appears on no map.")
 	_build_world_intro()
-	_show_story_card("THE LOST THINGS EXPRESS", "A forgotten train travels along brass-lit rails between floating islands and cloud kingdoms. Step aboard to begin the first mystery.", "ENTER STAGE ONE")
+	_begin_intro_sequence()
 
 func _setup_input_map() -> void:
 	_add_key_action("move_forward", KEY_W)
@@ -994,6 +997,46 @@ func _show_story_card(title_text: String, body_text: String, button_text: String
 	story_overlay.modulate.a = 0.0
 	fade.tween_property(story_overlay, "modulate:a", 1.0, 0.22)
 
+func _begin_intro_sequence() -> void:
+	# Play the moving train automatically before offering the Stage One button.
+	intro_stage_prompt_started = true
+	await get_tree().create_timer(8.5).timeout
+	if not is_inside_tree() or not world_intro_active or story_card_open:
+		return
+	_show_story_card(
+		"THE LOST THINGS EXPRESS",
+		"Watch the Lost & Found Express cross the cloud kingdoms: a working steam locomotive, three linked coaches, and a railway joining five strange worlds.\n\nWhen you are ready, enter the first mystery.",
+		"ENTER STAGE ONE"
+	)
+
+func _update_intro_cinematic(delta: float) -> void:
+	if not world_intro_active or not is_instance_valid(intro_train_motion_root):
+		return
+	intro_elapsed += delta
+	# The train travels forward along -Z while the camera follows more slowly,
+	# creating visible parallax against the stationary railway and world landmarks.
+	intro_train_motion_root.position.z -= delta * 0.42
+	if is_instance_valid(world_intro_camera):
+		world_intro_camera.position.z -= delta * 0.22
+		world_intro_camera.look_at(Vector3(30.0, 1.65, 0.4 - intro_elapsed * 0.22), Vector3.UP)
+	_animate_intro_train_parts(intro_train_motion_root, delta)
+
+func _animate_intro_train_parts(node: Node, delta: float) -> void:
+	for child in node.get_children():
+		if child is Node3D:
+			var part := child as Node3D
+			var part_name := part.name.to_lower()
+			if part_name.contains("wheel") or part_name.contains("rim"):
+				part.rotate_x(delta * 0.95)
+			if part_name.begins_with("softsteampuff"):
+				part.position.y += delta * 0.11
+				if part.position.y > 4.65:
+					part.position.y = 3.72
+				part.scale *= 1.0 + delta * 0.08
+				if part.scale.length() > 1.25:
+					part.scale = Vector3(0.38, 0.28, 0.36)
+			_animate_intro_train_parts(part, delta)
+
 func _on_story_continue_pressed() -> void:
 	if world_intro_active:
 		_enter_stage_one()
@@ -1733,6 +1776,7 @@ func _build_world_intro() -> void:
 
 
 
+	var train_child_start := world_intro_root.get_child_count()
 	var locomotive_path := "res://assets/models/lost_things_locomotive.glb"
 	var locomotive_scene := load(locomotive_path) as PackedScene if ResourceLoader.exists(locomotive_path) else null
 	if locomotive_scene != null:
@@ -2002,6 +2046,18 @@ func _build_world_intro() -> void:
 		steam.material_override = smoke_material
 		world_intro_root.add_child(steam)
 
+	# Gather the locomotive, three distinct coaches, couplers, wheels, rods and steam
+	# into one moving consist. Its identity transform preserves every authored placement.
+	var train_nodes: Array[Node] = []
+	for child_index in range(train_child_start, world_intro_root.get_child_count()):
+		train_nodes.append(world_intro_root.get_child(child_index))
+	intro_train_motion_root = Node3D.new()
+	intro_train_motion_root.name = "AnimatedConnectedTrainConsist"
+	world_intro_root.add_child(intro_train_motion_root)
+	for train_node in train_nodes:
+		world_intro_root.remove_child(train_node)
+		intro_train_motion_root.add_child(train_node)
+
 	# Legacy single-box coach removed: the reviewed three-car consist above is the only intro train body.
 
 	for control in [status_label, objective_label, prompt_label, interact_button, inventory_button, pause_button]:
@@ -2117,6 +2173,7 @@ func _close_story_card() -> void:
 	pause_button.visible = not world_intro_active and not inventory_open and not game_paused
 
 func _process(_delta: float) -> void:
+	_update_intro_cinematic(_delta)
 	_update_nearby()
 	objective_label.text = _objective_text()
 	interact_button.disabled = nearby_object == null and not letter_inspecting
