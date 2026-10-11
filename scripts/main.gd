@@ -3437,15 +3437,15 @@ func _add_realm_detail_layers(palette: Array) -> void:
 				portal.mesh = portal_mesh
 				portal.position = Vector3(side * 1.65, 2.05, -5.05)
 				portal.scale = Vector3(0.82, 1.65, 0.55)
-			var portal_material := StandardMaterial3D.new()
-			portal_material.albedo_color = Color(0.55, 0.38, 0.92)
-			portal_material.metallic = 0.55
-			portal_material.roughness = 0.25
-			portal_material.emission_enabled = true
-			portal_material.emission = Color(0.24, 0.08, 0.62)
-			portal_material.emission_energy_multiplier = 0.7
-			portal.material_override = portal_material
-			world_level_root.add_child(portal)
+				var portal_material := StandardMaterial3D.new()
+				portal_material.albedo_color = Color(0.55, 0.38, 0.92)
+				portal_material.metallic = 0.55
+				portal_material.roughness = 0.25
+				portal_material.emission_enabled = true
+				portal_material.emission = Color(0.24, 0.08, 0.62)
+				portal_material.emission_energy_multiplier = 0.7
+				portal.material_override = portal_material
+				world_level_root.add_child(portal)
 	# Inset edging and short bollards frame the route without obstructing the puzzle props.
 	for side in [-1.0, 1.0]:
 		_world_level_box("Realm path brass edge", Vector3(side * 1.22, 0.07, -2.15), Vector3(0.055, 0.055, 8.6), palette[2], false)
