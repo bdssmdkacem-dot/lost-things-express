@@ -1942,11 +1942,11 @@ func _build_world_intro() -> void:
 		headlamp_glass.mesh = headlamp_mesh
 		headlamp_glass.position = Vector3(30.0, 2.0, -3.72)
 		var glow_material := StandardMaterial3D.new()
-		glow_material.albedo_color = Color(1.0, 0.66, 0.24)
+		glow_material.albedo_color = Color(0.92, 0.43, 0.12)
 		glow_material.emission_enabled = true
-		glow_material.emission = Color(1.0, 0.48, 0.12)
+		glow_material.emission = Color(0.92, 0.29, 0.055)
 		# Keep the lens warm and luminous without clipping to a featureless white disk.
-		glow_material.emission_energy_multiplier = 0.72
+		glow_material.emission_energy_multiplier = 0.28
 		headlamp_glass.material_override = glow_material
 		world_intro_root.add_child(headlamp_glass)
 		# Machined concentric bezel and a small inner reflector make the lamp read as glass inside brass.
@@ -1975,7 +1975,7 @@ func _build_world_intro() -> void:
 		lens_reflection.position = Vector3(29.94, 2.07, -3.94)
 		lens_reflection.rotation_degrees.x = 90.0
 		var reflection_mat := StandardMaterial3D.new()
-		reflection_mat.albedo_color = Color(1.0, 0.91, 0.68, 0.62)
+		reflection_mat.albedo_color = Color(1.0, 0.88, 0.62, 0.24)
 		reflection_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		reflection_mat.roughness = 0.18
 		lens_reflection.material_override = reflection_mat
@@ -1983,8 +1983,8 @@ func _build_world_intro() -> void:
 		var headlamp_light := OmniLight3D.new()
 		headlamp_light.position = Vector3(30.0, 2.0, -4.0)
 		headlamp_light.light_color = Color(1.0, 0.52, 0.20)
-		headlamp_light.light_energy = 0.95
-		headlamp_light.omni_range = 5.2
+		headlamp_light.light_energy = 0.58
+		headlamp_light.omni_range = 4.2
 		headlamp_light.shadow_enabled = false
 		world_intro_root.add_child(headlamp_light)
 		var nameplate := Label3D.new()
