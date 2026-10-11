@@ -1634,6 +1634,22 @@ func _build_world_intro() -> void:
 					Vector3(0.82, 0.20, 0.84), Color(0.42, 0.37, 0.33), 0.12)
 				capital.rotation.y = cos(span_z * 0.072) * 0.145
 
+				# Three projecting masonry bands break up the long pier faces and
+				# make the stonework read as built courses rather than a single column.
+				for course_index in range(3):
+					var course_y: float = -0.72 - float(course_index) * 0.59
+					var course := _intro_box("Viaduct pier projecting masonry course",
+						Vector3(pier_x + side * 0.035, course_y, span_z + pier_z),
+						Vector3(0.70, 0.075, 0.74),
+						Color(0.35, 0.32, 0.30) if course_index % 2 == 0 else Color(0.25, 0.25, 0.25), 0.10)
+					course.rotation.y = cos(span_z * 0.072) * 0.145
+				# A narrow vertical quoin at each visible outer edge gives the
+				# pier a deliberate dressed-stone finish and catches warm side light.
+				var quoin := _intro_box("Viaduct pier edge quoin",
+					Vector3(pier_x + side * 0.345, -1.48, span_z + pier_z),
+					Vector3(0.11, 1.38, 0.78), Color(0.39, 0.34, 0.30), 0.08)
+				quoin.rotation.y = cos(span_z * 0.072) * 0.145
+
 	# Each world has a distinct terrain crown, rock strata, vegetation, and
 	# architecture; the railway/viaduct physically leads the eye between them.
 	for world_index in range(5):
