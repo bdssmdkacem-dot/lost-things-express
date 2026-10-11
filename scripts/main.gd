@@ -1429,16 +1429,17 @@ func _build_world_intro() -> void:
 		var track_y := sin(zf * 0.09) * 0.035
 		var curve_angle := cos(zf * 0.072) * 0.145
 		for side in [-1.0, 1.0]:
-			var edge_x := curve_x + side * 2.12
+			var side_f: float = float(side)
+			var edge_x: float = curve_x + side_f * 2.12
 			var shoulder := _intro_box("Railway outer stone shoulder", Vector3(edge_x, track_y - 0.055, zf), Vector3(0.34, 0.24, 1.08), Color(0.26, 0.25, 0.24), 0.12)
 			shoulder.rotation.y = curve_angle
-			var drain := _intro_box("Viaduct drainage channel", Vector3(curve_x + side * 1.84, track_y - 0.18, zf), Vector3(0.12, 0.08, 1.02), Color(0.075, 0.085, 0.092), 0.08)
+			var drain := _intro_box("Viaduct drainage channel", Vector3(curve_x + side_f * 1.84, track_y - 0.18, zf), Vector3(0.12, 0.08, 1.02), Color(0.075, 0.085, 0.092), 0.08)
 			drain.rotation.y = curve_angle
 			# Low safety guard rail on the outside of each running rail.
-			var guard := _intro_box("Continuous outer railway guard rail", Vector3(curve_x + side * 1.92, track_y + 0.19, zf), Vector3(0.075, 0.12, 1.08), Color(0.48, 0.51, 0.52), 0.72)
+			var guard := _intro_box("Continuous outer railway guard rail", Vector3(curve_x + side_f * 1.92, track_y + 0.19, zf), Vector3(0.075, 0.12, 1.08), Color(0.48, 0.51, 0.52), 0.72)
 			guard.rotation.y = curve_angle
 			if z % 3 == 0:
-				var post := _intro_box("Guard rail anchor post", Vector3(curve_x + side * 2.02, track_y + 0.015, zf), Vector3(0.09, 0.25, 0.12), Color(0.24, 0.25, 0.25), 0.55)
+				var post := _intro_box("Guard rail anchor post", Vector3(curve_x + side_f * 2.02, track_y + 0.015, zf), Vector3(0.09, 0.25, 0.12), Color(0.24, 0.25, 0.25), 0.55)
 				post.rotation.y = curve_angle
 
 	# Broad, overlapping land shelves anchor the railway to actual terrain.
