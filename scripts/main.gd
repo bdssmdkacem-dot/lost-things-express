@@ -1026,7 +1026,7 @@ func _animate_intro_train_parts(node: Node, delta: float) -> void:
 		if child is Node3D:
 			var part := child as Node3D
 			var part_name := part.name.to_lower()
-			if part_name.contains("wheel") or part_name.contains("rim"):
+			if part_name.contains("wheel"):
 				part.rotate_x(delta * 0.95)
 			if part_name.begins_with("softsteampuff"):
 				part.position.y += delta * 0.11
