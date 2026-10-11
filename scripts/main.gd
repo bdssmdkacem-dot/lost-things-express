@@ -53,6 +53,9 @@ var story_overlay: ColorRect
 var story_title: Label
 var story_body: Label
 var story_continue: Button
+var story_alternative: Button
+var ending_choice_pending := false
+var ending_decision := ""
 var story_card_open := false
 var world_intro_active := false
 var world_intro_root: Node3D
@@ -967,6 +970,16 @@ func _build_story_overlay(root: Control) -> void:
 	story_continue.add_theme_stylebox_override("pressed", _ui_panel_style(Color(0.78, 0.48, 0.12, 1.0), Color(1.0, 0.84, 0.42, 1.0), 12, 10))
 	story_continue.pressed.connect(_on_story_continue_pressed)
 	content.add_child(story_continue)
+	story_alternative = Button.new()
+	story_alternative.name = "StoryAlternativeChoice"
+	story_alternative.custom_minimum_size = Vector2(0, 50)
+	story_alternative.add_theme_font_size_override("font_size", 17)
+	story_alternative.add_theme_color_override("font_color", Color(0.88, 0.84, 0.77))
+	story_alternative.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.10, 0.12, 0.16, 1.0), Color(0.42, 0.48, 0.52, 1.0), 12, 10))
+	story_alternative.add_theme_stylebox_override("pressed", _ui_panel_style(Color(0.20, 0.24, 0.28, 1.0), Color(0.72, 0.62, 0.42, 1.0), 12, 10))
+	story_alternative.pressed.connect(_on_story_alternative_pressed)
+	story_alternative.visible = false
+	content.add_child(story_alternative)
 
 	# Story cards and pause menus are modal: release any touch gesture captured underneath.
 func _build_pause_overlay(root: Control) -> void:
@@ -1100,6 +1113,8 @@ func _show_story_card(title_text: String, body_text: String, button_text: String
 	story_title.text = title_text
 	story_body.text = body_text
 	story_continue.text = button_text
+	if is_instance_valid(story_alternative):
+		story_alternative.visible = false
 	story_overlay.visible = true
 	story_card_open = true
 	var fade := create_tween()
@@ -1167,8 +1182,19 @@ func _on_story_continue_pressed() -> void:
 		world_transition_pending = false
 		_close_story_card()
 		_start_world_level(0)
+	elif ending_choice_pending:
+		ending_choice_pending = false
+		ending_decision = "restore"
+		_show_story_card("THE MEMORY RESTORED", "The station returns in full: the waiting platform, the hand you once held, and the promise you thought you had broken. You cannot change what happened, but you can carry its truth forward. The clock falls silent at last.", "KEEP THE MEMORY")
 	else:
 		_close_story_card()
+
+func _on_story_alternative_pressed() -> void:
+	if not ending_choice_pending:
+		return
+	ending_choice_pending = false
+	ending_decision = "release"
+	_show_story_card("THE MEMORY RELEASED", "You let the photograph rest in the lamplight. The past is not erased; it no longer commands the journey. The train moves toward morning, carrying the lesson rather than the wound. The clock falls silent at last.", "CONTINUE INTO MORNING")
 
 func _tune_locomotive_lamp_materials(node: Node) -> void:
 	if node is MeshInstance3D:
@@ -3019,7 +3045,11 @@ func _interact() -> void:
 			elif world_level_index < WORLD_LEVEL_NAMES.size() - 1:
 				_start_world_level(world_level_index + 1)
 			else:
-				_show_story_card("THE LAST TERMINAL", "The five worlds are connected again. The final clock reveals a memory that belongs to you. The next chapter will ask whether to restore it or let it go.", "JOURNEY CONTINUES")
+				ending_choice_pending = true
+				ending_decision = ""
+				_show_story_card("THE LAST TERMINAL", "The five worlds are connected again. Behind the final clock is a memory that belongs to you: the last evening at Sunset Station, and a promise you could not keep.\n\nYou may restore the memory and carry its truth forward, or let it go and carry only what it taught you. Neither choice changes the past; each changes how you leave this train.", "RESTORE THE MEMORY")
+				story_alternative.text = "LET THE PAST GO"
+				story_alternative.visible = true
 		"chest":
 			if chest_open:
 				_show_story_card("SUNSET STATION", "The photograph shows a station glowing beneath a copper sunset. It is more than a memory — it is a clue to a place missing from every map.", "CLOSE PHOTOGRAPH")
