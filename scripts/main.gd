@@ -1541,6 +1541,12 @@ func _build_world_intro() -> void:
 				Vector3(span_x + side * 2.05, -0.02, span_z),
 				Vector3(0.22, 0.42, 9.05), Color(0.31, 0.30, 0.29), 0.16)
 			parapet.rotation.y = cos(span_z * 0.072) * 0.145
+			var coping := _intro_box("Viaduct parapet stone coping", Vector3(span_x + side * 2.05, 0.205, span_z), Vector3(0.31, 0.075, 9.12), Color(0.43, 0.41, 0.38), 0.18)
+			coping.rotation.y = cos(span_z * 0.072) * 0.145
+			for block_index in range(7):
+				var block_z: float = span_z - 3.9 + float(block_index) * 1.3
+				var joint := _intro_box("Viaduct parapet stone joint", Vector3(span_x + side * 2.05, 0.015, block_z), Vector3(0.235, 0.31, 0.025), Color(0.19, 0.19, 0.19), 0.08)
+				joint.rotation.y = cos(span_z * 0.072) * 0.145
 		# Repeated stone arch ribs give the viaduct a real bridge silhouette,
 		# rather than reading as a flat platform held up by square posts.
 		for arch_offset in [-3.25, 0.0, 3.25]:
