@@ -2984,8 +2984,9 @@ func _interact() -> void:
 				_set_status("The next carriage is still sealed. Complete the memory chest first.")
 			else:
 				_play_hand_action("take")
+				world_transition_pending = true
 				_set_status("The station clock begins to chime. A new route is awakening beyond this carriage.")
-				_show_story_card("THE CLOCK THAT OPENS WORLDS", "Three quiet chimes ripple through the train. The rails outside shimmer, and the next world begins to appear beyond the windows.", "CONTINUE")
+				_show_story_card("THE CLOCK THAT OPENS WORLDS", "Three quiet chimes ripple through the train. The first route opens: THE CLOCKWORK KINGDOM. Restore the bells in the order dawn, noon, midnight.", "ENTER THE CLOCKWORK KINGDOM")
 		"chest":
 			if chest_open:
 				_show_story_card("SUNSET STATION", "The photograph shows a station glowing beneath a copper sunset. It is more than a memory — it is a clue to a place missing from every map.", "CLOSE PHOTOGRAPH")
