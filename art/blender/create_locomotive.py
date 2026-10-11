@@ -166,8 +166,17 @@ for side in (-1, 1):
     torus("Boiler flank | brass crest outer rim", (crest_x, 1.78, -1.62), 0.285, 0.035, BRASS_LIGHT, (0, math.pi / 2, 0), 48, 10)
     torus("Boiler flank | enamel inset rim", (crest_x + side * 0.018, 1.78, -1.62), 0.225, 0.022, BRASS, (0, math.pi / 2, 0), 40, 8)
     cyl("Boiler flank | enamel medallion", (crest_x + side * 0.012, 1.78, -1.62), 0.205, 0.035, GREEN_DARK, (0, math.pi / 2, 0), 48, 0.006)
-    cube("Boiler flank | crest vertical bar", (crest_x + side * 0.042, 1.78, -1.62), (0.035, 0.25, 0.055), BRASS_LIGHT, 0.009)
-    cube("Boiler flank | crest crossbar", (crest_x + side * 0.046, 1.78, -1.62), (0.035, 0.045, 0.24), BRASS_LIGHT, 0.009)
+    # Lost & Found Express insignia: a small brass key, not a generic plus sign.
+    # The ring, shaft and offset tooth read clearly at carriage-view distance.
+    torus("Boiler flank | Lost & Found key bow",
+        (crest_x + side * 0.048, 1.865, -1.62), 0.067, 0.018,
+        BRASS_LIGHT, (0, math.pi / 2, 0), 32, 8)
+    cube("Boiler flank | Lost & Found key shaft",
+        (crest_x + side * 0.052, 1.735, -1.62), (0.038, 0.17, 0.042),
+        BRASS_LIGHT, 0.008)
+    cube("Boiler flank | Lost & Found key tooth",
+        (crest_x + side * 0.054, 1.675, -1.585), (0.038, 0.045, 0.095),
+        BRASS_LIGHT, 0.007)
     for bolt_index in range(8):
         angle = math.tau * bolt_index / 8.0
         sphere("Boiler flank | crest rivet",
