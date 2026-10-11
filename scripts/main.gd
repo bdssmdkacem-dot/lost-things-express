@@ -343,97 +343,112 @@ func _build_first_person_hands() -> void:
 	cuff_material.metallic = 0.35
 	cuff_material.roughness = 0.42
 	var skin_material := StandardMaterial3D.new()
-	skin_material.albedo_color = Color(0.72, 0.48, 0.32)
+	skin_material.albedo_color = Color(0.64, 0.39, 0.26)
 	skin_material.roughness = 0.78
+	var skin_highlight := StandardMaterial3D.new()
+	skin_highlight.albedo_color = Color(0.77, 0.52, 0.37)
+	skin_highlight.roughness = 0.72
 	var nail_material := StandardMaterial3D.new()
-	nail_material.albedo_color = Color(0.83, 0.63, 0.53)
-	nail_material.roughness = 0.36
-	nail_material.metallic = 0.0
+	nail_material.albedo_color = Color(0.79, 0.57, 0.47)
+	nail_material.roughness = 0.44
 
 	for side in [-1.0, 1.0]:
 		var arm := MeshInstance3D.new()
 		arm.name = "Sleeve_%s" % ("L" if side < 0.0 else "R")
 		var arm_mesh := CapsuleMesh.new()
-		arm_mesh.radius = 0.048
-		arm_mesh.height = 0.28
+		arm_mesh.radius = 0.075
+		arm_mesh.height = 0.34
 		arm.mesh = arm_mesh
 		arm.material_override = sleeve_material
-		arm.position = Vector3(side * 0.30, -0.43, -0.65)
+		arm.position = Vector3(side * 0.35, -0.43, -0.64)
 		arm.rotation_degrees = Vector3(0.0, 0.0, side * -24.0)
 		first_person_hands.add_child(arm)
 
 		var cuff := MeshInstance3D.new()
 		cuff.name = "BrassCuff_%s" % ("L" if side < 0.0 else "R")
 		var cuff_mesh := CylinderMesh.new()
-		cuff_mesh.top_radius = 0.052
-		cuff_mesh.bottom_radius = 0.052
+		cuff_mesh.top_radius = 0.073
+		cuff_mesh.bottom_radius = 0.073
 		cuff_mesh.height = 0.045
 		cuff.mesh = cuff_mesh
 		cuff.material_override = cuff_material
-		cuff.position = Vector3(side * 0.30, -0.305, -0.69)
+		cuff.position = Vector3(side * 0.35, -0.285, -0.68)
 		cuff.rotation_degrees.z = side * -24.0
 		first_person_hands.add_child(cuff)
 
+		# Broad, softly rounded palm; its heel connects visibly to the cuff.
 		var palm := MeshInstance3D.new()
 		palm.name = "Hand_%s" % ("L" if side < 0.0 else "R")
 		var palm_mesh := SphereMesh.new()
-		palm_mesh.radius = 0.044
-		palm_mesh.height = 0.09
+		palm_mesh.radius = 0.075
+		palm_mesh.height = 0.12
 		palm.mesh = palm_mesh
 		palm.material_override = skin_material
-		palm.position = Vector3(side * 0.31, -0.16, -0.58)
-		palm.scale = Vector3(1.25, 0.88, 0.54)
+		palm.position = Vector3(side * 0.315, -0.205, -0.59)
+		palm.scale = Vector3(0.92, 1.0, 0.58)
 		first_person_hands.add_child(palm)
 
-		# Four short fingers make the silhouette read as a hand at phone size.
+		# Four separated fingers with visible joints and small, camera-facing nails.
+		# Their spread follows the palm instead of bunching into a single capsule.
 		for finger_index in range(4):
+			var finger_x := side * 0.315 - side * (0.055 - float(finger_index) * 0.036)
+			var finger_length := [0.105, 0.125, 0.118, 0.096][finger_index]
+			var finger_radius := [0.014, 0.015, 0.014, 0.012][finger_index]
+			var finger_y := -0.145 - absf(1.5 - float(finger_index)) * 0.006
 			var finger := MeshInstance3D.new()
 			finger.name = "Finger_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
 			var finger_mesh := CapsuleMesh.new()
-			finger_mesh.radius = [0.010, 0.011, 0.011, 0.009][finger_index]
-			finger_mesh.height = [0.046, 0.052, 0.050, 0.042][finger_index]
+			finger_mesh.radius = finger_radius
+			finger_mesh.height = finger_length
 			finger.mesh = finger_mesh
-			finger.material_override = skin_material
-			finger.position = Vector3(side * 0.29 + (finger_index - 1.5) * 0.022, -0.19 - finger_index * 0.006, -0.59)
-			finger.rotation_degrees.x = -18.0
+			finger.material_override = skin_highlight
+			finger.position = Vector3(finger_x, finger_y, -0.585)
+			finger.rotation_degrees = Vector3(-9.0, 0.0, side * (8.0 + finger_index * 1.8))
 			first_person_hands.add_child(finger)
 
-			# Small, camera-facing natural nail beds add a readable anatomical cue.
-			# They are separate meshes so the nail highlight follows each fingertip.
+			var knuckle := MeshInstance3D.new()
+			knuckle.name = "Knuckle_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
+			var knuckle_mesh := SphereMesh.new()
+			knuckle_mesh.radius = finger_radius * 1.04
+			knuckle_mesh.height = finger_radius * 2.1
+			knuckle.mesh = knuckle_mesh
+			knuckle.material_override = skin_material
+			knuckle.position = Vector3(finger_x, finger_y - finger_length * 0.20, -0.583)
+			first_person_hands.add_child(knuckle)
+
 			var nail := MeshInstance3D.new()
-			nail.name = "Nail_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
+			nail.name = "Fingernail_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
 			var nail_mesh := SphereMesh.new()
-			nail_mesh.radius = 0.0065
-			nail_mesh.height = 0.004
+			nail_mesh.radius = finger_radius * 0.72
+			nail_mesh.height = finger_radius * 0.92
 			nail.mesh = nail_mesh
 			nail.material_override = nail_material
-			nail.scale = Vector3(1.0, 1.45, 0.42)
-			nail.position = finger.position + Vector3(0.0, -0.018, -0.012)
-			nail.rotation_degrees.x = -18.0
+			nail.scale = Vector3(0.82, 1.15, 0.24)
+			nail.position = Vector3(finger_x, finger_y + finger_length * 0.36, -0.568)
 			first_person_hands.add_child(nail)
 
-		# A separate angled thumb gives each hand a readable, grasp-ready silhouette.
+		# Thumb angles inward and rests against the paper edge during inspection.
 		var thumb := MeshInstance3D.new()
 		thumb.name = "Thumb_%s" % ("L" if side < 0.0 else "R")
 		var thumb_mesh := CapsuleMesh.new()
-		thumb_mesh.radius = 0.015
-		thumb_mesh.height = 0.066
+		thumb_mesh.radius = 0.019
+		thumb_mesh.height = 0.115
 		thumb.mesh = thumb_mesh
-		thumb.material_override = skin_material
-		thumb.position = Vector3(side * 0.23, -0.16, -0.57)
-		thumb.rotation_degrees = Vector3(-12.0, 0.0, side * 34.0)
+		thumb.material_override = skin_highlight
+		thumb.position = Vector3(side * 0.245, -0.205, -0.555)
+		thumb.rotation_degrees = Vector3(-10.0, 0.0, side * 42.0)
 		first_person_hands.add_child(thumb)
 
 		var thumb_nail := MeshInstance3D.new()
-		thumb_nail.name = "Nail_%s_Thumb" % ("L" if side < 0.0 else "R")
+		thumb_nail.name = "Thumbnail_%s" % ("L" if side < 0.0 else "R")
 		var thumb_nail_mesh := SphereMesh.new()
-		thumb_nail_mesh.radius = 0.008
-		thumb_nail_mesh.height = 0.0045
+		thumb_nail_mesh.radius = 0.013
+		thumb_nail_mesh.height = 0.018
 		thumb_nail.mesh = thumb_nail_mesh
 		thumb_nail.material_override = nail_material
-		thumb_nail.scale = Vector3(1.0, 1.35, 0.42)
-		thumb_nail.position = thumb.position + Vector3(0.0, -0.024, -0.012)
-		thumb_nail.rotation = thumb.rotation
+		thumb_nail.scale = Vector3(0.9, 1.0, 0.22)
+		thumb_nail.position = Vector3(side * 0.235, -0.165, -0.533)
+		thumb_nail.rotation_degrees.z = side * 38.0
 		first_person_hands.add_child(thumb_nail)
 
 func _play_hand_action(action: String) -> void:
@@ -620,27 +635,27 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 		var photo_face := MeshInstance3D.new()
 		photo_face.name = "StationPhotoFromUserReference"
 		var photo_face_mesh := BoxMesh.new()
-		photo_face_mesh.size = Vector3(0.342, 0.222, 0.004)
+		photo_face_mesh.size = Vector3(0.362, 0.402, 0.004)
 		photo_face.mesh = photo_face_mesh
 		var photo_material := StandardMaterial3D.new()
 		photo_material.albedo_texture = photo_texture
 		photo_material.roughness = 0.92
 		photo_material.metallic = 0.0
 		photo_face.material_override = photo_material
-		photo_face.position = Vector3(0.0, 0.055, 0.010)
+		photo_face.position = Vector3(0.0, 0.0, 0.010)
 		photo.add_child(photo_face)
 	else:
 		# Safe non-art fallback: matte paper only, never synthesize a substitute station scene.
 		var photo_matte := MeshInstance3D.new()
 		photo_matte.name = "StationPhotoReferenceUnavailable"
 		var matte_mesh := BoxMesh.new()
-		matte_mesh.size = Vector3(0.342, 0.222, 0.004)
+		matte_mesh.size = Vector3(0.362, 0.402, 0.004)
 		photo_matte.mesh = matte_mesh
 		var matte_material := StandardMaterial3D.new()
 		matte_material.albedo_color = Color(0.23, 0.16, 0.11)
 		matte_material.roughness = 1.0
 		photo_matte.material_override = matte_material
-		photo_matte.position = Vector3(0.0, 0.055, 0.010)
+		photo_matte.position = Vector3(0.0, 0.0, 0.010)
 		photo.add_child(photo_matte)
 
 	var station_name := Label3D.new()
