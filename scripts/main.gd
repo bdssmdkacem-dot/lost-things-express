@@ -1260,6 +1260,26 @@ func _build_intro_passenger_cars() -> void:
 			for step_index in range(2):
 				_intro_box(coach_type + " vestibule step", Vector3(30.0, 0.69 - float(step_index) * 0.17, door_z), Vector3(1.24 - float(step_index) * 0.12, 0.075, 0.42), Color(0.12, 0.14, 0.15), 0.42)
 				_intro_box(coach_type + " step brass nosing", Vector3(30.0, 0.73 - float(step_index) * 0.17, door_z + end_sign * 0.19), Vector3(1.16 - float(step_index) * 0.12, 0.025, 0.035), trim_color, 0.6)
+		# Fine brass coach-side rivets and lower panel seams add scale cues without hiding the enamel body.
+		for side_sign in [-1.0, 1.0]:
+			for rivet_index in range(13):
+				var rivet_z: float = z - 3.05 + float(rivet_index) * 0.508
+				var rivet := MeshInstance3D.new()
+				rivet.name = coach_type + " brass side panel rivet"
+				var rivet_mesh := SphereMesh.new()
+				rivet_mesh.radius = 0.027
+				rivet_mesh.height = 0.045
+				rivet.mesh = rivet_mesh
+				rivet.position = Vector3(30.0 + side_sign * 1.335, 1.12, rivet_z)
+				var rivet_material := StandardMaterial3D.new()
+				rivet_material.albedo_color = Color(0.70, 0.48, 0.22)
+				rivet_material.metallic = 0.72
+				rivet_material.roughness = 0.34
+				rivet.material_override = rivet_material
+				world_intro_root.add_child(rivet)
+			var lower_seam := _intro_box(coach_type + " lower enamel panel seam",
+				Vector3(30.0 + side_sign * 1.325, 0.96, z),
+				Vector3(0.025, 0.025, 6.65), trim_color.darkened(0.32), 0.32)
 		# A long dark underframe spine, transverse beams, and paired suspension springs
 		# provide a readable mechanical layer between body and wheel bogies.
 		_intro_box(coach_type + " central underframe spine", Vector3(30.0, 0.43, z), Vector3(0.30, 0.20, 6.85), Color(0.045, 0.052, 0.058), 0.55)
