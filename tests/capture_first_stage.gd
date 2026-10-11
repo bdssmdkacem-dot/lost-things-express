@@ -84,7 +84,30 @@ func _capture_first_stage() -> void:
 		if not _save_viewport_image(world_image):
 			return
 
-	print("VISUAL_CAPTURE_COMPLETE: opening, first-stage interactions, settings, and all five playable worlds")
+	# Capture both real ending choices and their distinct epilogues.
+	game.set("world_level_complete", true)
+	game.call("_spawn_world_gate")
+	var final_gate: Node3D = game.get_node_or_null("WorldExitGate")
+	if final_gate == null:
+		push_error("VISUAL_CAPTURE_FAILED: final world did not create its exit gate")
+		quit(1)
+		return
+	game.get("player").global_position = final_gate.global_position + Vector3(0.0, 0.05, 0.5)
+	game.call("_interact")
+	await create_timer(0.25).timeout
+	if not _save_viewport_image("12_final_choice.png"):
+		return
+	game.call("_on_story_alternative_pressed")
+	await create_timer(0.25).timeout
+	if not _save_viewport_image("13_ending_release.png"):
+		return
+	game.set("ending_choice_pending", true)
+	game.call("_on_story_continue_pressed")
+	await create_timer(0.25).timeout
+	if not _save_viewport_image("14_ending_restore.png"):
+		return
+
+	print("VISUAL_CAPTURE_COMPLETE: opening, first-stage interactions, settings, five worlds, final choice and both endings")
 	game.queue_free()
 	await process_frame
 	quit(0)
