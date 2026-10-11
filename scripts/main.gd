@@ -1787,6 +1787,32 @@ func _build_world_intro() -> void:
 				Vector3(world_x + side * 3.25, -0.22, world_z),
 				Vector3(2.65, 0.38, 1.75), Color(0.28, 0.29, 0.30), 0.08)
 			approach.rotation.y = cos(world_z * 0.072) * 0.145
+			# A short run of individually laid stone pavers makes the world entrance
+			# read as a built railway connection instead of a floating block.
+			for paver_index in range(5):
+				var paver_z: float = world_z - 1.15 + float(paver_index) * 0.56
+				var paver_x: float = world_x + side * (3.1 + 0.10 * sin(float(paver_index) * 1.7))
+				var paver := _intro_box("World approach hand-laid stone paver",
+					Vector3(paver_x, -0.005 + 0.018 * float(paver_index % 2), paver_z),
+					Vector3(1.45 + 0.08 * float(paver_index % 2), 0.075, 0.48),
+					Color(0.39, 0.36, 0.32) if paver_index % 2 == 0 else Color(0.31, 0.32, 0.33), 0.12)
+				paver.rotation.y = cos(world_z * 0.072) * 0.145
+			# Uneven exposed boulders break the smooth edge and visually anchor
+			# the terrain shelves into their layered rock skirts.
+			for rock_index in range(4):
+				var rock := MeshInstance3D.new()
+				rock.name = "World edge weathered boulder"
+				var rock_mesh := SphereMesh.new()
+				rock_mesh.radius = 1.0
+				rock_mesh.height = 1.0
+				rock.mesh = rock_mesh
+				rock.scale = Vector3(0.42 + 0.12 * float(rock_index % 2), 0.27 + 0.06 * float(rock_index % 3), 0.38 + 0.09 * float((rock_index + 1) % 2))
+				rock.position = Vector3(land.position.x + side * (2.85 + 0.24 * float(rock_index % 2)), land.position.y - 0.38 - 0.12 * float(rock_index % 2), world_z - 2.0 + float(rock_index) * 1.18)
+				var rock_mat := StandardMaterial3D.new()
+				rock_mat.albedo_color = [Color(0.28, 0.29, 0.31), Color(0.35, 0.30, 0.26), Color(0.22, 0.25, 0.30)][(world_index + rock_index) % 3]
+				rock_mat.roughness = 0.98
+				rock.material_override = rock_mat
+				world_intro_root.add_child(rock)
 
 			# Thin, broken waterfalls fall from the island strata into the
 			# cloud layer; alpha blending keeps them subtle rather than neon.
