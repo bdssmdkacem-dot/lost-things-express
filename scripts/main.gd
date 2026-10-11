@@ -628,7 +628,7 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 
 	var photo := Node3D.new()
 	photo.name = "SunsetPhotograph"
-	photo.position = Vector3(0.0, 0.49, 0.12)
+	photo.position = Vector3(0.0, 0.56, 0.12)
 	photo.visible = not reveal_delayed
 	photo.set_meta("kind", "photograph")
 	photo.set_meta("display_name", "Sunset Photograph")
@@ -644,7 +644,7 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 	card.name = "PhotographCard"
 	var card_mesh := BoxMesh.new()
 	# A portrait-format keepsake with a landscape photograph on the upper half.
-	card_mesh.size = Vector3(0.38, 0.42, 0.012)
+	card_mesh.size = Vector3(0.54, 0.62, 0.012)
 	card.mesh = card_mesh
 	card.material_override = card_material
 	photo.add_child(card)
@@ -654,10 +654,10 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 	frame_material.metallic = 0.62
 	frame_material.roughness = 0.34
 	for frame_spec in [
-		[Vector3(-0.181, 0.0, 0.012), Vector3(0.018, 0.40, 0.018)],
-		[Vector3(0.181, 0.0, 0.012), Vector3(0.018, 0.40, 0.018)],
-		[Vector3(0.0, 0.201, 0.012), Vector3(0.38, 0.018, 0.018)],
-		[Vector3(0.0, -0.201, 0.012), Vector3(0.38, 0.018, 0.018)]
+		[Vector3(-0.261, 0.0, 0.012), Vector3(0.018, 0.60, 0.018)],
+		[Vector3(0.261, 0.0, 0.012), Vector3(0.018, 0.60, 0.018)],
+		[Vector3(0.0, 0.301, 0.012), Vector3(0.54, 0.018, 0.018)],
+		[Vector3(0.0, -0.301, 0.012), Vector3(0.54, 0.018, 0.018)]
 	]:
 		var frame_piece := MeshInstance3D.new()
 		var frame_mesh := BoxMesh.new()
@@ -672,7 +672,7 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 		var photo_face := MeshInstance3D.new()
 		photo_face.name = "StationPhotoFromUserReference"
 		var photo_face_mesh := QuadMesh.new()
-		photo_face_mesh.size = Vector2(0.362, 0.402)
+		photo_face_mesh.size = Vector2(0.514, 0.594)
 		photo_face.mesh = photo_face_mesh
 		var photo_material := StandardMaterial3D.new()
 		photo_material.albedo_texture = photo_texture
@@ -701,7 +701,7 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 	station_name.font_size = 24
 	station_name.pixel_size = 0.00125
 	station_name.modulate = Color(0.16, 0.075, 0.035)
-	station_name.position = Vector3(0.0, -0.135, 0.024)
+	station_name.position = Vector3(0.0, -0.205, 0.024)
 	station_name.visible = false # The exact source card already contains its own printed title.
 	station_name.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 	photo.add_child(station_name)
@@ -713,7 +713,7 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 	seal_mesh.outer_radius = 0.012
 	seal.mesh = seal_mesh
 	seal.material_override = frame_material
-	seal.position = Vector3(0.0, -0.185, 0.024)
+	seal.position = Vector3(0.0, -0.275, 0.024)
 	seal.visible = false # Preserve the original medallion printed in the source image without doubling it.
 	photo.add_child(seal)
 
@@ -722,7 +722,7 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 	glow.light_color = Color(1.0, 0.43, 0.17)
 	glow.light_energy = 0.22
 	glow.omni_range = 1.15
-	glow.position = Vector3(0.0, 0.08, 0.20)
+	glow.position = Vector3(0.0, 0.10, 0.22)
 	glow.shadow_enabled = false
 	photo.add_child(glow)
 	return photo
