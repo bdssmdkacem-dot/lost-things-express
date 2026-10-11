@@ -3205,6 +3205,35 @@ func _start_world_level(index: int) -> void:
 		[Color(0.025, 0.03, 0.075), Color(0.13, 0.12, 0.27), Color(0.46, 0.34, 0.75)]
 	]
 	var p: Array = palettes[world_level_index]
+	# Give each playable realm its own atmospheric depth instead of reusing the
+	# carriage's blue-brown sky. Keep fog subtle so puzzle labels stay readable.
+	var realm_sky_tops := [
+		Color(0.035, 0.055, 0.085), Color(0.19, 0.36, 0.48),
+		Color(0.025, 0.095, 0.055), Color(0.22, 0.065, 0.075),
+		Color(0.035, 0.025, 0.105)
+	]
+	var realm_horizons := [
+		Color(0.30, 0.19, 0.11), Color(0.68, 0.73, 0.72),
+		Color(0.17, 0.27, 0.13), Color(0.92, 0.31, 0.13),
+		Color(0.25, 0.17, 0.42)
+	]
+	var realm_fog_colors := [
+		Color(0.19, 0.13, 0.09), Color(0.49, 0.63, 0.70),
+		Color(0.075, 0.16, 0.085), Color(0.43, 0.12, 0.075),
+		Color(0.105, 0.075, 0.20)
+	]
+	var active_environment := world_environment.environment
+	if active_environment != null and active_environment.sky != null:
+		var active_sky := active_environment.sky.sky_material as ProceduralSkyMaterial
+		if active_sky != null:
+			active_sky.sky_top_color = realm_sky_tops[world_level_index]
+			active_sky.sky_horizon_color = realm_horizons[world_level_index]
+			active_sky.ground_bottom_color = p[0].darkened(0.45)
+			active_sky.ground_horizon_color = realm_fog_colors[world_level_index].darkened(0.15)
+		active_environment.fog_enabled = true
+		active_environment.fog_light_color = realm_fog_colors[world_level_index]
+		active_environment.fog_density = 0.008
+		active_environment.fog_sun_scatter = 0.12
 	_world_level_box("World floor", Vector3(0, -0.18, 0), Vector3(16, 0.36, 16), p[0], true)
 	# Build a readable, layered environment silhouette before placing puzzle props.
 	# Each realm has foreground framing, mid-ground architecture, a traversable path,
