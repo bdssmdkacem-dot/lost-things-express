@@ -344,7 +344,11 @@ func _build_first_person_hands() -> void:
 	cuff_material.roughness = 0.42
 	var skin_material := StandardMaterial3D.new()
 	skin_material.albedo_color = Color(0.72, 0.48, 0.32)
-	skin_material.roughness = 0.86
+	skin_material.roughness = 0.78
+	var nail_material := StandardMaterial3D.new()
+	nail_material.albedo_color = Color(0.83, 0.63, 0.53)
+	nail_material.roughness = 0.36
+	nail_material.metallic = 0.0
 
 	for side in [-1.0, 1.0]:
 		var arm := MeshInstance3D.new()
@@ -394,6 +398,20 @@ func _build_first_person_hands() -> void:
 			finger.rotation_degrees.x = -18.0
 			first_person_hands.add_child(finger)
 
+			# Small, camera-facing natural nail beds add a readable anatomical cue.
+			# They are separate meshes so the nail highlight follows each fingertip.
+			var nail := MeshInstance3D.new()
+			nail.name = "Nail_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
+			var nail_mesh := SphereMesh.new()
+			nail_mesh.radius = 0.0065
+			nail_mesh.height = 0.004
+			nail.mesh = nail_mesh
+			nail.material_override = nail_material
+			nail.scale = Vector3(1.0, 1.45, 0.42)
+			nail.position = finger.position + Vector3(0.0, -0.018, -0.012)
+			nail.rotation_degrees.x = -18.0
+			first_person_hands.add_child(nail)
+
 		# A separate angled thumb gives each hand a readable, grasp-ready silhouette.
 		var thumb := MeshInstance3D.new()
 		thumb.name = "Thumb_%s" % ("L" if side < 0.0 else "R")
@@ -405,6 +423,18 @@ func _build_first_person_hands() -> void:
 		thumb.position = Vector3(side * 0.23, -0.16, -0.57)
 		thumb.rotation_degrees = Vector3(-12.0, 0.0, side * 34.0)
 		first_person_hands.add_child(thumb)
+
+		var thumb_nail := MeshInstance3D.new()
+		thumb_nail.name = "Nail_%s_Thumb" % ("L" if side < 0.0 else "R")
+		var thumb_nail_mesh := SphereMesh.new()
+		thumb_nail_mesh.radius = 0.008
+		thumb_nail_mesh.height = 0.0045
+		thumb_nail.mesh = thumb_nail_mesh
+		thumb_nail.material_override = nail_material
+		thumb_nail.scale = Vector3(1.0, 1.35, 0.42)
+		thumb_nail.position = thumb.position + Vector3(0.0, -0.024, -0.012)
+		thumb_nail.rotation = thumb.rotation
+		first_person_hands.add_child(thumb_nail)
 
 func _play_hand_action(action: String) -> void:
 	if not is_instance_valid(first_person_hands):
@@ -517,13 +547,15 @@ func _load_station_photo_texture() -> Texture2D:
 		return null
 	var source_width := source_image.get_width()
 	var source_height := source_image.get_height()
-	# Crop the printed station photograph from the center reference card, leaving
-	# its frame and title to the physical in-game card itself.
+	# Preserve the actual center SUNSET STATION keepsake from the supplied
+	# composite reference: photograph, printed title, aged border and medallion.
+	# The previous crop landed on the divider/bright background and produced a
+	# nearly blank glowing card in the chest.
 	var crop := Rect2i(
-		roundi(source_width * 0.395),
-		roundi(source_height * 0.550),
-		roundi(source_width * 0.245),
-		roundi(source_height * 0.240)
+		roundi(source_width * 0.365),
+		roundi(source_height * 0.535),
+		roundi(source_width * 0.300),
+		roundi(source_height * 0.455)
 	)
 	crop.position.x = clampi(crop.position.x, 0, source_width - crop.size.x)
 	crop.position.y = clampi(crop.position.y, 0, source_height - crop.size.y)
