@@ -1163,6 +1163,10 @@ func _animate_intro_train_parts(node: Node, delta: float) -> void:
 func _on_story_continue_pressed() -> void:
 	if world_intro_active:
 		_enter_stage_one()
+	elif world_transition_pending:
+		world_transition_pending = false
+		_close_story_card()
+		_start_world_level(0)
 	else:
 		_close_story_card()
 
