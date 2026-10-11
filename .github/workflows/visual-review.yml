@@ -63,6 +63,9 @@ jobs:
           test -s build/visual_review/09_world_remembering_forest.png
           test -s build/visual_review/10_world_sunset_station.png
           test -s build/visual_review/11_world_last_terminal.png
+          test -s build/visual_review/12_final_choice.png
+          test -s build/visual_review/13_ending_release.png
+          test -s build/visual_review/14_ending_restore.png
           file build/visual_review/*.png
 
       - name: Upload Godot visual review images
