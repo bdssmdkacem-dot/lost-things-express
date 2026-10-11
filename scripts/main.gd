@@ -1945,14 +1945,47 @@ func _build_world_intro() -> void:
 		glow_material.albedo_color = Color(1.0, 0.66, 0.24)
 		glow_material.emission_enabled = true
 		glow_material.emission = Color(1.0, 0.48, 0.12)
-		glow_material.emission_energy_multiplier = 1.8
+		# Keep the lens warm and luminous without clipping to a featureless white disk.
+		glow_material.emission_energy_multiplier = 0.72
 		headlamp_glass.material_override = glow_material
 		world_intro_root.add_child(headlamp_glass)
+		# Machined concentric bezel and a small inner reflector make the lamp read as glass inside brass.
+		var lens_bezel := MeshInstance3D.new()
+		lens_bezel.name = "Headlamp machined brass bezel"
+		var bezel_mesh := TorusMesh.new()
+		bezel_mesh.inner_radius = 0.205
+		bezel_mesh.outer_radius = 0.265
+		bezel_mesh.rings = 24
+		bezel_mesh.ring_segments = 12
+		lens_bezel.mesh = bezel_mesh
+		lens_bezel.position = Vector3(30.0, 2.0, -3.91)
+		lens_bezel.rotation_degrees.x = 90.0
+		var bezel_mat := StandardMaterial3D.new()
+		bezel_mat.albedo_color = Color(0.78, 0.53, 0.22)
+		bezel_mat.metallic = 0.88
+		bezel_mat.roughness = 0.22
+		lens_bezel.material_override = bezel_mat
+		world_intro_root.add_child(lens_bezel)
+		var lens_reflection := MeshInstance3D.new()
+		lens_reflection.name = "Headlamp glass inner reflection"
+		var reflection_mesh := SphereMesh.new()
+		reflection_mesh.radius = 0.075
+		reflection_mesh.height = 0.025
+		lens_reflection.mesh = reflection_mesh
+		lens_reflection.position = Vector3(29.94, 2.07, -3.94)
+		lens_reflection.rotation_degrees.x = 90.0
+		var reflection_mat := StandardMaterial3D.new()
+		reflection_mat.albedo_color = Color(1.0, 0.91, 0.68, 0.62)
+		reflection_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		reflection_mat.roughness = 0.18
+		lens_reflection.material_override = reflection_mat
+		world_intro_root.add_child(lens_reflection)
 		var headlamp_light := OmniLight3D.new()
 		headlamp_light.position = Vector3(30.0, 2.0, -4.0)
 		headlamp_light.light_color = Color(1.0, 0.52, 0.20)
-		headlamp_light.light_energy = 2.2
-		headlamp_light.omni_range = 8.0
+		headlamp_light.light_energy = 0.95
+		headlamp_light.omni_range = 5.2
+		headlamp_light.shadow_enabled = false
 		world_intro_root.add_child(headlamp_light)
 		var nameplate := Label3D.new()
 		nameplate.name = "Lost and Found nameplate"
