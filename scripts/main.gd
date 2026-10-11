@@ -1054,14 +1054,16 @@ func _tune_locomotive_lamp_materials(node: Node) -> void:
 	if node is MeshInstance3D:
 		var mesh_node := node as MeshInstance3D
 		var part_name := mesh_node.name.to_lower()
-		if part_name.contains("headlamp glowing lens"):
+		# The production GLB names this mesh "Glowing round headlamp lens";
+		# matching the old word order silently skipped the intended amber override.
+		if part_name.contains("headlamp") and part_name.contains("lens"):
 			var lens := StandardMaterial3D.new()
-			lens.albedo_color = Color(0.95, 0.29, 0.055, 1.0)
+			lens.albedo_color = Color(1.0, 0.48, 0.12, 1.0)
 			lens.metallic = 0.04
-			lens.roughness = 0.26
+			lens.roughness = 0.24
 			lens.emission_enabled = true
-			lens.emission = Color(0.75, 0.12, 0.015)
-			lens.emission_energy_multiplier = 0.22
+			lens.emission = Color(0.82, 0.23, 0.025)
+			lens.emission_energy_multiplier = 0.28
 			mesh_node.material_override = lens
 		elif part_name.contains("marker lamp lens"):
 			var marker := StandardMaterial3D.new()
