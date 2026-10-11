@@ -2553,25 +2553,9 @@ func _build_world_intro() -> void:
 				joint_material.roughness = 0.28
 				joint.material_override = joint_material
 				world_intro_root.add_child(joint)
-	var smoke_material := StandardMaterial3D.new()
-	smoke_material.albedo_color = Color(0.78, 0.83, 0.90, 0.13)
-	smoke_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	smoke_material.roughness = 1.0
-	for smoke_spec in [
-		[Vector3(30.0, 3.72, -2.15), Vector3(0.38, 0.28, 0.36)],
-		[Vector3(30.25, 4.03, -2.30), Vector3(0.30, 0.23, 0.29)],
-		[Vector3(29.78, 4.25, -2.42), Vector3(0.23, 0.18, 0.22)]
-	]:
-		var steam := MeshInstance3D.new()
-		steam.name = "SoftSteamPuff_%02d" % world_intro_root.get_child_count()
-		var steam_mesh := SphereMesh.new()
-		steam_mesh.radius = 1.0
-		steam_mesh.height = 2.0
-		steam.mesh = steam_mesh
-		steam.position = smoke_spec[0]
-		steam.scale = smoke_spec[1]
-		steam.material_override = smoke_material
-		world_intro_root.add_child(steam)
+	# Do not use translucent sphere meshes for chimney steam: in the intro camera
+	# they render as large, hard-edged discs against the sky. Keep the chimney clean
+	# until a true volumetric/particle plume is available for the mobile renderer.
 
 	# Gather the locomotive, three distinct coaches, couplers, wheels, rods and steam
 	# into one moving consist. Its identity transform preserves every authored placement.
