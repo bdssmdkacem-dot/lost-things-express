@@ -2557,24 +2557,24 @@ func _build_world_intro() -> void:
 	# Avoid oversized translucent static spheres, which read as hard-edged sky discs.
 	var steam := GPUParticles3D.new()
 	steam.name = "Locomotive restrained steam plume"
-	steam.amount = 38
-	steam.lifetime = 2.25
-	steam.preprocess = 1.25
+	steam.amount = 30
+	steam.lifetime = 1.65
+	steam.preprocess = 0.85
 	steam.explosiveness = 0.0
 	steam.randomness = 0.22
 	steam.emitting = true
 	steam.position = Vector3(30.0, 3.78, -2.15)
 	var steam_process := ParticleProcessMaterial.new()
 	steam_process.direction = Vector3(-0.10, 1.0, -0.12)
-	steam_process.spread = 22.0
-	steam_process.initial_velocity_min = 0.30
-	steam_process.initial_velocity_max = 0.72
+	steam_process.spread = 14.0
+	steam_process.initial_velocity_min = 0.42
+	steam_process.initial_velocity_max = 0.88
 	steam_process.gravity = Vector3(0.0, 0.18, 0.0)
 	# ParticleProcessMaterial scale is a multiplier, not world-space radius.
 	# Values below 0.1 made the plume effectively invisible in the actual render.
-	steam_process.scale_min = 0.48
-	steam_process.scale_max = 1.05
-	steam_process.color = Color(0.78, 0.82, 0.87, 0.30)
+	steam_process.scale_min = 0.20
+	steam_process.scale_max = 0.48
+	steam_process.color = Color(0.82, 0.86, 0.91, 0.20)
 	steam_process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
 	steam_process.emission_sphere_radius = 0.12
 	steam.process_material = steam_process
@@ -2587,13 +2587,13 @@ func _build_world_intro() -> void:
 			var dy := (float(py) - 31.5) / 31.5
 			var radius := sqrt(dx * dx + dy * dy)
 			var falloff := clampf(1.0 - radius, 0.0, 1.0)
-			var alpha := pow(falloff, 2.1) * 0.34
+			var alpha := pow(falloff, 2.8) * 0.24
 			steam_image.set_pixel(px, py, Color(0.82, 0.86, 0.91, alpha))
 	var steam_texture := ImageTexture.create_from_image(steam_image)
 	var steam_mesh := QuadMesh.new()
-	steam_mesh.size = Vector2(0.56, 0.56)
+	steam_mesh.size = Vector2(0.34, 0.34)
 	var steam_material := StandardMaterial3D.new()
-	steam_material.albedo_color = Color(0.86, 0.89, 0.94, 0.82)
+	steam_material.albedo_color = Color(0.86, 0.89, 0.94, 0.62)
 	steam_material.albedo_texture = steam_texture
 	steam_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	steam_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
