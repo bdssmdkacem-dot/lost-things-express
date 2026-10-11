@@ -67,7 +67,11 @@ func _run_first_slice() -> void:
 	var intro_root := game.get("world_intro_root") as Node3D
 	if not _check(intro_root.find_child("LocomotiveConnectingRod_L", true, false) != null and intro_root.find_child("LocomotiveConnectingRod_R", true, false) != null, "the establishing locomotive is missing its wheel connecting rods"):
 		return
-	if not _check(intro_root.find_child("Locomotive restrained steam plume", true, false) is GPUParticles3D, "the establishing locomotive is missing its restrained particle steam plume"):
+	var steam_plume := intro_root.find_child("Locomotive restrained steam plume", true, false) as GPUParticles3D
+	if not _check(steam_plume != null, "the establishing locomotive is missing its restrained particle steam plume"):
+		return
+	var steam_process := steam_plume.process_material as ParticleProcessMaterial
+	if not _check(steam_plume.amount >= 32 and steam_plume.lifetime >= 2.0 and steam_process != null and steam_process.scale_min >= 0.4, "the chimney steam is configured too small to read in the actual cinematic render"):
 		return
 	if not _check(intro_root.find_child("Smokebox front door", true, false) != null or intro_root.find_child("Circular locomotive smokebox door", true, false) != null, "the locomotive front still reads as a plain boiler without a crafted smokebox"):
 		return
