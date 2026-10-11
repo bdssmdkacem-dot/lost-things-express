@@ -370,7 +370,25 @@ func _run_first_slice() -> void:
 	var resumed_photo := resumed_chest.get_node_or_null("SunsetPhotograph") as Node3D if resumed_chest else null
 	if not _check(resumed_photo != null and resumed_photo.visible, "saved chest progress did not restore the visible photograph reward"):
 		return
-	print("FIRST_SLICE_TESTS_PASSED: key -> letter -> memory chest -> sunset photograph -> save/resume")
+	# Exercise all five campaign arenas, not just their cinematic names.
+	for world_index in range(5):
+		resumed_game.call("_start_world_level", world_index)
+		await process_frame
+		if not _check(int(resumed_game.get("world_level_index")) == world_index, "campaign failed to enter world %d" % (world_index + 1)):
+			return
+		var world_root := resumed_game.get_node_or_null("PlayableWorld_%02d" % (world_index + 1)) as Node3D
+		if not _check(world_root != null and world_root.visible, "world %d has no visible playable arena" % (world_index + 1)):
+			return
+		var puzzle_count := 0
+		for child in world_root.get_children():
+			if child is Node3D and child.get_meta("kind", "") == "world_puzzle" and child.is_in_group("interactables"):
+				puzzle_count += 1
+		if not _check(puzzle_count == 3, "world %d does not contain three interactable puzzle clues" % (world_index + 1)):
+			return
+		var sequence: Array = resumed_game.get("world_puzzle_sequence")
+		if not _check(sequence.size() == 3 and sequence[0] != sequence[1] and sequence[1] != sequence[2], "world %d puzzle sequence is invalid" % (world_index + 1)):
+			return
+	print("FIRST_SLICE_TESTS_PASSED: first-stage story + save/resume + all five playable puzzle arenas")
 	resumed_game.queue_free()
 	await process_frame
 	quit(0)
