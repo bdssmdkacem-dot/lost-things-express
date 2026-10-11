@@ -3206,27 +3206,66 @@ func _start_world_level(index: int) -> void:
 	]
 	var p: Array = palettes[world_level_index]
 	_world_level_box("World floor", Vector3(0, -0.18, 0), Vector3(16, 0.36, 16), p[0], true)
+	# Build a readable, layered environment silhouette before placing puzzle props.
+	# Each realm has foreground framing, mid-ground architecture, a traversable path,
+	# and distant silhouettes; avoid the empty-box arena look in mobile captures.
+	var path_materials := [
+		Color(0.24, 0.13, 0.065), Color(0.56, 0.68, 0.72),
+		Color(0.10, 0.17, 0.085), Color(0.35, 0.075, 0.045),
+		Color(0.075, 0.065, 0.14)
+	]
+	_world_level_box("Realm approach path", Vector3(0, 0.025, -2.2), Vector3(2.2, 0.05, 10.0), path_materials[world_level_index], false)
 	match world_level_index:
 		0:
-			for x in [-5.0, 5.0]:
-				_world_level_box("Clockwork tower", Vector3(x, 2.0, -4.8), Vector3(1.8, 4.0, 1.8), p[1], false)
-				_world_level_box("Brass tower crown", Vector3(x, 4.1, -4.8), Vector3(2.2, 0.2, 2.2), p[2], false)
+			# Clockwork citadel: round clock towers, gear-like crowns and brass ribs.
+			for x in [-6.0, -4.8, 4.8, 6.0]:
+				_world_level_shape("Clockwork stone tower", Vector3(x, 2.15, -5.5), _world_cylinder(0.72, 0.95, 4.3), p[1], Vector3.ONE, 0.12, 0.62)
+				_world_level_shape("Tower brass cap", Vector3(x, 4.42, -5.5), _world_cylinder(0.98, 0.98, 0.22), p[2], Vector3.ONE, 0.78, 0.28)
+				_world_level_shape("Tower clock face", Vector3(x, 3.25, -4.98), _world_cylinder(0.52, 0.52, 0.12), Color(0.88, 0.76, 0.52), Vector3(1, 1, 1), 0.2, 0.35)
+			for x in [-3.2, 3.2]:
+				_world_level_box("Citadel arch pillar", Vector3(x, 1.8, -5.0), Vector3(0.42, 3.6, 0.55), p[1], false)
+			_world_level_box("Citadel arch lintel", Vector3(0, 3.55, -5.0), Vector3(6.8, 0.42, 0.62), p[2], false)
+			for x in [-6.4, -5.6, 5.6, 6.4]:
+				_world_level_shape("Distant gear silhouette", Vector3(x, 0.95, -7.2), _world_cylinder(1.05, 1.05, 0.18), Color(0.34, 0.22, 0.11), Vector3(1, 1, 1), 0.72, 0.42)
 		1:
-			for x in [-5.0, 0.0, 5.0]:
-				_world_level_box("Cloud island", Vector3(x, 0.8, -4.2), Vector3(2.8, 1.6, 2.6), p[1], false)
-				_world_level_box("Suspended bridge", Vector3(x * 0.5, 1.65, -2.1), Vector3(2.8, 0.12, 0.45), p[2], false)
+			# Floating islands have rounded rocky bodies, grassy tops and linked bridges.
+			for x in [-5.5, 0.0, 5.5]:
+				_world_level_shape("Floating island upper turf", Vector3(x, 1.15, -5.1), _world_sphere(), Color(0.32, 0.43, 0.37), Vector3(2.0, 0.38, 1.7), 0.0, 0.92)
+				_world_level_shape("Floating island rock body", Vector3(x, 0.35, -5.0), _world_sphere(), p[1], Vector3(1.65, 1.05, 1.45), 0.05, 0.88)
+				_world_level_box("Island bridge deck", Vector3(x * 0.5, 1.15, -3.2), Vector3(3.0, 0.14, 0.68), p[2], false)
+				for rail_x in [-1.15, 1.15]:
+					_world_level_box("Bridge gold handrail", Vector3(x * 0.5 + rail_x, 1.42, -3.2), Vector3(0.07, 0.48, 0.08), Color(0.82, 0.67, 0.43), false)
+			for x in [-6.0, -3.5, 3.5, 6.0]:
+				_world_level_shape("Distant cloud bank", Vector3(x, 2.8, -7.0), _world_sphere(), Color(0.72, 0.78, 0.82), Vector3(2.2, 0.65, 0.9), 0.0, 1.0)
 		2:
-			for x in [-5.0, -2.5, 2.5, 5.0]:
-				_world_level_box("Ancient trunk", Vector3(x, 1.5, -4.8), Vector3(0.7, 3.0, 0.7), p[1], false)
-				_world_level_box("Forest canopy", Vector3(x, 3.4, -4.8), Vector3(2.3, 2.0, 2.0), p[2], false)
+			# Remembering forest: tapered trunks, layered organic crowns and luminous memory fruits.
+			for x in [-6.2, -4.1, 4.1, 6.2]:
+				_world_level_shape("Ancient tree trunk", Vector3(x, 1.7, -5.4), _world_cylinder(0.28, 0.52, 3.4), Color(0.19, 0.085, 0.045), Vector3.ONE, 0.0, 0.9)
+				_world_level_shape("Ancient canopy lower", Vector3(x, 3.15, -5.4), _world_sphere(), p[2], Vector3(1.45, 1.25, 1.25), 0.0, 0.95)
+				_world_level_shape("Ancient canopy crown", Vector3(x + 0.25, 4.0, -5.55), _world_sphere(), Color(0.12, 0.31, 0.13), Vector3(1.0, 0.9, 1.0), 0.0, 0.95)
+				_world_level_shape("Memory fruit", Vector3(x - 0.28, 3.1, -4.72), _world_sphere(), Color(0.86, 0.66, 0.28), Vector3(0.17, 0.20, 0.17), 0.12, 0.28)
+			for x in [-5.6, 5.6]:
+				_world_level_shape("Mossy standing stone", Vector3(x, 1.0, -2.8), _world_cylinder(0.48, 0.36, 2.0), Color(0.19, 0.25, 0.15), Vector3(0.0, 0.0, deg_to_rad(-7.0)), 0.0, 0.95)
 		3:
-			_world_level_box("Sunset Station facade", Vector3(0, 2.1, -5.3), Vector3(9.0, 4.2, 0.55), p[1], false)
-			for x in [-3.0, 0.0, 3.0]:
-				_world_level_box("Station arch", Vector3(x, 2.8, -4.9), Vector3(0.18, 3.2, 0.3), p[2], false)
-		4:
+			# Sunset station: platform edges, layered station facade, canopy and warm lamps.
+			_world_level_box("Station rear facade", Vector3(0, 2.15, -6.0), Vector3(10.0, 4.3, 0.48), p[1], false)
+			_world_level_box("Station upper cornice", Vector3(0, 4.38, -6.0), Vector3(10.7, 0.24, 0.72), p[2], false)
+			_world_level_box("Station platform canopy", Vector3(0, 4.0, -4.85), Vector3(10.4, 0.18, 2.9), Color(0.20, 0.065, 0.045), false)
 			for x in [-4.5, -1.5, 1.5, 4.5]:
-				_world_level_box("Terminal clock pillar", Vector3(x, 2.0, -4.8), Vector3(0.7, 4.0, 0.7), p[1], false)
-				_world_level_box("Terminal clock face", Vector3(x, 4.2, -4.8), Vector3(1.0, 0.8, 0.22), p[2], false)
+				_world_level_box("Station carved pier", Vector3(x, 1.95, -4.95), Vector3(0.32, 3.9, 0.42), p[2], false)
+				_world_level_box("Station arch header", Vector3(x, 3.9, -4.95), Vector3(1.5, 0.16, 0.42), Color(0.72, 0.31, 0.13), false)
+				_world_level_shape("Station amber globe", Vector3(x, 3.1, -4.65), _world_sphere(), Color(1.0, 0.56, 0.19), Vector3(0.16, 0.20, 0.16), 0.0, 0.25)
+			_world_level_box("Platform near edge", Vector3(0, 0.02, -0.6), Vector3(11.0, 0.12, 0.32), Color(0.54, 0.31, 0.18), false)
+			_world_level_box("Platform far edge", Vector3(0, 0.02, -2.4), Vector3(11.0, 0.12, 0.32), Color(0.54, 0.31, 0.18), false)
+		4:
+			# Last terminal: tall memorial pylons, clock rings and a luminous portal frame.
+			for x in [-6.0, -4.0, 4.0, 6.0]:
+				_world_level_shape("Terminal obsidian pylon", Vector3(x, 2.4, -5.5), _world_cylinder(0.38, 0.58, 4.8), p[1], Vector3.ONE, 0.18, 0.35)
+				_world_level_shape("Terminal violet crown", Vector3(x, 4.9, -5.5), _world_sphere(), p[2], Vector3(0.8, 0.5, 0.8), 0.35, 0.3)
+				_world_level_shape("Terminal clock dial", Vector3(x, 3.4, -5.0), _world_cylinder(0.42, 0.42, 0.12), Color(0.79, 0.72, 0.91), Vector3(1, 1, 1), 0.25, 0.28)
+			for x in [-2.8, 2.8]:
+				_world_level_box("Memory gate pillar", Vector3(x, 2.0, -4.9), Vector3(0.26, 4.0, 0.38), Color(0.42, 0.29, 0.65), false)
+			_world_level_box("Memory gate crown", Vector3(0, 4.05, -4.9), Vector3(5.8, 0.24, 0.45), Color(0.55, 0.40, 0.82), false)
 	var labels := [
 		["DAWN BELL", "NOON BELL", "MIDNIGHT BELL"],
 		["LOW BRIDGE", "MIDDLE BRIDGE", "HIGH BRIDGE"],
@@ -3283,6 +3322,37 @@ func _start_world_level(index: int) -> void:
 		camera.rotation = Vector3(pitch, 0, 0)
 	_set_status(WORLD_LEVEL_NAMES[world_level_index] + " · " + WORLD_LEVEL_THEMES[world_level_index])
 	_show_story_card(WORLD_LEVEL_NAMES[world_level_index], WORLD_LEVEL_THEMES[world_level_index] + "\n\nExplore the three objects and activate them in the order implied by the clue. A wrong choice resets the sequence. Solve the puzzle to open the railway gate.", "BEGIN EXPLORING")
+
+
+func _world_sphere() -> SphereMesh:
+	var mesh := SphereMesh.new()
+	mesh.radial_segments = 16
+	mesh.rings = 8
+	return mesh
+
+
+func _world_cylinder(top_radius: float, bottom_radius: float, height: float) -> CylinderMesh:
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = top_radius
+	mesh.bottom_radius = bottom_radius
+	mesh.height = height
+	mesh.radial_segments = 20
+	return mesh
+
+
+func _world_level_shape(label: String, pos: Vector3, mesh: Mesh, color: Color, shape_scale: Vector3 = Vector3.ONE, metallic: float = 0.0, roughness: float = 0.72) -> MeshInstance3D:
+	var visual := MeshInstance3D.new()
+	visual.name = label.replace(" ", "_")
+	visual.position = pos
+	visual.mesh = mesh
+	visual.scale = shape_scale
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.metallic = metallic
+	material.roughness = roughness
+	visual.material_override = material
+	world_level_root.add_child(visual)
+	return visual
 
 
 func _world_level_box(label: String, pos: Vector3, size: Vector3, color: Color, solid: bool) -> StaticBody3D:
