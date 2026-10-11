@@ -665,6 +665,7 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 	station_name.pixel_size = 0.00125
 	station_name.modulate = Color(0.16, 0.075, 0.035)
 	station_name.position = Vector3(0.0, -0.135, 0.024)
+	station_name.visible = false # The exact source card already contains its own printed title.
 	station_name.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 	photo.add_child(station_name)
 
@@ -676,6 +677,7 @@ func _create_sunset_photograph(chest: Node3D, reveal_delayed := false) -> Node3D
 	seal.mesh = seal_mesh
 	seal.material_override = frame_material
 	seal.position = Vector3(0.0, -0.185, 0.024)
+	seal.visible = false # Preserve the original medallion printed in the source image without doubling it.
 	photo.add_child(seal)
 
 	var glow := OmniLight3D.new()
