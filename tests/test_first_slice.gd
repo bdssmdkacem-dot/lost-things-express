@@ -152,9 +152,15 @@ func _run_first_slice() -> void:
 		return
 	if not _check(hands.get_node_or_null("Thumb_L") != null and hands.get_node_or_null("Thumb_R") != null, "both visible thumbs must be present for a readable hand silhouette"):
 		return
+	var nail_count := 0
+	for hand_part in hands.get_children():
+		if hand_part.name.begins_with("Fingernail_") or hand_part.name.begins_with("Thumbnail_"):
+			nail_count += 1
+	if not _check(nail_count >= 10, "first-person hands are missing visible fingernails and thumbnails"):
+		return
 	var left_sleeve := hands.get_node_or_null("Sleeve_L") as MeshInstance3D
 	var left_sleeve_mesh := left_sleeve.mesh as CapsuleMesh if left_sleeve != null else null
-	if not _check(left_sleeve_mesh != null and left_sleeve_mesh.radius <= 0.065, "first-person sleeves are too bulky for the physical letter pose"):
+	if not _check(left_sleeve_mesh != null and left_sleeve_mesh.radius <= 0.085, "first-person sleeves are too bulky for the physical letter pose"):
 		return
 	if not _check(hands.get_parent() == camera, "first-person hands are not attached to the camera view"):
 		return
@@ -274,6 +280,11 @@ func _run_first_slice() -> void:
 	var source_photo := photo.get_node_or_null("StationPhotoFromUserReference") as MeshInstance3D
 	var source_photo_material := source_photo.material_override as StandardMaterial3D if source_photo else null
 	if not _check(source_photo_material != null and source_photo_material.albedo_texture != null, "the physical photo card did not load the station photograph from the supplied reference"):
+		return
+	var printed_card_mesh := source_photo.mesh as BoxMesh if source_photo else null
+	if not _check(printed_card_mesh != null and printed_card_mesh.size.y > 0.35 and printed_card_mesh.size.x > 0.34, "the exact supplied keepsake image is not printed across the full portrait card"):
+		return
+	if not _check(not bool((photo.get_node("StationName") as Label3D).visible), "a duplicate title is overlaid on the title already printed in the source keepsake"):
 		return
 	var station_label := photo.get_node_or_null("StationName") as Label3D
 	if not _check(station_label != null and station_label.position.y > -0.16 and station_label.position.y < 0.0, "the station name is not positioned on the photograph face"):
