@@ -2987,6 +2987,35 @@ func _interact() -> void:
 				world_transition_pending = true
 				_set_status("The station clock begins to chime. A new route is awakening beyond this carriage.")
 				_show_story_card("THE CLOCK THAT OPENS WORLDS", "Three quiet chimes ripple through the train. The first route opens: THE CLOCKWORK KINGDOM. Restore the bells in the order dawn, noon, midnight.", "ENTER THE CLOCKWORK KINGDOM")
+		"world_puzzle":
+			if world_level_complete:
+				_set_status("The memory is restored. Follow the railway gate.")
+			else:
+				var expected: int = world_puzzle_sequence[world_puzzle_progress]
+				var pressed_order: int = int(nearby_object.get_meta("puzzle_order", -1))
+				if pressed_order == expected:
+					world_puzzle_progress += 1
+					_play_hand_action("take")
+					nearby_object.visible = false
+					nearby_object.remove_from_group("interactables")
+					_trigger_mystery_beat("A clear note rings out. The world remembers a little more.")
+					if world_puzzle_progress >= world_puzzle_sequence.size():
+						world_level_complete = true
+						_spawn_world_gate()
+						_set_status("PUZZLE SOLVED · The railway ahead has awakened.")
+						_show_story_card("A MEMORY RESTORED", "The three clues fall into place. The world is no longer trapped in its unfinished moment. A new railway gate has opened.", "CONTINUE")
+					else:
+						_set_status("Clue restored · %d of 3" % world_puzzle_progress)
+				else:
+					world_puzzle_progress = 0
+					_show_story_card("THE CLUE DOES NOT FIT", "The mechanism falls silent. Start again and follow the clue: " + WORLD_LEVEL_THEMES[world_level_index], "TRY AGAIN")
+		"world_gate":
+			if not world_level_complete:
+				_set_status("The route is still asleep. Solve this world's puzzle first.")
+			elif world_level_index < WORLD_LEVEL_NAMES.size() - 1:
+				_start_world_level(world_level_index + 1)
+			else:
+				_show_story_card("THE LAST TERMINAL", "The five worlds are connected again. The final clock reveals a memory that belongs to you. The next chapter will ask whether to restore it or let it go.", "JOURNEY CONTINUES")
 		"chest":
 			if chest_open:
 				_show_story_card("SUNSET STATION", "The photograph shows a station glowing beneath a copper sunset. It is more than a memory — it is a clue to a place missing from every map.", "CLOSE PHOTOGRAPH")
