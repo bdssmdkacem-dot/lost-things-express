@@ -59,6 +59,7 @@ var world_intro_root: Node3D
 var world_intro_camera: Camera3D
 var intro_train_motion_root: Node3D
 var intro_elapsed := 0.0
+var intro_couplers: Array[Node3D] = []
 var intro_stage_prompt_started := false
 var held_key_prop: Node3D
 var held_letter_prop: Node3D
@@ -1016,6 +1017,12 @@ func _update_intro_cinematic(delta: float) -> void:
 	# The train travels forward along -Z while the camera follows more slowly,
 	# creating visible parallax against the stationary railway and world landmarks.
 	intro_train_motion_root.position.z -= delta * 0.42
+	# The drawbars articulate slightly as the connected consist rolls over track joints.
+	for index in range(intro_couplers.size()):
+		var coupler := intro_couplers[index]
+		if is_instance_valid(coupler):
+			coupler.rotation.y = sin(intro_elapsed * 2.25 + float(index) * 0.9) * 0.032
+			coupler.rotation.x = sin(intro_elapsed * 1.7 + float(index) * 0.65) * 0.014
 	if is_instance_valid(world_intro_camera):
 		world_intro_camera.position.z -= delta * 0.22
 		world_intro_camera.look_at(Vector3(30.0, 1.65, 0.4 - intro_elapsed * 0.22), Vector3.UP)
@@ -1174,6 +1181,8 @@ func _build_intro_train_couplers() -> void:
 		var drawbar := _intro_box("Heavy steel train drawbar %02d" % index,
 			Vector3(30.0, 0.78, z), Vector3(0.16, 0.16, 1.10),
 			Color(0.19, 0.22, 0.24), 0.82)
+		drawbar.set_meta("coupler_index", index)
+		intro_couplers.append(drawbar)
 		drawbar.rotation.y = 0.0
 		for side in [-1.0, 1.0]:
 			var buffer := MeshInstance3D.new()
@@ -1223,7 +1232,7 @@ func _build_world_intro() -> void:
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.78, 0.57, 0.48)
-	env.ambient_light_energy = 1.38
+	env.ambient_light_energy = 0.98
 	env.fog_enabled = true
 	env.fog_light_color = Color(0.72, 0.39, 0.34)
 	env.fog_density = 0.0048
@@ -1246,7 +1255,7 @@ func _build_world_intro() -> void:
 	var warm := OmniLight3D.new()
 	warm.position = Vector3(30.0, 5.0, 0.0)
 	warm.light_color = Color(1.0, 0.56, 0.25)
-	warm.light_energy = 1.85
+	warm.light_energy = 1.05
 	warm.omni_range = 18.0
 	world_intro_root.add_child(warm)
 	var moon_fill := DirectionalLight3D.new()
@@ -1258,9 +1267,9 @@ func _build_world_intro() -> void:
 	# Warm carriage practicals keep the full connected train readable in the establishing shot;
 	# the locomotive must not be the only illuminated object while the coaches disappear into black.
 	for coach_light_spec in [
-		[Vector3(30.0, 4.0, 9.0), 1.35, 10.0],
-		[Vector3(30.0, 4.0, 18.0), 1.45, 10.5],
-		[Vector3(30.0, 4.0, 27.0), 1.25, 10.0],
+		[Vector3(30.0, 4.0, 9.0), 0.68, 8.0],
+		[Vector3(30.0, 4.0, 18.0), 0.72, 8.5],
+		[Vector3(30.0, 4.0, 27.0), 0.62, 8.0],
 	]:
 		var coach_fill := OmniLight3D.new()
 		coach_fill.name = "TrainCarriageWarmPractical_%02d" % world_intro_root.get_child_count()
