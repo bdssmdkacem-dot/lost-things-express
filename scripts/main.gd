@@ -2862,9 +2862,13 @@ func _physics_process(_delta: float) -> void:
 	player.velocity.z = direction.z * WALK_SPEED
 	player.velocity.y = 0.0
 	player.move_and_slide()
-	player.position.x = clampf(player.position.x, -2.25, 2.25)
-	var rear_limit := -15.0 if chest_open else -5.1
-	player.position.z = clampf(player.position.z, rear_limit, 5.1)
+	if world_level_index >= 0:
+		player.position.x = clampf(player.position.x, -6.0, 6.0)
+		player.position.z = clampf(player.position.z, -6.0, 6.0)
+	else:
+		player.position.x = clampf(player.position.x, -2.25, 2.25)
+		var rear_limit := -15.0 if chest_open else -5.1
+		player.position.z = clampf(player.position.z, rear_limit, 5.1)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
@@ -2924,7 +2928,7 @@ func _update_nearby() -> void:
 	nearby_object = null
 	var nearest := INTERACT_DISTANCE
 	for node in get_tree().get_nodes_in_group("interactables"):
-		if not is_instance_valid(node) or node.is_queued_for_deletion():
+		if not is_instance_valid(node) or node.is_queued_for_deletion() or not node.is_visible_in_tree():
 			continue
 		# Floor-plane distance is more forgiving on mobile; vertical offset has only a small penalty.
 		var horizontal := Vector2(player.global_position.x, player.global_position.z).distance_to(Vector2(node.global_position.x, node.global_position.z))
@@ -3261,6 +3265,10 @@ func _spawn_world_gate() -> void:
 
 
 func _objective_text() -> String:
+	if world_level_index >= 0:
+		if world_level_complete:
+			return "WORLD %d/5 · Puzzle restored. Find the railway gate." % (world_level_index + 1)
+		return "%s · Restore the sequence (%d/3)." % [WORLD_LEVEL_NAMES[world_level_index], world_puzzle_progress]
 	if chest_open:
 		return "Stage one complete: continue to the clock in the next carriage."
 	if not has_key:
