@@ -3142,7 +3142,10 @@ func _start_world_level(index: int) -> void:
 	world_level_index = clampi(index, 0, WORLD_LEVEL_NAMES.size() - 1)
 	world_puzzle_progress = 0
 	world_level_complete = false
-	world_puzzle_sequence = [[0, 1, 2], [2, 0, 1], [1, 2, 0], [0, 2, 1], [1, 0, 2]][world_level_index]
+	world_puzzle_sequence.clear()
+	var sequence_options := [[0, 1, 2], [2, 0, 1], [1, 2, 0], [0, 2, 1], [1, 0, 2]]
+	for order in sequence_options[world_level_index]:
+		world_puzzle_sequence.append(int(order))
 	if is_instance_valid(world_level_root):
 		world_level_root.queue_free()
 	for child in get_children():
