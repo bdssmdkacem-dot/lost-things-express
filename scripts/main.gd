@@ -1172,18 +1172,18 @@ func _build_world_intro() -> void:
 	env.background_mode = Environment.BG_SKY
 	var sky := Sky.new()
 	var sky_mat := ProceduralSkyMaterial.new()
-	sky_mat.sky_top_color = Color(0.055, 0.075, 0.19)
-	sky_mat.sky_horizon_color = Color(0.34, 0.23, 0.31)
-	sky_mat.ground_bottom_color = Color(0.075, 0.055, 0.13)
-	sky_mat.ground_horizon_color = Color(0.23, 0.15, 0.24)
+	sky_mat.sky_top_color = Color(0.19, 0.22, 0.38)
+	sky_mat.sky_horizon_color = Color(0.76, 0.39, 0.31)
+	sky_mat.ground_bottom_color = Color(0.15, 0.10, 0.19)
+	sky_mat.ground_horizon_color = Color(0.48, 0.24, 0.25)
 	sky.sky_material = sky_mat
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.58, 0.54, 0.64)
-	env.ambient_light_energy = 1.28
+	env.ambient_light_color = Color(0.78, 0.57, 0.48)
+	env.ambient_light_energy = 1.38
 	env.fog_enabled = true
-	env.fog_light_color = Color(0.27, 0.32, 0.44)
-	env.fog_density = 0.0055
+	env.fog_light_color = Color(0.72, 0.39, 0.34)
+	env.fog_density = 0.0048
 	env.fog_sky_affect = 0.30
 	intro_environment = env
 	if is_instance_valid(world_environment):
@@ -1208,8 +1208,8 @@ func _build_world_intro() -> void:
 	world_intro_root.add_child(warm)
 	var moon_fill := DirectionalLight3D.new()
 	moon_fill.rotation_degrees = Vector3(-38.0, -25.0, 0.0)
-	moon_fill.light_color = Color(0.48, 0.62, 1.0)
-	moon_fill.light_energy = 1.0
+	moon_fill.light_color = Color(0.78, 0.63, 0.55)
+	moon_fill.light_energy = 0.82
 	world_intro_root.add_child(moon_fill)
 
 	# Warm carriage practicals keep the full connected train readable in the establishing shot;
