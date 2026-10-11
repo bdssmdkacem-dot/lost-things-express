@@ -1923,6 +1923,56 @@ func _build_world_intro() -> void:
 							Vector3(building.position.x + window_side * 0.34, building.position.y + 0.19, building.position.z - 0.592),
 							Vector3(0.018, 0.205, 0.012), Color(0.22, 0.12, 0.055), 0.08)
 
+	# Odd-numbered worlds use distinct observatory/portal architecture rather
+	# than repeating the timber settlement used by the even-numbered worlds.
+	for world_index in [1, 3]:
+		var world_z := -18.0 + float(world_index) * 12.0
+		var world_x := 30.0 + sin(world_z * 0.072) * 2.1
+		var side: float = 1.0 if world_index == 1 else -1.0
+		var base_x := world_x + side * 8.8
+		var base_z := world_z + 2.1
+		var plinth := _intro_box("Fantasy world observatory plinth",
+			Vector3(base_x, 0.18, base_z), Vector3(2.25, 0.30, 1.85),
+			Color(0.24, 0.25, 0.29), 0.10)
+		var tower := MeshInstance3D.new()
+		tower.name = "Distinct world observatory tower"
+		var tower_mesh := CylinderMesh.new()
+		tower_mesh.top_radius = 0.48
+		tower_mesh.bottom_radius = 0.68
+		tower_mesh.height = 2.25
+		tower.mesh = tower_mesh
+		tower.position = Vector3(base_x, 1.35, base_z)
+		var tower_mat := StandardMaterial3D.new()
+		tower_mat.albedo_color = Color(0.24, 0.29, 0.34) if world_index == 1 else Color(0.29, 0.22, 0.35)
+		tower_mat.roughness = 0.72
+		tower.material_override = tower_mat
+		world_intro_root.add_child(tower)
+		var roof := MeshInstance3D.new()
+		roof.name = "Observatory faceted roof"
+		var roof_mesh := CylinderMesh.new()
+		roof_mesh.top_radius = 0.02
+		roof_mesh.bottom_radius = 0.72
+		roof_mesh.height = 0.82
+		roof_mesh.radial_segments = 6
+		roof.mesh = roof_mesh
+		roof.position = Vector3(base_x, 2.88, base_z)
+		var roof_mat := StandardMaterial3D.new()
+		roof_mat.albedo_color = Color(0.14, 0.43, 0.48) if world_index == 1 else Color(0.48, 0.23, 0.55)
+		roof_mat.metallic = 0.32
+		roof.material_override = roof_mat
+		world_intro_root.add_child(roof)
+		for window_index in range(3):
+			var slit := _intro_box("Observatory narrow glowing window",
+				Vector3(base_x + float(window_index - 1) * 0.30, 1.38, base_z - 0.49),
+				Vector3(0.085, 0.48, 0.035),
+				Color(0.25, 0.83, 0.91) if world_index == 1 else Color(0.83, 0.42, 1.0), 0.025)
+			var slit_mat := StandardMaterial3D.new()
+			slit_mat.albedo_color = Color(0.25, 0.83, 0.91) if world_index == 1 else Color(0.83, 0.42, 1.0)
+			slit_mat.emission_enabled = true
+			slit_mat.emission = slit_mat.albedo_color
+			slit_mat.emission_energy_multiplier = 0.7
+			slit.material_override = slit_mat
+
 	# Five distant landmarks give each rail-linked world a memorable silhouette.
 	# They are kept beside the track so the locomotive remains the clear focal point.
 	for landmark_index in range(5):
