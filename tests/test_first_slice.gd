@@ -389,6 +389,8 @@ func _run_first_slice() -> void:
 		if not _check(sequence.size() == 3 and sequence[0] != sequence[1] and sequence[1] != sequence[2], "world %d puzzle sequence is invalid" % (world_index + 1)):
 			return
 	# Solve every world's real interaction sequence, activate its gate, and verify progression.
+	resumed_game.call("_start_world_level", 0)
+	await process_frame
 	for world_index in range(5):
 		if world_index > 0:
 			resumed_game.call("_start_world_level", world_index)
