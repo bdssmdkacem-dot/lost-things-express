@@ -289,7 +289,7 @@ func _run_first_slice() -> void:
 	if not _check(not bool((photo.get_node("StationName") as Label3D).visible), "a duplicate title is overlaid on the title already printed in the source keepsake"):
 		return
 	var station_label := photo.get_node_or_null("StationName") as Label3D
-	if not _check(station_label != null and station_label.position.y > -0.16 and station_label.position.y < 0.0, "the station name is not positioned on the photograph face"):
+	if not _check(station_label != null and station_label.position.y > -0.30 and station_label.position.y < -0.16, "the station name is not positioned on the photograph face"):
 		return
 	game.call("_close_story_card")
 	player.global_position = photo.global_position + Vector3(0.0, 0.0, 0.22)
