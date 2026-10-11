@@ -153,7 +153,7 @@ func _run_first_slice() -> void:
 	if not _check(hands.get_node_or_null("Thumb_L") != null and hands.get_node_or_null("Thumb_R") != null, "both visible thumbs must be present for a readable hand silhouette"):
 		return
 	var nail_count := 0
-	for hand_part in hands.get_children():
+	for hand_part in hands.find_children("*", "MeshInstance3D", true, false):
 		if hand_part.name.begins_with("Fingernail_") or hand_part.name.begins_with("Thumbnail_"):
 			nail_count += 1
 	if not _check(nail_count >= 10, "first-person hands are missing visible fingernails and thumbnails"):
