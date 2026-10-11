@@ -67,7 +67,7 @@ func _run_first_slice() -> void:
 	var intro_root := game.get("world_intro_root") as Node3D
 	if not _check(intro_root.find_child("LocomotiveConnectingRod_L", true, false) != null and intro_root.find_child("LocomotiveConnectingRod_R", true, false) != null, "the establishing locomotive is missing its wheel connecting rods"):
 		return
-	if not _check(intro_root.find_children("SoftSteamPuff_*", "MeshInstance3D", true, false).size() == 3, "the establishing locomotive is missing its restrained steam plume"):
+	if not _check(intro_root.find_child("Locomotive restrained steam plume", true, false) is GPUParticles3D, "the establishing locomotive is missing its restrained particle steam plume"):
 		return
 	if not _check(intro_root.find_child("Smokebox front door", true, false) != null or intro_root.find_child("Circular locomotive smokebox door", true, false) != null, "the locomotive front still reads as a plain boiler without a crafted smokebox"):
 		return
