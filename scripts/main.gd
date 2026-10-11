@@ -1276,14 +1276,103 @@ func _build_world_intro() -> void:
 			land.name = "ConnectedWorldTerrain_%02d_%s" % [world_index, "L" if side < 0.0 else "R"]
 			# Irregular radial terrain crown instead of a smooth oval placeholder.
 			land.mesh = _build_terrain_crown(world_index)
-			land.scale = Vector3(4.25, 0.82, 5.8)
+			# Vary each terrain silhouette and elevation so the route crosses distinct biomes,
+			# not five copies of the same floating plate.
+			var terrain_scales := [
+				Vector3(4.55, 1.12, 5.75),
+				Vector3(3.95, 1.38, 5.20),
+				Vector3(4.85, 0.92, 5.55),
+				Vector3(4.05, 1.18, 6.10),
+				Vector3(4.60, 1.30, 5.85)
+			]
+			land.scale = terrain_scales[world_index]
 			land.position = Vector3(world_x + side * 8.4, -0.52 + sin(float(world_index) * 0.7) * 0.24, world_z)
 			var land_mat := StandardMaterial3D.new()
-			var land_colors := [Color(0.19, 0.29, 0.19), Color(0.20, 0.25, 0.32), Color(0.31, 0.19, 0.16), Color(0.18, 0.30, 0.34), Color(0.27, 0.23, 0.34)]
+			var land_colors := [Color(0.25, 0.36, 0.20), Color(0.29, 0.31, 0.39), Color(0.42, 0.23, 0.15), Color(0.17, 0.38, 0.43), Color(0.34, 0.28, 0.43)]
 			land_mat.albedo_color = land_colors[world_index]
 			land_mat.roughness = 0.98
 			land.material_override = land_mat
 			world_intro_root.add_child(land)
+
+			# Biome-specific formations break the repeated oval silhouette at phone scale.
+			if world_index == 0:
+				for peak_index in range(3):
+					var peak := MeshInstance3D.new()
+					peak.name = "Moonlit mountain basalt peak"
+					var peak_mesh := CylinderMesh.new()
+					peak_mesh.top_radius = 0.03
+					peak_mesh.bottom_radius = 0.62 - float(peak_index) * 0.09
+					peak_mesh.height = 1.8 + float(peak_index % 2) * 0.75
+					peak_mesh.radial_segments = 6
+					peak.mesh = peak_mesh
+					peak.position = land.position + Vector3(float(peak_index - 1) * 1.45, 0.85 + peak_mesh.height * 0.35, -1.2 + float(peak_index % 2) * 1.25)
+					peak.rotation.z = float(peak_index - 1) * 0.08
+					var peak_mat := StandardMaterial3D.new()
+					peak_mat.albedo_color = Color(0.20, 0.23, 0.31)
+					peak_mat.roughness = 0.92
+					peak.material_override = peak_mat
+					world_intro_root.add_child(peak)
+			elif world_index == 1:
+				for spire_index in range(3):
+					var spire := MeshInstance3D.new()
+					spire.name = "Clockwork limestone needle"
+					var spire_mesh := CylinderMesh.new()
+					spire_mesh.top_radius = 0.02
+					spire_mesh.bottom_radius = 0.34
+					spire_mesh.height = 1.5 + float(spire_index % 2) * 0.7
+					spire_mesh.radial_segments = 7
+					spire.mesh = spire_mesh
+					spire.position = land.position + Vector3(float(spire_index - 1) * 1.55, 0.65 + spire_mesh.height * 0.35, 1.2)
+					var spire_mat := StandardMaterial3D.new()
+					spire_mat.albedo_color = Color(0.54, 0.45, 0.32)
+					spire_mat.roughness = 0.86
+					spire.material_override = spire_mat
+					world_intro_root.add_child(spire)
+			elif world_index == 2:
+				for mesa_index in range(3):
+					var mesa := _intro_box("Red canyon sandstone mesa",
+						land.position + Vector3(float(mesa_index - 1) * 1.5, 0.52, -1.1 + float(mesa_index % 2) * 1.8),
+						Vector3(0.95, 1.15 + float(mesa_index % 2) * 0.45, 0.92),
+						Color(0.49, 0.25, 0.15), 0.04)
+					mesa.rotation.z = float(mesa_index - 1) * 0.10
+			elif world_index == 3:
+				for shard_index in range(4):
+					var shard := MeshInstance3D.new()
+					shard.name = "Azure terrain crystal shard"
+					var shard_mesh := CylinderMesh.new()
+					shard_mesh.top_radius = 0.015
+					shard_mesh.bottom_radius = 0.30 + float(shard_index % 2) * 0.12
+					shard_mesh.height = 1.25 + float(shard_index % 3) * 0.55
+					shard_mesh.radial_segments = 5
+					shard.mesh = shard_mesh
+					shard.position = land.position + Vector3(float(shard_index - 2) * 0.9, 0.5 + shard_mesh.height * 0.35, 1.25)
+					shard.rotation.z = float(shard_index - 1) * 0.12
+					var shard_mat := StandardMaterial3D.new()
+					shard_mat.albedo_color = Color(0.10, 0.52, 0.78)
+					shard_mat.metallic = 0.18
+					shard_mat.roughness = 0.2
+					shard_mat.emission_enabled = true
+					shard_mat.emission = Color(0.035, 0.20, 0.42)
+					shard_mat.emission_energy_multiplier = 0.8
+					shard.material_override = shard_mat
+					world_intro_root.add_child(shard)
+			else:
+				for root_index in range(4):
+					var root := MeshInstance3D.new()
+					root.name = "Ancient skywood hanging root"
+					var root_mesh := CylinderMesh.new()
+					root_mesh.top_radius = 0.10
+					root_mesh.bottom_radius = 0.015
+					root_mesh.height = 1.65 + float(root_index % 2) * 0.65
+					root_mesh.radial_segments = 7
+					root.mesh = root_mesh
+					root.position = land.position + Vector3(float(root_index - 2) * 1.0, -1.0, -1.25 + float(root_index % 2) * 1.5)
+					root.rotation.z = float(root_index - 1) * 0.18
+					var root_mat := StandardMaterial3D.new()
+					root_mat.albedo_color = Color(0.20, 0.095, 0.045)
+					root_mat.roughness = 0.96
+					root.material_override = root_mat
+					world_intro_root.add_child(root)
 
 			var cliff := MeshInstance3D.new()
 			cliff.name = "Layered world cliff"
