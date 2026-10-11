@@ -80,8 +80,17 @@ The Android export preset previously had `package/signed=false`, even though the
 
 - [x] Add automated checks for all five puzzle arenas, puzzle progression, exit gates and both ending branches
 - [x] Correct the ending test setup so it clears intro/transition flags before exercising the choice callbacks
-- [ ] Confirm a fresh Android APK build for the latest campaign changes
-- [ ] Review the latest captured screenshots for all five worlds, the final choice and both epilogues
-- [ ] Complete hands-on Android QA for lighting/readability, puzzle solving, gate transitions and ending choice
+- [x] Confirm a fresh signed Android APK build for the latest campaign and realm-detail changes (commit `d51827c`; signature, alignment, package and native-library checks passed)
+- [x] Review the latest captured screenshots for the train intro, carriage, physical letter, chest photograph, all five worlds, the final choice and both epilogues (visual review run 38177642006)
+- [ ] Complete hands-on Android QA for lighting/readability, touch controls, puzzle solving, gate transitions and ending choice
 
-Do not mark the five-world campaign complete until the pending build, visual review and device QA checks pass.
+### Latest visual QA notes (2026-10-11)
+
+- Added realm-specific edge terrain, foreground props, route edging and focal details; added separate sky/fog palettes in the preceding visual pass.
+- Increased finger size slightly and added visible nail/joint cues to the camera-attached hand model.
+- Automated Godot project checks and the five-world interaction sequence pass on commit `d51827c`; both ending branches are exercised by the automated test.
+- Signed APK artifact is available from Android workflow run 38177642026. Emulator launch was skipped because the runner lacks KVM acceleration.
+- **Visual acceptance remains open:** the new screenshots show better realm separation and a clearer path, but world construction still reads as stylized prototype geometry rather than the locked premium reference. The letter/hand pose is readable, yet hand anatomy and photo-card fidelity still need a closer visual pass against the original reference.
+- **Physical Android verification remains open:** install and test the APK on a real phone. Check frame rate, shadows/fog readability, multi-touch camera/movement, all puzzle sequences and gate transitions, and each ending. Do not claim device QA based on CI.
+
+Do not mark the five-world campaign complete until the remaining visual acceptance and physical-device QA checks pass.
