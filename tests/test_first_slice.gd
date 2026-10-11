@@ -281,8 +281,10 @@ func _run_first_slice() -> void:
 	var source_photo_material := source_photo.material_override as StandardMaterial3D if source_photo else null
 	if not _check(source_photo_material != null and source_photo_material.albedo_texture != null, "the physical photo card did not load the station photograph from the supplied reference"):
 		return
-	var printed_card_mesh := source_photo.mesh as BoxMesh if source_photo else null
-	if not _check(printed_card_mesh != null and printed_card_mesh.size.y > 0.35 and printed_card_mesh.size.x > 0.34, "the exact supplied keepsake image is not printed across the full portrait card"):
+	var printed_card_mesh := source_photo.mesh as QuadMesh if source_photo else null
+	if not _check(printed_card_mesh != null and printed_card_mesh.size.y > 0.55 and printed_card_mesh.size.x > 0.48 and printed_card_mesh.size.y > printed_card_mesh.size.x, "the exact supplied keepsake image is not printed across the full portrait card"):
+		return
+	if not _check(photo_mesh.size.x >= 0.52 and photo_mesh.size.y >= 0.60, "the keepsake card is too small to read during the chest reveal"):
 		return
 	if not _check(not bool((photo.get_node("StationName") as Label3D).visible), "a duplicate title is overlaid on the title already printed in the source keepsake"):
 		return
