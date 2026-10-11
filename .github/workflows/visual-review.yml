@@ -58,6 +58,11 @@ jobs:
           test -s build/visual_review/04_physical_letter.png
           test -s build/visual_review/05_chest_reveal.png
           test -s build/visual_review/06_pause_settings.png
+          test -s build/visual_review/07_world_clockwork.png
+          test -s build/visual_review/08_world_cloud_islands.png
+          test -s build/visual_review/09_world_remembering_forest.png
+          test -s build/visual_review/10_world_sunset_station.png
+          test -s build/visual_review/11_world_last_terminal.png
           file build/visual_review/*.png
 
       - name: Upload Godot visual review images
