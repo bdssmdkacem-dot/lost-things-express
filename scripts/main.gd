@@ -2214,7 +2214,7 @@ func _input(event: InputEvent) -> void:
 		return
 	# Modal overlays must block gameplay input as well as draw above it; otherwise
 	# a swipe can rotate the camera or leave a touch joystick latched.
-	if story_card_open or game_paused:
+	if story_card_open or game_paused or world_intro_active:
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_E:
