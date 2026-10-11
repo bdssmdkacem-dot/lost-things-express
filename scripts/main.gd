@@ -1080,12 +1080,12 @@ func _tune_locomotive_lamp_materials(node: Node) -> void:
 		# matching the old word order silently skipped the intended amber override.
 		if part_name.contains("headlamp") and part_name.contains("lens"):
 			var lens := StandardMaterial3D.new()
-			lens.albedo_color = Color(1.0, 0.48, 0.12, 1.0)
+			lens.albedo_color = Color(1.0, 0.82, 0.52, 1.0)
 			lens.metallic = 0.04
-			lens.roughness = 0.24
+			lens.roughness = 0.20
 			lens.emission_enabled = true
-			lens.emission = Color(0.82, 0.23, 0.025)
-			lens.emission_energy_multiplier = 0.28
+			lens.emission = Color(1.0, 0.66, 0.28)
+			lens.emission_energy_multiplier = 1.15
 			mesh_node.material_override = lens
 		elif part_name.contains("marker lamp lens"):
 			var marker := StandardMaterial3D.new()
@@ -2053,11 +2053,12 @@ func _build_world_intro() -> void:
 		headlamp_glass.mesh = headlamp_mesh
 		headlamp_glass.position = Vector3(30.0, 2.0, -3.72)
 		var glow_material := StandardMaterial3D.new()
-		glow_material.albedo_color = Color(0.92, 0.43, 0.12)
+		glow_material.albedo_color = Color(1.0, 0.82, 0.52)
 		glow_material.emission_enabled = true
-		glow_material.emission = Color(0.92, 0.29, 0.055)
-		# Keep the lens warm and luminous without clipping to a featureless white disk.
-		glow_material.emission_energy_multiplier = 0.28
+		glow_material.emission = Color(1.0, 0.66, 0.28)
+		# A bright tungsten core like the approved reference, with enough amber left
+		# in the glass to preserve the brass-and-emerald palette.
+		glow_material.emission_energy_multiplier = 1.15
 		headlamp_glass.material_override = glow_material
 		world_intro_root.add_child(headlamp_glass)
 		# Machined concentric bezel and a small inner reflector make the lamp read as glass inside brass.
@@ -2093,11 +2094,50 @@ func _build_world_intro() -> void:
 		world_intro_root.add_child(lens_reflection)
 		var headlamp_light := OmniLight3D.new()
 		headlamp_light.position = Vector3(30.0, 2.0, -4.0)
-		headlamp_light.light_color = Color(1.0, 0.52, 0.20)
-		headlamp_light.light_energy = 0.58
-		headlamp_light.omni_range = 4.2
+		headlamp_light.light_color = Color(1.0, 0.68, 0.34)
+		headlamp_light.light_energy = 1.15
+		headlamp_light.omni_range = 6.5
 		headlamp_light.shadow_enabled = false
 		world_intro_root.add_child(headlamp_light)
+		# The reference locomotive has a central headlight and two lower marker
+		# lamps. Build the pair as proper brass housings with glass lenses, not
+		# flat orange dots, and give each a restrained pool of warm light.
+		for auxiliary_x in [29.12, 30.88]:
+			_intro_box("Auxiliary headlamp brass housing",
+				Vector3(auxiliary_x, 1.12, -3.54),
+				Vector3(0.34, 0.34, 0.24), Color(0.70, 0.40, 0.12), 0.84)
+			var auxiliary_lens := MeshInstance3D.new()
+			auxiliary_lens.name = "Auxiliary headlamp glowing lens"
+			var auxiliary_mesh := SphereMesh.new()
+			auxiliary_mesh.radius = 0.125
+			auxiliary_mesh.height = 0.25
+			auxiliary_lens.mesh = auxiliary_mesh
+			auxiliary_lens.position = Vector3(auxiliary_x, 1.12, -3.70)
+			var auxiliary_material := StandardMaterial3D.new()
+			auxiliary_material.albedo_color = Color(1.0, 0.82, 0.54)
+			auxiliary_material.emission_enabled = true
+			auxiliary_material.emission = Color(1.0, 0.62, 0.25)
+			auxiliary_material.emission_energy_multiplier = 0.95
+			auxiliary_lens.material_override = auxiliary_material
+			world_intro_root.add_child(auxiliary_lens)
+			var auxiliary_light := OmniLight3D.new()
+			auxiliary_light.position = Vector3(auxiliary_x, 1.12, -3.86)
+			auxiliary_light.light_color = Color(1.0, 0.62, 0.30)
+			auxiliary_light.light_energy = 0.45
+			auxiliary_light.omni_range = 3.2
+			auxiliary_light.shadow_enabled = false
+			world_intro_root.add_child(auxiliary_light)
+		# A forward-facing beam gives the headlamp an actual lighting effect on
+		# the track ahead instead of relying on emission alone.
+		var headlamp_beam := SpotLight3D.new()
+		headlamp_beam.name = "Locomotive forward headlamp beam"
+		headlamp_beam.position = Vector3(30.0, 2.0, -4.05)
+		headlamp_beam.light_color = Color(1.0, 0.72, 0.43)
+		headlamp_beam.light_energy = 2.6
+		headlamp_beam.spot_range = 20.0
+		headlamp_beam.spot_angle = 34.0
+		headlamp_beam.shadow_enabled = false
+		world_intro_root.add_child(headlamp_beam)
 		var nameplate := Label3D.new()
 		nameplate.name = "Lost and Found nameplate"
 		nameplate.text = "Lost & Found"
