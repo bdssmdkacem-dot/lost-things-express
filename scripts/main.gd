@@ -1361,14 +1361,16 @@ func _build_world_intro() -> void:
 		ballast.rotation.y = cos(zf * 0.072) * 0.145
 		var sleeper := _intro_box("Railway sleeper %02d" % (z + 27), Vector3(curve_x, track_y, zf), Vector3(4.05, 0.15, 0.24), Color(0.105, 0.047, 0.027), 0.04)
 		sleeper.rotation.y = cos(zf * 0.072) * 0.145
-		for rail_side in [-1.0, 1.0]:
-			var rail_x := curve_x + rail_side * 1.28
+		for rail_side_value in [-1.0, 1.0]:
+			var rail_side: float = float(rail_side_value)
+			var rail_x: float = curve_x + rail_side * 1.28
 			var rail := _intro_box("Continuous steel rail %02d" % (z + 27), Vector3(rail_x, track_y + 0.15, zf), Vector3(0.115, 0.17, 1.08), Color(0.39, 0.43, 0.47), 0.84)
 			rail.rotation.y = cos(zf * 0.072) * 0.145
 			var plate := _intro_box("Rail fastening plate", Vector3(rail_x, track_y + 0.085, zf), Vector3(0.24, 0.035, 0.19), Color(0.29, 0.23, 0.15), 0.62)
 			plate.rotation.y = cos(zf * 0.072) * 0.145
 			# Small paired clips and bolt heads make the rail attachment readable in close shots.
-			for clip_side in [-1.0, 1.0]:
+			for clip_side_value in [-1.0, 1.0]:
+				var clip_side: float = float(clip_side_value)
 				var clip := _intro_box("Rail spring clip", Vector3(rail_x + clip_side * 0.105, track_y + 0.11, zf), Vector3(0.045, 0.055, 0.15), Color(0.31, 0.34, 0.36), 0.78)
 				clip.rotation.y = cos(zf * 0.072) * 0.145
 				var bolt := MeshInstance3D.new()
