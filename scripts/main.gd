@@ -72,7 +72,7 @@ var world_transition_pending := false
 var world_level_complete := false
 var world_puzzle_sequence: Array[int] = []
 const WORLD_LEVEL_NAMES := ["THE CLOCKWORK KINGDOM", "THE CLOUD ISLANDS", "THE REMEMBERING FOREST", "SUNSET STATION", "THE LAST TERMINAL"]
-const WORLD_LEVEL_THEMES := ["Restore the bells in the order dawn, noon, midnight.", "Restore the route from the highest bridge to the lowest.", "Follow the echoes: whisper, laughter, lullaby.", "A promise must be read, witnessed, then delivered.", "Set the clock to past, present, then future."]
+const WORLD_LEVEL_THEMES := ["Restore the bells in the order dawn, noon, midnight.", "Restore the route from the highest bridge, then the lowest, then the middle.", "Follow the echoes: laughter, lullaby, then whisper.", "A promise must be read, delivered, then witnessed.", "Set the clock to present, past, then future."]
 
 func _ready() -> void:
 	_setup_input_map()
