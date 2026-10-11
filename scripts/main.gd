@@ -1608,6 +1608,25 @@ func _build_world_intro() -> void:
 					Vector3(0.62, 2.25, 0.62), Color(0.17, 0.19, 0.22), 0.12)
 				pier.rotation.y = side * 0.04
 
+		# Broad plinths and sloped buttresses visually carry the bridge load into
+		# the floating terrain instead of leaving thin, toy-like vertical posts.
+		for pier_z in [-3.0, 3.0]:
+			for side in [-1.0, 1.0]:
+				var pier_x: float = span_x + side * 1.58
+				var footing := _intro_box("Viaduct pier stepped stone footing",
+					Vector3(pier_x, -2.52, span_z + pier_z),
+					Vector3(0.94, 0.24, 0.98), Color(0.32, 0.29, 0.27), 0.10)
+				footing.rotation.y = cos(span_z * 0.072) * 0.145
+				var buttress := _intro_box("Viaduct pier angled buttress",
+					Vector3(pier_x + side * 0.30, -1.92, span_z + pier_z),
+					Vector3(0.42, 1.18, 0.72), Color(0.27, 0.26, 0.26), 0.10)
+				buttress.rotation.z = -side * 0.16
+				buttress.rotation.y = cos(span_z * 0.072) * 0.145
+				var capital := _intro_box("Viaduct pier carved capital course",
+					Vector3(pier_x, -0.29, span_z + pier_z),
+					Vector3(0.82, 0.20, 0.84), Color(0.42, 0.37, 0.33), 0.12)
+				capital.rotation.y = cos(span_z * 0.072) * 0.145
+
 	# Each world has a distinct terrain crown, rock strata, vegetation, and
 	# architecture; the railway/viaduct physically leads the eye between them.
 	for world_index in range(5):
