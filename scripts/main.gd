@@ -1584,23 +1584,28 @@ func _build_world_intro() -> void:
 				var block_z: float = span_z - 3.9 + float(block_index) * 1.3
 				var joint := _intro_box("Viaduct parapet stone joint", Vector3(span_x + side * 2.05, 0.015, block_z), Vector3(0.235, 0.31, 0.025), Color(0.19, 0.19, 0.19), 0.08)
 				joint.rotation.y = cos(span_z * 0.072) * 0.145
-		# Repeated stone arch ribs give the viaduct a real bridge silhouette,
-		# rather than reading as a flat platform held up by square posts.
-		for arch_offset in [-3.25, 0.0, 3.25]:
-			var arch := MeshInstance3D.new()
-			arch.name = "Carved stone viaduct arch rib"
-			var arch_mesh := TorusMesh.new()
-			arch_mesh.inner_radius = 1.02
-			arch_mesh.outer_radius = 1.24
-			arch_mesh.rings = 28
-			arch_mesh.ring_segments = 10
-			arch.mesh = arch_mesh
-			arch.position = Vector3(span_x, -1.10, span_z + arch_offset)
-			var arch_mat := StandardMaterial3D.new()
-			arch_mat.albedo_color = Color(0.34, 0.29, 0.25)
-			arch_mat.roughness = 0.94
-			arch.material_override = arch_mat
-			world_intro_root.add_child(arch)
+		# True masonry arch ribs in the bridge side elevation. The old torus
+		# rings lay flat and read as decorative hoops; individual voussoirs now
+		# follow a load-bearing semicircle with a visible crown and spring points.
+		for arch_side in [-1.0, 1.0]:
+			for arch_offset in [-3.0, 0.0, 3.0]:
+				var arch_center_z: float = span_z + float(arch_offset)
+				var arch_material := StandardMaterial3D.new()
+				arch_material.albedo_color = Color(0.35, 0.30, 0.26) if arch_offset == 0.0 else Color(0.31, 0.28, 0.26)
+				arch_material.roughness = 0.96
+				for voussoir_index in range(11):
+					var angle: float = 0.10 + float(voussoir_index) * (PI - 0.20) / 10.0
+					var radius: float = 1.58
+					var voussoir := _intro_box("Viaduct semicircular stone voussoir",
+						Vector3(span_x + arch_side * 1.78, -2.50 + sin(angle) * radius, arch_center_z + cos(angle) * radius),
+						Vector3(0.34, 0.36, 0.57), arch_material.albedo_color, 0.10)
+					voussoir.rotation.x = -angle
+					voussoir.rotation.y = cos(span_z * 0.072) * 0.145
+				# A wider keystone makes the crown legible at the intro camera distance.
+				var keystone := _intro_box("Viaduct arch crown keystone",
+					Vector3(span_x + arch_side * 1.78, -0.90, arch_center_z),
+					Vector3(0.39, 0.40, 0.36), Color(0.47, 0.40, 0.34), 0.08)
+				keystone.rotation.y = cos(span_z * 0.072) * 0.145
 		for pier_z in [-3.0, 3.0]:
 			for side in [-1.0, 1.0]:
 				var pier := _intro_box("Tapered stone viaduct pier",
