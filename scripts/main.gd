@@ -1946,6 +1946,25 @@ func _build_world_intro() -> void:
 							Vector3(building.position.x + window_side * 0.34, building.position.y + 0.19, building.position.z - 0.592),
 							Vector3(0.018, 0.205, 0.012), Color(0.22, 0.12, 0.055), 0.08)
 
+					# Stone plinth, corner timbers and shutter boards add readable
+					# construction detail without changing the station footprint.
+					var house_foundation := _intro_box("World house dressed stone foundation",
+						Vector3(building.position.x, building.position.y - 0.49, building.position.z),
+						Vector3(1.12, 0.16, 1.12), Color(0.31, 0.27, 0.23), 0.08)
+					for corner_x in [-1.0, 1.0]:
+						var corner_post := _intro_box("World house dark oak corner post",
+							Vector3(building.position.x + corner_x * 0.47, building.position.y, building.position.z - 0.535),
+							Vector3(0.075, 1.02 + float(building_index % 2) * 0.18, 0.075), Color(0.095, 0.052, 0.03), 0.045)
+					for shutter_side in [-1.0, 1.0]:
+						for shutter_board in range(2):
+							var shutter := _intro_box("World house timber window shutter",
+								Vector3(building.position.x + shutter_side * 0.34 + float(shutter_side) * 0.15,
+									building.position.y + 0.19 + float(shutter_board) * 0.10, building.position.z - 0.565),
+								Vector3(0.07, 0.27, 0.035), Color(0.18, 0.085, 0.045), 0.035)
+					var roof_ridge := _intro_box("World house roof ridge cap",
+						Vector3(building.position.x, building.position.y + 0.88, building.position.z),
+						Vector3(0.12, 0.12, 1.34), Color(0.36, 0.16, 0.085), 0.05)
+
 	# Odd-numbered worlds use distinct observatory/portal architecture rather
 	# than repeating the timber settlement used by the even-numbered worlds.
 	for world_index in [1, 3]:
