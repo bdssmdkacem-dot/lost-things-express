@@ -3245,7 +3245,7 @@ func _start_world_level(index: int) -> void:
 				_world_level_shape("Ancient canopy crown", Vector3(x + 0.25, 4.0, -5.55), _world_sphere(), Color(0.12, 0.31, 0.13), Vector3(1.0, 0.9, 1.0), 0.0, 0.95)
 				_world_level_shape("Memory fruit", Vector3(x - 0.28, 3.1, -4.72), _world_sphere(), Color(0.86, 0.66, 0.28), Vector3(0.17, 0.20, 0.17), 0.12, 0.28)
 			for x in [-5.6, 5.6]:
-				_world_level_shape("Mossy standing stone", Vector3(x, 1.0, -2.8), _world_cylinder(0.48, 0.36, 2.0), Color(0.19, 0.25, 0.15), Vector3(0.0, 0.0, deg_to_rad(-7.0)), 0.0, 0.95)
+				_world_level_shape("Mossy standing stone", Vector3(x, 1.0, -2.8), _world_cylinder(0.48, 0.36, 2.0), Color(0.19, 0.25, 0.15), Vector3(1.0, 1.0, 1.0), 0.0, 0.95)
 		3:
 			# Sunset station: platform edges, layered station facade, canopy and warm lamps.
 			_world_level_box("Station rear facade", Vector3(0, 2.15, -6.0), Vector3(10.0, 4.3, 0.48), p[1], false)
