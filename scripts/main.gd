@@ -2578,16 +2578,27 @@ func _build_world_intro() -> void:
 	steam_process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
 	steam_process.emission_sphere_radius = 0.12
 	steam.process_material = steam_process
-	var steam_mesh := SphereMesh.new()
-	steam_mesh.radius = 0.12
-	steam_mesh.height = 0.24
-	steam_mesh.radial_segments = 12
-	steam_mesh.rings = 6
+	# Use soft alpha-gradient billboards, never opaque-edged sphere particles.
+	# The earlier sphere mesh produced visible bubble/disc silhouettes in the capture.
+	var steam_image := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	for py in range(64):
+		for px in range(64):
+			var dx := (float(px) - 31.5) / 31.5
+			var dy := (float(py) - 31.5) / 31.5
+			var radius := sqrt(dx * dx + dy * dy)
+			var falloff := clampf(1.0 - radius, 0.0, 1.0)
+			var alpha := pow(falloff, 2.1) * 0.34
+			steam_image.set_pixel(px, py, Color(0.82, 0.86, 0.91, alpha))
+	var steam_texture := ImageTexture.create_from_image(steam_image)
+	var steam_mesh := QuadMesh.new()
+	steam_mesh.size = Vector2(0.56, 0.56)
 	var steam_material := StandardMaterial3D.new()
-	steam_material.albedo_color = Color(0.78, 0.82, 0.87, 0.30)
+	steam_material.albedo_color = Color(0.86, 0.89, 0.94, 0.82)
+	steam_material.albedo_texture = steam_texture
 	steam_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	steam_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	steam_material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
+	steam_material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 	steam_mesh.material = steam_material
 	steam.draw_pass_1 = steam_mesh
 	world_intro_root.add_child(steam)
