@@ -1556,6 +1556,23 @@ func _build_world_intro() -> void:
 			Vector3(span_x, -0.34, span_z), Vector3(4.45, 0.48, 9.15),
 			Color(0.22, 0.24, 0.27), 0.08)
 		deck.rotation.y = cos(span_z * 0.072) * 0.145
+		# A continuous dressed-stone fascia visually joins the modular spans and
+		# hides the toy-like gaps between individual deck blocks.
+		for fascia_side in [-1.0, 1.0]:
+			var fascia := _intro_box("Continuous viaduct stone fascia",
+				Vector3(span_x + fascia_side * 1.78, -0.66, span_z),
+				Vector3(0.24, 0.32, 9.12), Color(0.29, 0.28, 0.28), 0.12)
+			fascia.rotation.y = cos(span_z * 0.072) * 0.145
+			var fascia_band := _intro_box("Viaduct fascia dressed-stone course",
+				Vector3(span_x + fascia_side * 1.79, -0.49, span_z),
+				Vector3(0.27, 0.055, 9.12), Color(0.43, 0.39, 0.35), 0.14)
+			fascia_band.rotation.y = cos(span_z * 0.072) * 0.145
+			for stone_index in range(8):
+				var stone_z: float = span_z - 3.95 + float(stone_index) * 1.13
+				var fascia_joint := _intro_box("Viaduct fascia vertical masonry joint",
+					Vector3(span_x + fascia_side * 1.905, -0.66, stone_z),
+					Vector3(0.018, 0.285, 0.025), Color(0.17, 0.17, 0.18), 0.04)
+				fascia_joint.rotation.y = cos(span_z * 0.072) * 0.145
 		for side in [-1.0, 1.0]:
 			var parapet := _intro_box("Carved viaduct parapet",
 				Vector3(span_x + side * 2.05, -0.02, span_z),
