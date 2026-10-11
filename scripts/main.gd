@@ -1050,6 +1050,32 @@ func _on_story_continue_pressed() -> void:
 	else:
 		_close_story_card()
 
+func _tune_locomotive_lamp_materials(node: Node) -> void:
+	if node is MeshInstance3D:
+		var mesh_node := node as MeshInstance3D
+		var part_name := mesh_node.name.to_lower()
+		if part_name.contains("headlamp glowing lens"):
+			var lens := StandardMaterial3D.new()
+			lens.albedo_color = Color(0.95, 0.29, 0.055, 1.0)
+			lens.metallic = 0.04
+			lens.roughness = 0.26
+			lens.emission_enabled = true
+			lens.emission = Color(0.75, 0.12, 0.015)
+			lens.emission_energy_multiplier = 0.22
+			mesh_node.material_override = lens
+		elif part_name.contains("marker lamp lens"):
+			var marker := StandardMaterial3D.new()
+			marker.albedo_color = Color(0.95, 0.25, 0.035, 1.0)
+			marker.metallic = 0.02
+			marker.roughness = 0.32
+			marker.emission_enabled = true
+			marker.emission = Color(0.7, 0.10, 0.012)
+			marker.emission_energy_multiplier = 0.12
+			mesh_node.material_override = marker
+	for child in node.get_children():
+		_tune_locomotive_lamp_materials(child)
+
+
 func _build_intro_passenger_cars() -> void:
 	# A real train consist needs multiple linked coaches, not a lone engine beside
 	# a disconnected box. Each coach has its own silhouette, livery and fittings.
@@ -1103,8 +1129,8 @@ func _build_intro_passenger_cars() -> void:
 				var pane := _intro_box(coach_type + " warm window", Vector3(30.0 + side * 1.251, 2.02, wz), Vector3(0.035, pane_height, pane_width), window_color, 0.12)
 				var pane_mat := pane.material_override as StandardMaterial3D
 				pane_mat.emission_enabled = true
-				pane_mat.emission = window_color * 0.36
-				pane_mat.emission_energy_multiplier = 0.8
+				pane_mat.emission = window_color * 0.18
+				pane_mat.emission_energy_multiplier = 0.48
 				for edge_y in [-1.0, 1.0]:
 					_intro_box(coach_type + " window brass rail", Vector3(30.0 + side * 1.29, 2.02 + edge_y * (pane_height * 0.5 + 0.055), wz), Vector3(0.055, 0.045, pane_width + 0.14), trim_color, 0.78)
 				for edge_z in [-1.0, 1.0]:
@@ -1792,6 +1818,10 @@ func _build_world_intro() -> void:
 		var production_locomotive := locomotive_scene.instantiate()
 		production_locomotive.name = "ProductionLocomotive"
 		production_locomotive.position = Vector3(30.0, 0.0, 0.0)
+		# glTF import and strong sunset fill can wash the authored amber lenses to
+		# white. Apply explicit runtime materials to the named optical parts so the
+		# intended brass/amber treatment survives renderer and import differences.
+		_tune_locomotive_lamp_materials(production_locomotive)
 		world_intro_root.add_child(production_locomotive)
 		_build_intro_passenger_cars()
 		_build_intro_train_couplers()
