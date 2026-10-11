@@ -1172,10 +1172,10 @@ func _build_world_intro() -> void:
 	env.background_mode = Environment.BG_SKY
 	var sky := Sky.new()
 	var sky_mat := ProceduralSkyMaterial.new()
-	sky_mat.sky_top_color = Color(0.018, 0.045, 0.13)
-	sky_mat.sky_horizon_color = Color(0.22, 0.16, 0.22)
-	sky_mat.ground_bottom_color = Color(0.035, 0.025, 0.08)
-	sky_mat.ground_horizon_color = Color(0.15, 0.10, 0.16)
+	sky_mat.sky_top_color = Color(0.055, 0.075, 0.19)
+	sky_mat.sky_horizon_color = Color(0.34, 0.23, 0.31)
+	sky_mat.ground_bottom_color = Color(0.075, 0.055, 0.13)
+	sky_mat.ground_horizon_color = Color(0.23, 0.15, 0.24)
 	sky.sky_material = sky_mat
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
@@ -1384,10 +1384,57 @@ func _build_world_intro() -> void:
 			cliff.scale = Vector3(3.7, 1.0, 5.2)
 			cliff.position = Vector3(land.position.x, land.position.y - 1.35, world_z)
 			var cliff_mat := StandardMaterial3D.new()
-			cliff_mat.albedo_color = Color(0.12, 0.14, 0.19)
-			cliff_mat.roughness = 1.0
+			var cliff_colors := [
+				Color(0.20, 0.23, 0.29), # slate beneath the moon mountains
+				Color(0.34, 0.29, 0.22), # warm limestone
+				Color(0.31, 0.15, 0.12), # iron-red canyon rock
+				Color(0.12, 0.25, 0.34), # deep crystal-blue stone
+				Color(0.22, 0.16, 0.30)  # violet skywood shale
+			]
+			cliff_mat.albedo_color = cliff_colors[world_index]
+			cliff_mat.roughness = 0.92
 			cliff.material_override = cliff_mat
 			world_intro_root.add_child(cliff)
+			# Thin offset strata bands catch the key light and make the underside
+			# read as layered geology rather than one featureless dark cylinder.
+			for strata_index in range(3):
+				var strata := MeshInstance3D.new()
+				strata.name = "Exposed layered island strata"
+				var strata_mesh := CylinderMesh.new()
+				strata_mesh.top_radius = 0.82
+				strata_mesh.bottom_radius = 0.18
+				strata_mesh.height = 0.20
+				strata_mesh.radial_segments = 12
+				strata.mesh = strata_mesh
+				strata.scale = Vector3(3.72, 1.0, 5.22)
+				strata.position = Vector3(land.position.x, land.position.y - 1.35 - float(strata_index + 1) * 0.48, world_z)
+				var strata_mat := StandardMaterial3D.new()
+				var strata_colors := [
+					Color(0.30, 0.31, 0.34),
+					Color(0.24, 0.25, 0.30),
+					Color(0.17, 0.18, 0.24)
+				]
+				strata_mat.albedo_color = strata_colors[strata_index].lerp(cliff_colors[world_index], 0.42)
+				strata_mat.roughness = 0.94
+				strata.material_override = strata_mat
+				world_intro_root.add_child(strata)
+			# Soft moonlit cloud banks sit below each island, masking the void and
+			# giving the railway route depth without hiding the cliff silhouettes.
+			for cloud_index in range(4):
+				var cloud := MeshInstance3D.new()
+				cloud.name = "Floating world cloud bank"
+				var cloud_mesh := SphereMesh.new()
+				cloud_mesh.radius = 1.0
+				cloud_mesh.height = 1.0
+				cloud.mesh = cloud_mesh
+				cloud.scale = Vector3(1.65 + float(cloud_index % 2) * 0.55, 0.38, 1.25 + float(cloud_index % 3) * 0.24)
+				cloud.position = Vector3(land.position.x + float(cloud_index - 1) * 1.05, land.position.y - 3.1 - float(cloud_index % 2) * 0.24, world_z + float(cloud_index % 2) * 1.35)
+				var cloud_mat := StandardMaterial3D.new()
+				cloud_mat.albedo_color = Color(0.43, 0.47, 0.63, 0.48)
+				cloud_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+				cloud_mat.roughness = 1.0
+				cloud.material_override = cloud_mat
+				world_intro_root.add_child(cloud)
 
 			# A short stone approach physically joins each land shelf to the
 			# viaduct, so the railway appears to continue into the world.
