@@ -439,11 +439,11 @@ func _run_first_slice() -> void:
 			if not _check(str(resumed_game.get("story_body").text).contains("Neither choice changes the past"), "final choice did not explain the story's meaning"):
 				return
 			resumed_game.call("_on_story_alternative_pressed")
-			if not _check(str(resumed_game.get("ending_decision")) == "release" and str(resumed_game.get("story_body").text).contains("MEMORY RELEASED"), "release ending did not resolve into its own epilogue"):
+			if not _check(str(resumed_game.get("ending_decision")) == "release" and str(resumed_game.get("story_title").text).contains("MEMORY RELEASED"), "release ending did not resolve into its own epilogue"):
 				return
 			resumed_game.set("ending_choice_pending", true)
 			resumed_game.call("_on_story_continue_pressed")
-			if not _check(str(resumed_game.get("ending_decision")) == "restore" and str(resumed_game.get("story_body").text).contains("MEMORY RESTORED"), "restore ending did not resolve into its own epilogue"):
+			if not _check(str(resumed_game.get("ending_decision")) == "restore" and str(resumed_game.get("story_title").text).contains("MEMORY RESTORED"), "restore ending did not resolve into its own epilogue"):
 				return
 	print("FIRST_SLICE_TESTS_PASSED: first-stage story + all five puzzle solutions + five gates + both ending branches")
 	resumed_game.queue_free()
