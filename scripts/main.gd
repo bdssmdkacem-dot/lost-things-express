@@ -1596,10 +1596,12 @@ func _build_world_intro() -> void:
 				for voussoir_index in range(11):
 					var angle: float = 0.10 + float(voussoir_index) * (PI - 0.20) / 10.0
 					var radius: float = 1.58
+					var voussoir_color := arch_material.albedo_color.lightened(0.055) if voussoir_index % 2 == 0 else arch_material.albedo_color.darkened(0.035)
 					var voussoir := _intro_box("Viaduct semicircular stone voussoir",
 						Vector3(span_x + arch_side * 1.78, -2.50 + sin(angle) * radius, arch_center_z + cos(angle) * radius),
-						Vector3(0.34, 0.36, 0.57), arch_material.albedo_color, 0.10)
-					voussoir.rotation.x = -angle
+						Vector3(0.34, 0.36, 0.57), voussoir_color, 0.10)
+					# Keep each stone block tangent to the arch curve.
+					voussoir.rotation.x = -angle - PI * 0.5
 					voussoir.rotation.y = cos(span_z * 0.072) * 0.145
 				# A wider keystone makes the crown legible at the intro camera distance.
 				var keystone := _intro_box("Viaduct arch crown keystone",
