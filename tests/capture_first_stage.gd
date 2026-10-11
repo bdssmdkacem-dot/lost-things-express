@@ -17,9 +17,9 @@ func _capture_first_stage() -> void:
 	root.add_child(game)
 	await process_frame
 	await process_frame
-	await create_timer(0.35).timeout
+	await create_timer(8.7).timeout
 	var intro_root := game.get("world_intro_root") as Node3D
-	if ResourceLoader.exists("res://assets/models/lost_things_locomotive.glb") and (intro_root == null or intro_root.get_node_or_null("ProductionLocomotive") == null):
+	if ResourceLoader.exists("res://assets/models/lost_things_locomotive.glb") and (intro_root == null or intro_root.find_child("ProductionLocomotive", true, false) == null):
 		push_error("VISUAL_CAPTURE_FAILED: Blender-authored locomotive was not loaded into the establishing shot")
 		quit(1)
 		return
