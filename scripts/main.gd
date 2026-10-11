@@ -1341,13 +1341,40 @@ func _build_world_intro() -> void:
 		var zf := float(z)
 		var curve_x := 30.0 + sin(zf * 0.072) * 2.1
 		var track_y := 0.0 + sin(zf * 0.09) * 0.035
+		# A compacted stone bed fills the gaps below the sleepers and visually seats
+		# the rails on the viaduct instead of leaving isolated floating crossbars.
+		var ballast := _intro_box("Compacted railway ballast %02d" % (z + 27), Vector3(curve_x, track_y - 0.14, zf), Vector3(3.65, 0.20, 1.12), Color(0.16, 0.125, 0.105), 0.18)
+		ballast.rotation.y = cos(zf * 0.072) * 0.145
 		var sleeper := _intro_box("Railway sleeper %02d" % (z + 27), Vector3(curve_x, track_y, zf), Vector3(4.05, 0.15, 0.24), Color(0.105, 0.047, 0.027), 0.04)
 		sleeper.rotation.y = cos(zf * 0.072) * 0.145
 		for rail_side in [-1.0, 1.0]:
-			var rail := _intro_box("Continuous steel rail %02d" % (z + 27), Vector3(curve_x + rail_side * 1.28, track_y + 0.15, zf), Vector3(0.115, 0.17, 1.08), Color(0.39, 0.43, 0.47), 0.84)
+			var rail_x := curve_x + rail_side * 1.28
+			var rail := _intro_box("Continuous steel rail %02d" % (z + 27), Vector3(rail_x, track_y + 0.15, zf), Vector3(0.115, 0.17, 1.08), Color(0.39, 0.43, 0.47), 0.84)
 			rail.rotation.y = cos(zf * 0.072) * 0.145
-			var plate := _intro_box("Rail fastening plate", Vector3(curve_x + rail_side * 1.28, track_y + 0.085, zf), Vector3(0.24, 0.035, 0.19), Color(0.29, 0.23, 0.15), 0.62)
+			var plate := _intro_box("Rail fastening plate", Vector3(rail_x, track_y + 0.085, zf), Vector3(0.24, 0.035, 0.19), Color(0.29, 0.23, 0.15), 0.62)
 			plate.rotation.y = cos(zf * 0.072) * 0.145
+			# Small paired clips and bolt heads make the rail attachment readable in close shots.
+			for clip_side in [-1.0, 1.0]:
+				var clip := _intro_box("Rail spring clip", Vector3(rail_x + clip_side * 0.105, track_y + 0.11, zf), Vector3(0.045, 0.055, 0.15), Color(0.31, 0.34, 0.36), 0.78)
+				clip.rotation.y = cos(zf * 0.072) * 0.145
+				var bolt := MeshInstance3D.new()
+				bolt.name = "Rail fastening bolt"
+				var bolt_mesh := CylinderMesh.new()
+				bolt_mesh.top_radius = 0.028
+				bolt_mesh.bottom_radius = 0.028
+				bolt_mesh.height = 0.025
+				bolt.mesh = bolt_mesh
+				bolt.position = Vector3(rail_x + clip_side * 0.105, track_y + 0.145, zf)
+				var bolt_mat := StandardMaterial3D.new()
+				bolt_mat.albedo_color = Color(0.54, 0.56, 0.57)
+				bolt_mat.metallic = 0.88
+				bolt_mat.roughness = 0.28
+				bolt.material_override = bolt_mat
+				world_intro_root.add_child(bolt)
+			# Rail joints are subtle, periodic steel sleeves rather than visible breaks.
+			if z % 6 == 0:
+				var joint := _intro_box("Rail expansion joint", Vector3(rail_x, track_y + 0.15, zf), Vector3(0.145, 0.205, 0.10), Color(0.30, 0.34, 0.37), 0.82)
+				joint.rotation.y = cos(zf * 0.072) * 0.145
 
 	# Broad, overlapping land shelves anchor the railway to actual terrain.
 	# Stone viaduct spans bridge the gaps between the inhabited floating worlds.
