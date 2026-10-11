@@ -1005,9 +1005,9 @@ func _build_intro_passenger_cars() -> void:
 	# a disconnected box. Each coach has its own silhouette, livery and fittings.
 	var coach_z_positions := [8.2, 17.0, 25.8]
 	var coach_liveries := [
-		{"body": Color(0.075, 0.105, 0.085), "trim": Color(0.63, 0.37, 0.12), "roof": Color(0.035, 0.045, 0.052), "window": Color(1.0, 0.57, 0.22)},
-		{"body": Color(0.19, 0.045, 0.045), "trim": Color(0.76, 0.48, 0.19), "roof": Color(0.055, 0.035, 0.04), "window": Color(1.0, 0.66, 0.31)},
-		{"body": Color(0.035, 0.09, 0.13), "trim": Color(0.55, 0.42, 0.23), "roof": Color(0.025, 0.04, 0.055), "window": Color(0.46, 0.74, 0.91)}
+		{"body": Color(0.13, 0.22, 0.16), "trim": Color(0.78, 0.51, 0.20), "roof": Color(0.075, 0.095, 0.10), "window": Color(1.0, 0.63, 0.30)},
+		{"body": Color(0.30, 0.075, 0.075), "trim": Color(0.88, 0.60, 0.27), "roof": Color(0.105, 0.065, 0.07), "window": Color(1.0, 0.72, 0.39)},
+		{"body": Color(0.065, 0.17, 0.25), "trim": Color(0.72, 0.56, 0.32), "roof": Color(0.055, 0.085, 0.11), "window": Color(0.55, 0.82, 1.0)}
 	]
 	for coach_index in range(coach_z_positions.size()):
 		var z := float(coach_z_positions[coach_index])
