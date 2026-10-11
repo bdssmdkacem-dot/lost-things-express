@@ -385,6 +385,10 @@ func _run_first_slice() -> void:
 				puzzle_count += 1
 		if not _check(puzzle_count == 3, "world %d does not contain three interactable puzzle clues" % (world_index + 1)):
 			return
+		for clue in world_root.get_children():
+			if clue is Node3D and clue.get_meta("kind", "") == "world_puzzle":
+				if not _check(clue.get_node_or_null("PuzzleClueLabel") is Label3D, "world %d has a puzzle object without a visible clue label" % (world_index + 1)):
+					return
 		var sequence: Array = resumed_game.get("world_puzzle_sequence")
 		if not _check(sequence.size() == 3 and sequence[0] != sequence[1] and sequence[1] != sequence[2], "world %d puzzle sequence is invalid" % (world_index + 1)):
 			return
