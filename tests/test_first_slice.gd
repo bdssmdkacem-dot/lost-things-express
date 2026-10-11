@@ -438,6 +438,11 @@ func _run_first_slice() -> void:
 				return
 			if not _check(str(resumed_game.get("story_body").text).contains("Neither choice changes the past"), "final choice did not explain the story's meaning"):
 				return
+			# Directly starting test arenas bypasses the intro/transition callbacks;
+			# clear their pending flags so the final choice follows the same branch
+			# as an actual player reaching the last gate.
+			resumed_game.set("world_intro_active", false)
+			resumed_game.set("world_transition_pending", false)
 			resumed_game.call("_on_story_alternative_pressed")
 			if not _check(str(resumed_game.get("ending_decision")) == "release" and str(resumed_game.get("story_title").text).contains("MEMORY RELEASED"), "release ending did not resolve into its own epilogue"):
 				return
