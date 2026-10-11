@@ -71,7 +71,7 @@ func _run_first_slice() -> void:
 	if not _check(steam_plume != null, "the establishing locomotive is missing its restrained particle steam plume"):
 		return
 	var steam_process := steam_plume.process_material as ParticleProcessMaterial
-	if not _check(steam_plume.amount >= 32 and steam_plume.lifetime >= 2.0 and steam_process != null and steam_process.scale_min >= 0.4, "the chimney steam is configured too small to read in the actual cinematic render"):
+	if not _check(steam_plume.amount >= 32 and steam_plume.lifetime >= 1.8 and steam_process != null and steam_process.scale_min >= 0.22 and steam_process.scale_max >= 0.5, "the chimney steam is configured too small to read in the actual cinematic render"):
 		return
 	var steam_quad := steam_plume.draw_pass_1 as QuadMesh
 	var steam_material := steam_quad.material as StandardMaterial3D if steam_quad != null else null
