@@ -1189,8 +1189,23 @@ func _build_intro_passenger_cars() -> void:
 				lamp_mat.emission_energy_multiplier = 0.9
 				end_lamp.material_override = lamp_mat
 				world_intro_root.add_child(end_lamp)
-			if coach_index < 2:
-				_intro_box("Flexible inter-car gangway", Vector3(30.0, 1.67, z + end_sign * 4.2), Vector3(1.45, 1.55, 0.24), Color(0.025, 0.03, 0.03), 0.28)
+	# One articulated gangway per actual gap: avoid overlapping duplicate bellows
+	# from both neighboring coaches, which otherwise read as a solid black block.
+	for gap_spec in [[4.0, 0], [12.6, 1], [21.4, 2]]:
+		var gap_z := float(gap_spec[0])
+		var gap_index := int(gap_spec[1])
+		_intro_box("Articulated gangway bellows %02d" % gap_index,
+			Vector3(30.0, 1.70, gap_z), Vector3(1.36, 1.32, 0.30), Color(0.035, 0.042, 0.045), 0.22)
+		# Vertical ribs give the flexible connection a folded rubber/metal silhouette.
+		for rib_index in range(5):
+			var rib_x := -0.52 + float(rib_index) * 0.26
+			_intro_box("Gangway accordion rib %02d_%02d" % [gap_index, rib_index],
+				Vector3(30.0 + rib_x, 1.70, gap_z - 0.165), Vector3(0.045, 1.27, 0.035),
+				Color(0.16, 0.17, 0.17), 0.46)
+		# Small top and bottom retaining rails make the bellows appear mounted to both coach ends.
+		for rail_y in [1.02, 2.38]:
+			_intro_box("Gangway retaining rail", Vector3(30.0, rail_y, gap_z - 0.18),
+				Vector3(1.42, 0.055, 0.055), Color(0.48, 0.32, 0.14), 0.72)
 		# The luggage coach gets louvered side panels instead of a fifth identical window.
 		if coach_index == 2:
 			for vent_index in range(7):
