@@ -3134,6 +3134,132 @@ func _inventory_text() -> String:
 	lines.append("• Sunset photograph" if chest_open else "• Memory chest reward — undiscovered")
 	return "\n".join(lines)
 
+func _start_world_level(index: int) -> void:
+	world_level_index = clampi(index, 0, WORLD_LEVEL_NAMES.size() - 1)
+	world_puzzle_progress = 0
+	world_level_complete = false
+	world_puzzle_sequence = [[0, 1, 2], [2, 0, 1], [1, 2, 0], [0, 2, 1], [1, 0, 2]][world_level_index]
+	if is_instance_valid(world_level_root):
+		world_level_root.queue_free()
+	for child in get_children():
+		if child is Node3D and child != player and child != world_environment:
+			child.visible = false
+	world_level_root = Node3D.new()
+	world_level_root.name = "PlayableWorld_%02d" % (world_level_index + 1)
+	add_child(world_level_root)
+	var palettes := [
+		[Color(0.15, 0.12, 0.10), Color(0.42, 0.23, 0.09), Color(0.92, 0.60, 0.20)],
+		[Color(0.26, 0.53, 0.63), Color(0.59, 0.78, 0.82), Color(0.96, 0.79, 0.40)],
+		[Color(0.035, 0.14, 0.08), Color(0.17, 0.30, 0.12), Color(0.76, 0.62, 0.24)],
+		[Color(0.24, 0.075, 0.065), Color(0.53, 0.18, 0.09), Color(0.98, 0.53, 0.22)],
+		[Color(0.055, 0.06, 0.13), Color(0.22, 0.19, 0.38), Color(0.65, 0.53, 0.94)]
+	]
+	var p: Array = palettes[world_level_index]
+	_world_level_box("World floor", Vector3(0, -0.18, 0), Vector3(16, 0.36, 16), p[0], true)
+	match world_level_index:
+		0:
+			for x in [-5.0, 5.0]:
+				_world_level_box("Clockwork tower", Vector3(x, 2.0, -4.8), Vector3(1.8, 4.0, 1.8), p[1], false)
+				_world_level_box("Brass tower crown", Vector3(x, 4.1, -4.8), Vector3(2.2, 0.2, 2.2), p[2], false)
+		1:
+			for x in [-5.0, 0.0, 5.0]:
+				_world_level_box("Cloud island", Vector3(x, 0.8, -4.2), Vector3(2.8, 1.6, 2.6), p[1], false)
+				_world_level_box("Suspended bridge", Vector3(x * 0.5, 1.65, -2.1), Vector3(2.8, 0.12, 0.45), p[2], false)
+		2:
+			for x in [-5.0, -2.5, 2.5, 5.0]:
+				_world_level_box("Ancient trunk", Vector3(x, 1.5, -4.8), Vector3(0.7, 3.0, 0.7), p[1], false)
+				_world_level_box("Forest canopy", Vector3(x, 3.4, -4.8), Vector3(2.3, 2.0, 2.0), p[2], false)
+		3:
+			_world_level_box("Sunset Station facade", Vector3(0, 2.1, -5.3), Vector3(9.0, 4.2, 0.55), p[1], false)
+			for x in [-3.0, 0.0, 3.0]:
+				_world_level_box("Station arch", Vector3(x, 2.8, -4.9), Vector3(0.18, 3.2, 0.3), p[2], false)
+		4:
+			for x in [-4.5, -1.5, 1.5, 4.5]:
+				_world_level_box("Terminal clock pillar", Vector3(x, 2.0, -4.8), Vector3(0.7, 4.0, 0.7), p[1], false)
+				_world_level_box("Terminal clock face", Vector3(x, 4.2, -4.8), Vector3(1.0, 0.8, 0.22), p[2], false)
+	var labels := [
+		["DAWN BELL", "NOON BELL", "MIDNIGHT BELL"],
+		["LOW BRIDGE", "MIDDLE BRIDGE", "HIGH BRIDGE"],
+		["WHISPER ECHO", "LAUGHTER ECHO", "LULLABY ECHO"],
+		["THE LETTER", "THE WITNESS", "THE DELIVERY"],
+		["PAST", "PRESENT", "FUTURE"]
+	]
+	for n in range(3):
+		var item := Node3D.new()
+		item.name = "PuzzleClue_%d" % n
+		item.position = Vector3(float(n - 1) * 2.1, 0, -1.5)
+		item.set_meta("kind", "world_puzzle")
+		item.set_meta("display_name", labels[world_level_index][n])
+		item.set_meta("puzzle_order", n)
+		item.add_to_group("interactables")
+		world_level_root.add_child(item)
+		var mesh_node := MeshInstance3D.new()
+		var mesh := CylinderMesh.new()
+		mesh.top_radius = 0.38
+		mesh.bottom_radius = 0.5
+		mesh.height = 0.5
+		mesh_node.mesh = mesh
+		var material := StandardMaterial3D.new()
+		material.albedo_color = p[1] if n != 1 else p[2]
+		material.metallic = 0.72
+		material.roughness = 0.27
+		mesh_node.material_override = material
+		mesh_node.position.y = 0.28
+		item.add_child(mesh_node)
+		var orb := MeshInstance3D.new()
+		var orb_mesh := SphereMesh.new()
+		orb_mesh.radius = 0.22
+		orb.mesh = orb_mesh
+		orb.material_override = material
+		orb.position.y = 0.72
+		item.add_child(orb)
+	player.global_position = Vector3(0, 0.05, 3.4)
+	player.velocity = Vector3.ZERO
+	yaw = 0.0
+	pitch = -0.04
+	if is_instance_valid(camera):
+		camera.rotation = Vector3(pitch, 0, 0)
+	_set_status(WORLD_LEVEL_NAMES[world_level_index] + " · " + WORLD_LEVEL_THEMES[world_level_index])
+	_show_story_card(WORLD_LEVEL_NAMES[world_level_index], WORLD_LEVEL_THEMES[world_level_index] + "\n\nExplore the three objects and activate them in the order implied by the clue. A wrong choice resets the sequence. Solve the puzzle to open the railway gate.", "BEGIN EXPLORING")
+
+
+func _world_level_box(label: String, pos: Vector3, size: Vector3, color: Color, solid: bool) -> StaticBody3D:
+	var body := StaticBody3D.new()
+	body.name = label.replace(" ", "_")
+	body.position = pos
+	world_level_root.add_child(body)
+	var visual := MeshInstance3D.new()
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	visual.mesh = mesh
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 0.68
+	material.metallic = 0.35 if label.to_lower().contains("brass") or label.to_lower().contains("rail") else 0.08
+	visual.material_override = material
+	body.add_child(visual)
+	if solid:
+		var collision := CollisionShape3D.new()
+		var shape := BoxShape3D.new()
+		shape.size = size
+		collision.shape = shape
+		body.add_child(collision)
+	return body
+
+
+func _spawn_world_gate() -> void:
+	var gate := Node3D.new()
+	gate.name = "WorldExitGate"
+	gate.position = Vector3(0, 0, -4.7)
+	gate.set_meta("kind", "world_gate")
+	gate.set_meta("display_name", "Awakened Railway Gate")
+	gate.add_to_group("interactables")
+	world_level_root.add_child(gate)
+	for x in [-0.9, 0.9]:
+		_world_level_box("Gate brass pillar", gate.position + Vector3(x, 1.4, 0), Vector3(0.14, 2.8, 0.18), Color(0.82, 0.55, 0.22), false)
+	_world_level_box("Gate brass lintel", gate.position + Vector3(0, 2.8, 0), Vector3(1.95, 0.16, 0.18), Color(0.82, 0.55, 0.22), false)
+
+
 func _objective_text() -> String:
 	if chest_open:
 		return "Stage one complete: continue to the clock in the next carriage."
