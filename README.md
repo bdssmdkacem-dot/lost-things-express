@@ -28,6 +28,10 @@ A premium fantasy train adventure where players explore strange stations, discov
 - Collision around seating and carriage boundaries, readable mobile UI, and an APK that passes signature/package checks.
 - Puzzle progress is now saved automatically to the app's user data and restored on relaunch; the automated first-slice test checks the save/resume path. Pause/resume controls and a persistent look-sensitivity setting are now implemented and covered by automated tests. The physical letter stays visible between the player's hands while reading, with a close action and a printed clock warning; automated tests cover this interaction and persistent key state. Physical-device behavior and visual quality remain release gates.
 
+## World continuity rule — cinematic worlds are playable stations
+
+Every fantasy world the train passes in the opening journey must be reused later as the actual playable station for its stage. The intro and gameplay must share canonical world/station assets and stable world IDs; cinematic LODs are allowed, but separate look-alike copies are not. Railway, bridge and station connections must remain continuous, and each intro world must map to a playable stage. This is a permanent architecture rule: see [docs/design/railway-worlds-as-playable-stations.md](docs/design/railway-worlds-as-playable-stations.md). Do not build the intro worlds as disposable scenery.
+
 ## Tech stack
 
 - **Godot 4.3**: gameplay, input, scene flow, UI, audio, save data, Android export.
