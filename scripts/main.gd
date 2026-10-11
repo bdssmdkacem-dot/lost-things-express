@@ -1861,25 +1861,40 @@ func _build_world_intro() -> void:
 				world_intro_root.add_child(bough)
 			_intro_box("Skywood suspended platform", landmark_base + Vector3(0.0, 1.0, 2.2), Vector3(3.4, 0.20, 1.0), Color(0.22, 0.12, 0.065), 0.18)
 
-	# Warm guide lamps mounted to the connected railway repeat into the distance.
-	for z in range(-24, 39, 6):
+	# Period-appropriate guide lamps: each light has a metal foot, glass core,
+	# brass cage rails and a shallow hood, so the distant lights read as fixtures
+	# attached to the bridge rather than floating orange spheres.
+	for z in range(-24, 39, 8):
 		var lamp_x := 30.0 + sin(float(z) * 0.072) * 2.1
-		for side in [-1.0, 1.0]:
-			var post := _intro_box("Railway lamp post", Vector3(lamp_x + side * 2.4, 0.92, float(z)), Vector3(0.08, 1.8, 0.08), Color(0.12, 0.10, 0.075), 0.55)
+		for side_value in [-1.0, 1.0]:
+			var side: float = float(side_value)
+			var post_x := lamp_x + side * 2.38
+			_intro_box("Railway lamp cast-iron post", Vector3(post_x, 0.78, float(z)),
+				Vector3(0.095, 1.48, 0.095), Color(0.075, 0.065, 0.055), 0.62)
+			_intro_box("Railway lantern pedestal", Vector3(post_x, 1.56, float(z)),
+				Vector3(0.25, 0.12, 0.25), Color(0.31, 0.19, 0.09), 0.82)
 			var lantern := MeshInstance3D.new()
-			lantern.name = "Warm railway lantern"
+			lantern.name = "Warm railway lantern glass"
 			var lantern_mesh := SphereMesh.new()
-			lantern_mesh.radius = 0.16
-			lantern_mesh.height = 0.34
+			lantern_mesh.radius = 0.105
+			lantern_mesh.height = 0.22
 			lantern.mesh = lantern_mesh
-			lantern.position = Vector3(lamp_x + side * 2.4, 1.85, float(z))
+			lantern.position = Vector3(post_x, 1.77, float(z))
 			var lantern_mat := StandardMaterial3D.new()
-			lantern_mat.albedo_color = Color(1.0, 0.57, 0.23)
+			lantern_mat.albedo_color = Color(1.0, 0.72, 0.39)
 			lantern_mat.emission_enabled = true
-			lantern_mat.emission = Color(1.0, 0.32, 0.08)
-			lantern_mat.emission_energy_multiplier = 1.15
+			lantern_mat.emission = Color(1.0, 0.48, 0.16)
+			lantern_mat.emission_energy_multiplier = 0.72
 			lantern.material_override = lantern_mat
 			world_intro_root.add_child(lantern)
+			for cage_side in [-1.0, 1.0]:
+				_intro_box("Lantern brass cage upright",
+					Vector3(post_x + cage_side * 0.115, 1.77, float(z)),
+					Vector3(0.025, 0.34, 0.025), Color(0.48, 0.29, 0.11), 0.84)
+			_intro_box("Lantern brass top hood", Vector3(post_x, 1.94, float(z)),
+				Vector3(0.30, 0.07, 0.30), Color(0.20, 0.13, 0.075), 0.72)
+			_intro_box("Lantern brass base ring", Vector3(post_x, 1.62, float(z)),
+				Vector3(0.27, 0.045, 0.27), Color(0.52, 0.32, 0.12), 0.86)
 
 
 
