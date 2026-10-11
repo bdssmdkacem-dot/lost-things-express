@@ -9,6 +9,9 @@ on:
       - "assets/blender/**"
       - "art/blender/**"
       - "tests/capture_first_stage.gd"
+      - "tests/test_first_slice.gd"
+      - "docs/ART_DIRECTION.md"
+      - "README.md"
       - ".github/workflows/visual-review.yml"
 
 permissions:
