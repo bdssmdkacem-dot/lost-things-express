@@ -1138,11 +1138,11 @@ func _build_world_intro() -> void:
 	sky.sky_material = sky_mat
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.48, 0.43, 0.54)
-	env.ambient_light_energy = 1.12
+	env.ambient_light_color = Color(0.58, 0.54, 0.64)
+	env.ambient_light_energy = 1.28
 	env.fog_enabled = true
-	env.fog_light_color = Color(0.19, 0.25, 0.36)
-	env.fog_density = 0.008
+	env.fog_light_color = Color(0.27, 0.32, 0.44)
+	env.fog_density = 0.0055
 	env.fog_sky_affect = 0.30
 	intro_environment = env
 	if is_instance_valid(world_environment):
@@ -1238,7 +1238,7 @@ func _build_world_intro() -> void:
 			land.scale = Vector3(4.25, 0.82, 5.8)
 			land.position = Vector3(world_x + side * 8.4, -0.52 + sin(float(world_index) * 0.7) * 0.24, world_z)
 			var land_mat := StandardMaterial3D.new()
-			var land_colors := [Color(0.12, 0.19, 0.14), Color(0.13, 0.17, 0.22), Color(0.22, 0.14, 0.13), Color(0.12, 0.20, 0.23), Color(0.19, 0.17, 0.24)]
+			var land_colors := [Color(0.19, 0.29, 0.19), Color(0.20, 0.25, 0.32), Color(0.31, 0.19, 0.16), Color(0.18, 0.30, 0.34), Color(0.27, 0.23, 0.34)]
 			land_mat.albedo_color = land_colors[world_index]
 			land_mat.roughness = 0.98
 			land.material_override = land_mat
@@ -1254,7 +1254,7 @@ func _build_world_intro() -> void:
 			cliff.scale = Vector3(3.7, 1.0, 5.2)
 			cliff.position = Vector3(land.position.x, land.position.y - 1.35, world_z)
 			var cliff_mat := StandardMaterial3D.new()
-			cliff_mat.albedo_color = Color(0.075, 0.085, 0.12)
+			cliff_mat.albedo_color = Color(0.12, 0.14, 0.19)
 			cliff_mat.roughness = 1.0
 			cliff.material_override = cliff_mat
 			world_intro_root.add_child(cliff)
@@ -1278,8 +1278,8 @@ func _build_world_intro() -> void:
 			waterfall_mat.albedo_color = Color(0.20, 0.52, 0.68, 0.42)
 			waterfall_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 			waterfall_mat.emission_enabled = true
-			waterfall_mat.emission = Color(0.04, 0.16, 0.24)
-			waterfall_mat.emission_energy_multiplier = 0.32
+			waterfall_mat.emission = Color(0.06, 0.22, 0.34)
+			waterfall_mat.emission_energy_multiplier = 0.48
 			waterfall_mat.roughness = 0.22
 			waterfall.material_override = waterfall_mat
 			world_intro_root.add_child(waterfall)
