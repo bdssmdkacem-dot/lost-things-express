@@ -3187,22 +3187,22 @@ func _start_world_level(index: int) -> void:
 	var key_light := DirectionalLight3D.new()
 	key_light.name = "WorldKeyLight"
 	key_light.rotation_degrees = Vector3(-42.0, -28.0, 0.0)
-	key_light.light_energy = 1.1
+	key_light.light_energy = 0.82
 	key_light.shadow_enabled = true
 	world_level_root.add_child(key_light)
 	var puzzle_fill := OmniLight3D.new()
 	puzzle_fill.name = "PuzzleWarmFill"
 	puzzle_fill.position = Vector3(0.0, 2.6, -1.8)
 	puzzle_fill.light_color = Color(1.0, 0.69, 0.36)
-	puzzle_fill.light_energy = 1.15
-	puzzle_fill.omni_range = 10.0
+	puzzle_fill.light_energy = 0.62
+	puzzle_fill.omni_range = 8.0
 	world_level_root.add_child(puzzle_fill)
 	var palettes := [
-		[Color(0.15, 0.12, 0.10), Color(0.42, 0.23, 0.09), Color(0.92, 0.60, 0.20)],
-		[Color(0.26, 0.53, 0.63), Color(0.59, 0.78, 0.82), Color(0.96, 0.79, 0.40)],
-		[Color(0.035, 0.14, 0.08), Color(0.17, 0.30, 0.12), Color(0.76, 0.62, 0.24)],
-		[Color(0.24, 0.075, 0.065), Color(0.53, 0.18, 0.09), Color(0.98, 0.53, 0.22)],
-		[Color(0.055, 0.06, 0.13), Color(0.22, 0.19, 0.38), Color(0.65, 0.53, 0.94)]
+		[Color(0.085, 0.075, 0.065), Color(0.34, 0.19, 0.085), Color(0.78, 0.48, 0.16)],
+		[Color(0.12, 0.22, 0.30), Color(0.31, 0.47, 0.55), Color(0.78, 0.66, 0.43)],
+		[Color(0.025, 0.075, 0.045), Color(0.20, 0.12, 0.065), Color(0.10, 0.25, 0.09)],
+		[Color(0.095, 0.035, 0.045), Color(0.28, 0.085, 0.075), Color(0.82, 0.40, 0.16)],
+		[Color(0.025, 0.03, 0.075), Color(0.13, 0.12, 0.27), Color(0.46, 0.34, 0.75)]
 	]
 	var p: Array = palettes[world_level_index]
 	_world_level_box("World floor", Vector3(0, -0.18, 0), Vector3(16, 0.36, 16), p[0], true)
@@ -3263,10 +3263,21 @@ func _start_world_level(index: int) -> void:
 		orb.material_override = material
 		orb.position.y = 0.72
 		item.add_child(orb)
+		var clue_label := Label3D.new()
+		clue_label.name = "PuzzleClueLabel"
+		clue_label.text = labels[world_level_index][n]
+		clue_label.font_size = 30
+		clue_label.pixel_size = 0.006
+		clue_label.modulate = Color(1.0, 0.91, 0.70)
+		clue_label.outline_size = 8
+		clue_label.outline_modulate = Color(0.035, 0.045, 0.055, 0.96)
+		clue_label.position = Vector3(0.0, 1.28, 0.0)
+		clue_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		item.add_child(clue_label)
 	player.global_position = Vector3(0, 0.05, 3.4)
 	player.velocity = Vector3.ZERO
 	yaw = 0.0
-	pitch = -0.04
+	pitch = -0.12
 	player.rotation.y = yaw
 	if is_instance_valid(camera):
 		camera.rotation = Vector3(pitch, 0, 0)
