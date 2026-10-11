@@ -3295,6 +3295,7 @@ func _start_world_level(index: int) -> void:
 			for x in [-2.8, 2.8]:
 				_world_level_box("Memory gate pillar", Vector3(x, 2.0, -4.9), Vector3(0.26, 4.0, 0.38), Color(0.42, 0.29, 0.65), false)
 			_world_level_box("Memory gate crown", Vector3(0, 4.05, -4.9), Vector3(5.8, 0.24, 0.45), Color(0.55, 0.40, 0.82), false)
+	_add_realm_detail_layers(p)
 	var labels := [
 		["DAWN BELL", "NOON BELL", "MIDNIGHT BELL"],
 		["LOW BRIDGE", "MIDDLE BRIDGE", "HIGH BRIDGE"],
@@ -3352,6 +3353,90 @@ func _start_world_level(index: int) -> void:
 	_set_status(WORLD_LEVEL_NAMES[world_level_index] + " · " + WORLD_LEVEL_THEMES[world_level_index])
 	_show_story_card(WORLD_LEVEL_NAMES[world_level_index], WORLD_LEVEL_THEMES[world_level_index] + "\n\nExplore the three objects and activate them in the order implied by the clue. A wrong choice resets the sequence. Solve the puzzle to open the railway gate.", "BEGIN EXPLORING")
 
+
+func _add_realm_detail_layers(palette: Array) -> void:
+	# A second pass adds grounded foreground silhouettes and material variation.
+	# Keep the puzzle corridor (x -3.2..3.2, z -0.6..-2.4) clear for touch play.
+	var edge_colors := [
+		Color(0.18, 0.11, 0.065), Color(0.34, 0.48, 0.55),
+		Color(0.075, 0.14, 0.065), Color(0.28, 0.085, 0.045),
+		Color(0.075, 0.055, 0.12)
+	]
+	var edge_color: Color = edge_colors[world_level_index]
+	for side in [-1.0, 1.0]:
+		# Broken terrain shelves and inset edging give the arena a layered boundary.
+		for section in range(4):
+			var z := -6.0 + float(section) * 3.1
+			var x := side * (6.25 + float(section % 2) * 0.42)
+			_world_level_shape("Realm edge terrain shelf", Vector3(x, 0.02, z),
+				_world_sphere(), edge_color, Vector3(1.55, 0.26, 1.48), 0.0, 0.96)
+			_world_level_shape("Realm edge stone outcrop", Vector3(x + side * 0.22, 0.34, z - 0.20),
+				_world_sphere(), palette[1], Vector3(0.58, 0.48, 0.54), 0.05, 0.92)
+		match world_level_index:
+			0:
+				# Gear teeth around the outer gear silhouettes and small brass rivets on the citadel.
+				for gear_z in [-7.1, -4.9]:
+					var gear_x := side * 6.05
+					_world_level_shape("Citadel gear center hub", Vector3(gear_x, 1.0, gear_z),
+						_world_cylinder(0.25, 0.25, 0.25), Color(0.74, 0.47, 0.16), Vector3(1, 1, 1), 0.82, 0.24)
+					for tooth in range(8):
+						var angle := TAU * float(tooth) / 8.0
+						_world_level_shape("Citadel gear tooth", Vector3(gear_x + cos(angle) * 1.02, 1.0 + sin(angle) * 1.02, gear_z),
+							_world_cylinder(0.10, 0.10, 0.16), Color(0.53, 0.34, 0.15), Vector3(1, 1, 1), 0.75, 0.32)
+			1:
+				# Floating rock needles and drifting cloud puffs create height below the islands.
+				_world_level_shape("Hanging island stone spire", Vector3(side * 6.0, -0.35, -4.9),
+					_world_cylinder(0.10, 0.46, 1.65), Color(0.24, 0.34, 0.39), Vector3(1, 1, 1), 0.0, 0.95)
+				for puff in range(3):
+					_world_level_shape("Cloud mist puff", Vector3(side * (4.9 + float(puff) * 0.68), 2.15 + float(puff % 2) * 0.22, -6.6 - float(puff) * 0.3),
+						_world_sphere(), Color(0.76, 0.83, 0.86), Vector3(0.72, 0.34, 0.52), 0.0, 1.0)
+			2:
+				# Roots, branch forks and layered foliage give the tree line a less toy-like silhouette.
+				var root := _world_level_shape("Forest exposed root", Vector3(side * 5.4, 0.24, -3.7),
+					_world_cylinder(0.07, 0.24, 1.35), Color(0.16, 0.075, 0.038), Vector3(1, 1, 1), 0.0, 0.98)
+				root.rotation_degrees.z = side * 54.0
+				var branch := _world_level_shape("Forest branching limb", Vector3(side * 5.9, 2.55, -5.25),
+					_world_cylinder(0.07, 0.13, 1.15), Color(0.17, 0.075, 0.04), Vector3(1, 1, 1), 0.0, 0.95)
+				branch.rotation_degrees.z = -side * 48.0
+				for leaf in range(3):
+					_world_level_shape("Forest layered leaf cluster", Vector3(side * (5.4 + float(leaf) * 0.38), 3.35 + float(leaf % 2) * 0.35, -5.5),
+						_world_sphere(), Color(0.10 + float(leaf) * 0.015, 0.25 + float(leaf) * 0.025, 0.09), Vector3(0.72, 0.62, 0.75), 0.0, 0.98)
+			3:
+				# A readable station sign, plinths and warm pools of light anchor the architecture.
+				_world_level_box("Sunset station name board", Vector3(side * 3.0, 3.15, -5.35), Vector3(1.75, 0.58, 0.12), Color(0.12, 0.035, 0.025), false)
+				_world_level_box("Sunset station sign brass border", Vector3(side * 3.0, 3.15, -5.43), Vector3(1.83, 0.66, 0.06), Color(0.76, 0.42, 0.15), false)
+				_world_level_box("Sunset station sign inset", Vector3(side * 3.0, 3.15, -5.38), Vector3(1.70, 0.51, 0.05), Color(0.12, 0.035, 0.025), false)
+				_world_level_shape("Sunset platform lamp pedestal", Vector3(side * 5.3, 0.62, -1.7),
+					_world_cylinder(0.12, 0.22, 1.1), Color(0.20, 0.075, 0.035), Vector3(1, 1, 1), 0.55, 0.45)
+				_world_level_shape("Sunset platform lantern", Vector3(side * 5.3, 1.45, -1.7),
+					_world_sphere(), Color(1.0, 0.48, 0.13), Vector3(0.22, 0.30, 0.22), 0.0, 0.25)
+			4:
+				# Nested portal rings make the last gate a clear focal point beyond the puzzle.
+				var portal := MeshInstance3D.new()
+				portal.name = "Terminal luminous portal ring"
+				var portal_mesh := TorusMesh.new()
+				portal_mesh.inner_radius = 1.02
+				portal_mesh.outer_radius = 1.12
+				portal_mesh.rings = 16
+				portal_mesh.ring_segments = 48
+				portal.mesh = portal_mesh
+				portal.position = Vector3(side * 1.65, 2.05, -5.05)
+				portal.scale = Vector3(0.82, 1.65, 0.55)
+			var portal_material := StandardMaterial3D.new()
+			portal_material.albedo_color = Color(0.55, 0.38, 0.92)
+			portal_material.metallic = 0.55
+			portal_material.roughness = 0.25
+			portal_material.emission_enabled = true
+			portal_material.emission = Color(0.24, 0.08, 0.62)
+			portal_material.emission_energy_multiplier = 0.7
+			portal.material_override = portal_material
+			world_level_root.add_child(portal)
+	# Inset edging and short bollards frame the route without obstructing the puzzle props.
+	for side in [-1.0, 1.0]:
+		_world_level_box("Realm path brass edge", Vector3(side * 1.22, 0.07, -2.15), Vector3(0.055, 0.055, 8.6), palette[2], false)
+		for z in [-5.4, -2.8, -0.2]:
+			_world_level_shape("Realm path guide bollard", Vector3(side * 1.42, 0.28, z),
+				_world_cylinder(0.075, 0.11, 0.52), palette[2], Vector3(1, 1, 1), 0.52, 0.38)
 
 func _world_sphere() -> SphereMesh:
 	var mesh := SphereMesh.new()
