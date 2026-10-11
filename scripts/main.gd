@@ -3382,7 +3382,7 @@ func _add_realm_detail_layers(palette: Array) -> void:
 		# Broken terrain shelves and inset edging give the arena a layered boundary.
 		for section in range(4):
 			var z := -6.0 + float(section) * 3.1
-			var x := side * (6.25 + float(section % 2) * 0.42)
+			var x: float = float(side) * (6.25 + float(section % 2) * 0.42)
 			_world_level_shape("Realm edge terrain shelf", Vector3(x, 0.02, z),
 				_world_sphere(), edge_color, Vector3(1.55, 0.26, 1.48), 0.0, 0.96)
 			_world_level_shape("Realm edge stone outcrop", Vector3(x + side * 0.22, 0.34, z - 0.20),
@@ -3391,7 +3391,7 @@ func _add_realm_detail_layers(palette: Array) -> void:
 			0:
 				# Gear teeth around the outer gear silhouettes and small brass rivets on the citadel.
 				for gear_z in [-7.1, -4.9]:
-					var gear_x := side * 6.05
+					var gear_x: float = float(side) * 6.05
 					_world_level_shape("Citadel gear center hub", Vector3(gear_x, 1.0, gear_z),
 						_world_cylinder(0.25, 0.25, 0.25), Color(0.74, 0.47, 0.16), Vector3(1, 1, 1), 0.82, 0.24)
 					for tooth in range(8):
