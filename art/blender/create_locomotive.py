@@ -45,7 +45,7 @@ IRON = mat("Locomotive | forged black iron", (0.025, 0.032, 0.035), 0.72, 0.3)
 STEEL = mat("Locomotive | brushed steel", (0.22, 0.25, 0.27), 0.82, 0.28)
 RED = mat("Locomotive | oxblood buffer beam", (0.25, 0.025, 0.02), 0.22, 0.35)
 GLASS = mat("Locomotive | midnight blue glass", (0.025, 0.10, 0.16), 0.28, 0.18, 0.18)
-LAMP = mat("Locomotive | warm headlamp glass", (1.0, 0.42, 0.09), 0.12, 0.18, 3.0)
+LAMP = mat("Locomotive | amber headlamp glass", (0.95, 0.22, 0.025), 0.02, 0.30, 0.06)
 RUBBER = mat("Locomotive | wheel tyre", (0.018, 0.021, 0.024), 0.48, 0.34)
 
 def assign(obj, material):
