@@ -3151,6 +3151,19 @@ func _start_world_level(index: int) -> void:
 	world_level_root = Node3D.new()
 	world_level_root.name = "PlayableWorld_%02d" % (world_level_index + 1)
 	add_child(world_level_root)
+	var key_light := DirectionalLight3D.new()
+	key_light.name = "WorldKeyLight"
+	key_light.rotation_degrees = Vector3(-42.0, -28.0, 0.0)
+	key_light.light_energy = 1.1
+	key_light.shadow_enabled = true
+	world_level_root.add_child(key_light)
+	var puzzle_fill := OmniLight3D.new()
+	puzzle_fill.name = "PuzzleWarmFill"
+	puzzle_fill.position = Vector3(0.0, 2.6, -1.8)
+	puzzle_fill.light_color = Color(1.0, 0.69, 0.36)
+	puzzle_fill.light_energy = 1.15
+	puzzle_fill.omni_range = 10.0
+	world_level_root.add_child(puzzle_fill)
 	var palettes := [
 		[Color(0.15, 0.12, 0.10), Color(0.42, 0.23, 0.09), Color(0.92, 0.60, 0.20)],
 		[Color(0.26, 0.53, 0.63), Color(0.59, 0.78, 0.82), Color(0.96, 0.79, 0.40)],
