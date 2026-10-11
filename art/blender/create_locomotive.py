@@ -126,6 +126,7 @@ cube("Front oxblood buffer beam", (0, 0.91, -3.15), (2.65, 0.36, 0.34), RED, 0.0
 cube("Rear coupling beam", (0, 0.86, 3.02), (2.35, 0.28, 0.28), IRON, 0.05)
 
 # Three heavy spoked wheels on each side, with tyres, hubs, and connecting rods.
+# Each spoke is radial in the wheel's Y/Z plane and centered on its own wheel.
 wheel_zs = [-2.25, 0.05, 2.18]
 for side in (-1, 1):
     x = side * 1.32
@@ -134,11 +135,13 @@ for side in (-1, 1):
         torus("Wheel %s %d | machined rim" % (side, wi), (x + side * 0.112, 0.66, z), 0.438, 0.035, STEEL, (0, math.pi / 2, 0))
         cyl("Wheel %s %d | brass hub" % (side, wi), (x + side * 0.135, 0.66, z), 0.145, 0.25, BRASS, (0, math.pi / 2, 0), 32, 0.015)
         cyl("Wheel %s %d | axle cap" % (side, wi), (x + side * 0.275, 0.66, z), 0.065, 0.035, BRASS_LIGHT, (0, math.pi / 2, 0), 24, 0.006)
-        # Six steel spokes per wheel.
         for spoke in range(6):
             angle = math.tau * spoke / 6.0
-            sx = x + side * 0.115
-            spoke_obj = cube("Wheel spoke", (sx, 0.66 + math.sin(angle) * 0.27, z + math.cos(angle) * 0.27), (0.055, 0.055, 0.50), STEEL, 0.012)
+            spoke_obj = cube(
+                "Wheel spoke",
+                (x + side * 0.115, 0.66 + math.sin(angle) * 0.245, z + math.cos(angle) * 0.245),
+                (0.065, 0.065, 0.43), STEEL, 0.012
+            )
             spoke_obj.rotation_euler.x = angle
     cube("LocomotiveConnectingRod_L" if side < 0 else "LocomotiveConnectingRod_R", (side * 1.48, 0.66, -0.035), (0.09, 0.10, 4.55), STEEL, 0.035)
     for z in wheel_zs:
