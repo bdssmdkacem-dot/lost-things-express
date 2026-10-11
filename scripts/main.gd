@@ -1199,6 +1199,12 @@ func _build_intro_passenger_cars() -> void:
 				lamp_mat.emission_energy_multiplier = 0.9
 				end_lamp.material_override = lamp_mat
 				world_intro_root.add_child(end_lamp)
+		# The luggage coach gets louvered side panels instead of a fifth identical window.
+		if coach_index == 2:
+			for vent_index in range(7):
+				var vent_z := z - 2.35 + float(vent_index) * 0.78
+				_intro_box("Post coach brass ventilation slat", Vector3(28.70, 1.55, vent_z), Vector3(0.06, 0.045, 0.46), trim_color, 0.7)
+
 	# One articulated gangway per actual gap: avoid overlapping duplicate bellows
 	# from both neighboring coaches, which otherwise read as a solid black block.
 	for gap_spec in [[4.0, 0], [12.6, 1], [21.4, 2]]:
@@ -1216,11 +1222,6 @@ func _build_intro_passenger_cars() -> void:
 		for rail_y in [1.02, 2.38]:
 			_intro_box("Gangway retaining rail", Vector3(30.0, rail_y, gap_z - 0.18),
 				Vector3(1.42, 0.055, 0.055), Color(0.48, 0.32, 0.14), 0.72)
-		# The luggage coach gets louvered side panels instead of a fifth identical window.
-		if coach_index == 2:
-			for vent_index in range(7):
-				var vent_z := z - 2.35 + float(vent_index) * 0.78
-				_intro_box("Post coach brass ventilation slat", Vector3(28.70, 1.55, vent_z), Vector3(0.06, 0.045, 0.46), trim_color, 0.7)
 
 
 func _build_intro_train_couplers() -> void:
