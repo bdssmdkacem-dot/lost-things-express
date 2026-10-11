@@ -440,8 +440,10 @@ func _build_first_person_hands() -> void:
 		# Their spread follows the palm instead of bunching into a single capsule.
 		for finger_index in range(4):
 			var finger_x: float = side * 0.315 - side * (0.055 - float(finger_index) * 0.036)
-			var finger_length: float = [0.105, 0.125, 0.118, 0.096][finger_index]
-			var finger_radius: float = [0.014, 0.015, 0.014, 0.012][finger_index]
+			# Slightly fuller tapered fingers read at phone resolution; keep each digit
+			# separated so the letter grip does not collapse into a mitten silhouette.
+			var finger_length: float = [0.118, 0.138, 0.132, 0.108][finger_index]
+			var finger_radius: float = [0.018, 0.019, 0.018, 0.016][finger_index]
 			var finger_y := -0.145 - absf(1.5 - float(finger_index)) * 0.006
 			var finger := MeshInstance3D.new()
 			finger.name = "Finger_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
@@ -471,9 +473,22 @@ func _build_first_person_hands() -> void:
 			nail_mesh.height = finger_radius * 0.92
 			nail.mesh = nail_mesh
 			nail.material_override = nail_material
-			nail.scale = Vector3(0.82, 1.15, 0.24)
-			nail.position = Vector3(0.0, finger_length * 0.36, 0.017)
+			nail.scale = Vector3(0.92, 1.32, 0.28)
+			nail.position = Vector3(0.0, finger_length * 0.36, finger_radius * 1.28)
 			finger.add_child(nail)
+			# Fine joint crease on the camera-facing side adds a second anatomical cue
+			# without adding a heavy mesh or texture cost to the mobile view model.
+			var joint_crease := MeshInstance3D.new()
+			joint_crease.name = "FingerJointCrease_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
+			var crease_mesh := BoxMesh.new()
+			crease_mesh.size = Vector3(finger_radius * 1.15, 0.006, 0.002)
+			joint_crease.mesh = crease_mesh
+			var crease_material := StandardMaterial3D.new()
+			crease_material.albedo_color = Color(0.43, 0.23, 0.16)
+			crease_material.roughness = 0.9
+			joint_crease.material_override = crease_material
+			joint_crease.position = Vector3(0.0, -finger_length * 0.12, finger_radius * 1.22)
+			finger.add_child(joint_crease)
 
 		# Thumb angles inward and rests against the paper edge during inspection.
 		var thumb := MeshInstance3D.new()
