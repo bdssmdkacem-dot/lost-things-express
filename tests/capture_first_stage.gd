@@ -75,8 +75,16 @@ func _capture_first_stage() -> void:
 	await create_timer(0.2).timeout
 	if not _save_viewport_image("06_pause_settings.png"):
 		return
+	game.call("_toggle_pause_menu")
+	for world_index in range(5):
+		game.call("_start_world_level", world_index)
+		game.call("_close_story_card")
+		await create_timer(0.3).timeout
+		var world_image := "%02d_world_%s.png" % [world_index + 7, ["clockwork", "cloud_islands", "remembering_forest", "sunset_station", "last_terminal"][world_index]]
+		if not _save_viewport_image(world_image):
+			return
 
-	print("VISUAL_CAPTURE_COMPLETE: title card, train intro, carriage, physical letter, chest reveal, pause/settings")
+	print("VISUAL_CAPTURE_COMPLETE: opening, first-stage interactions, settings, and all five playable worlds")
 	game.queue_free()
 	await process_frame
 	quit(0)
