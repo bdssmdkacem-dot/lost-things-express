@@ -3237,6 +3237,7 @@ func _start_world_level(index: int) -> void:
 	player.velocity = Vector3.ZERO
 	yaw = 0.0
 	pitch = -0.04
+	player.rotation.y = yaw
 	if is_instance_valid(camera):
 		camera.rotation = Vector3(pitch, 0, 0)
 	_set_status(WORLD_LEVEL_NAMES[world_level_index] + " · " + WORLD_LEVEL_THEMES[world_level_index])
