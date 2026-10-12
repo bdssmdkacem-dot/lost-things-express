@@ -1327,8 +1327,13 @@ func _on_story_continue_pressed() -> void:
 		_show_story_card("THE TRAIN DEPARTS", "The clock answers from the next carriage. Every lamp dims in sequence, from the rear coach to the locomotive. The coupling beneath your feet pulls taut; the platform begins to slide away.\n\nYou have recovered a photograph, but not the memory that belongs to it. The train is taking you to the place printed on its back.", "RIDE TO THE NEXT STAGE")
 	elif train_departure_pending:
 		train_departure_pending = false
-		_show_story_card("BETWEEN STAGES · THE NIGHT RUN", "The wheels strike the rail joints: three slow knocks, then two quick ones—the same pattern that answered the key. The windows fill with copper light. For a moment, a second passenger appears in the reflection beside you.\n\nWhen the train slows, the sign outside reads THE CLOCKWORK KINGDOM.", "ARRIVE AT THE CLOCKWORK KINGDOM")
-		await get_tree().create_timer(2.2).timeout
+		_close_story_card()
+		_save_progress()
+		await _play_departure_sequence()
+		if not is_inside_tree():
+			return
+		_show_story_card("BETWEEN STAGES · THE NIGHT RUN", "The wheels strike the rail joints: three slow knocks, then two quick ones—the same pattern that answered the key. Copper light streams past the windows. For one heartbeat, a second passenger appears in the reflection beside you.\n\nThe train slows. Beyond the glass, the sign reads THE CLOCKWORK KINGDOM.", "ARRIVE AT THE CLOCKWORK KINGDOM")
+		await get_tree().create_timer(1.4).timeout
 		if not is_inside_tree():
 			return
 		_close_story_card()
@@ -1339,6 +1344,35 @@ func _on_story_continue_pressed() -> void:
 		_show_story_card("THE MEMORY RESTORED", "The station returns in full: the waiting platform, the hand you once held, and the promise you thought you had broken. You cannot change what happened, but you can carry its truth forward. The clock falls silent at last.", "KEEP THE MEMORY")
 	else:
 		_close_story_card()
+
+func _play_departure_sequence() -> void:
+	# Run the departure in the 3D scene (not behind a story-card overlay).
+	# Staggered practical lights sell the train's power draw as the couplings load.
+	var lights: Array[OmniLight3D] = []
+	for node in find_children("*", "OmniLight3D", true, false):
+		if node is OmniLight3D and (node.name.to_lower().contains("carriage") or node.name.to_lower().contains("lamp") or node.name.to_lower().contains("sconce")):
+			lights.append(node as OmniLight3D)
+	lights.sort_custom(func(a: OmniLight3D, b: OmniLight3D) -> bool: return a.global_position.z > b.global_position.z)
+	var original_camera_position := camera.position
+	var motion := create_tween()
+	motion.set_parallel(false)
+	for light in lights:
+		if not is_instance_valid(light):
+			continue
+		var initial_energy := light.light_energy
+		motion.tween_property(light, "light_energy", initial_energy * 0.18, 0.16)
+		motion.tween_interval(0.10)
+	# A short, damped carriage jolt communicates the coupler taking the load.
+	motion.tween_property(camera, "position", original_camera_position + Vector3(0.035, 0.0, 0.0), 0.08)
+	motion.tween_property(camera, "position", original_camera_position + Vector3(-0.022, 0.012, 0.0), 0.12)
+	motion.tween_property(camera, "position", original_camera_position, 0.20)
+	motion.tween_interval(0.18)
+	await motion.finished
+	if not is_inside_tree():
+		return
+	_set_status("The couplings pull taut. The night run begins.")
+	_save_progress()
+
 
 func _on_story_alternative_pressed() -> void:
 	if clock_deduction_pending:
