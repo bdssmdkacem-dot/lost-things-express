@@ -430,6 +430,17 @@ func _run_first_slice() -> void:
 	var clock_save := ConfigFile.new()
 	if not _check(clock_save.load("user://first_stage_progress.cfg") == OK and bool(clock_save.get_value("progress", "clock_puzzle_solved", false)) and bool(clock_save.get_value("progress", "second_ticket_read", false)), "clock deduction and second-ticket reading were not persisted"):
 		return
+	# Relaunch immediately after reading the ticket: the physical clue and gate state must survive.
+	resumed_game.queue_free()
+	await process_frame
+	resumed_game = packed_scene.instantiate() as Node3D
+	root.add_child(resumed_game)
+	await process_frame
+	if not _check(bool(resumed_game.get("clock_puzzle_solved")) and bool(resumed_game.get("second_ticket_read")), "relaunch lost the solved clock or inspected-ticket state"):
+		return
+	var restored_ticket := resumed_game.get_node_or_null("SecondPassengerTicket") as Node3D
+	if not _check(restored_ticket != null and restored_ticket.is_in_group("interactables") and restored_ticket.get_meta("kind", "") == "second_ticket", "relaunch did not restore the physical second-passenger ticket"):
+		return
 	resumed_game.set("story_card_open", false)
 	(resumed_game.get("story_overlay") as Control).visible = false
 	(resumed_game.get("player") as CharacterBody3D).global_position = (resumed_game.get_node("StationClock") as Node3D).global_position
