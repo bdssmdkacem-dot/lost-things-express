@@ -416,6 +416,7 @@ func _run_first_slice() -> void:
 	resumed_game.set("story_card_open", false)
 	(resumed_game.get("story_overlay") as Control).visible = false
 	resumed_game.set("nearby_object", revealed_ticket)
+	(resumed_game.get("player") as CharacterBody3D).global_position = revealed_ticket.global_position + Vector3(0.0, 0.05, 0.5)
 	resumed_game.call("_interact")
 	if not _check(bool(resumed_game.get("second_ticket_read")) and str(resumed_game.get("story_title").text).contains("SECOND TICKET"), "inspecting the physical second ticket did not reveal the return-journey clue"):
 		return
