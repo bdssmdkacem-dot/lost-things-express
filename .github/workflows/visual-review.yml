@@ -48,8 +48,24 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y xvfb libgl1-mesa-dri libegl1
 
+      - name: Download CC0 rigged hand for import inspection
+        run: |
+          set -euxo pipefail
+          mkdir -p assets/models
+          curl --fail --location --retry 4 --retry-delay 2 \
+            "https://www.innerscene.com/api/library/posable-anatomical-right-hand-f6098b4f/download" \
+            --output assets/models/hand-posable.glb
+          test -s assets/models/hand-posable.glb
+
       - name: Import project resources
         run: timeout --signal=TERM --kill-after=30s 10m godot --headless --editor --path . --quit
+
+      - name: Inspect imported skeleton bone names and local axes
+        run: |
+          set -euxo pipefail
+          godot --headless --path . --script tests/inspect_hand_asset.gd
+          mkdir -p build/hand_inspection
+          cp "$HOME/.local/share/godot/app_userdata/The Lost Things Express/hand-rig-report.txt" build/hand_inspection/hand-rig-report.txt
 
       - name: Capture real Godot scene states
         run: |
@@ -74,6 +90,14 @@ jobs:
           test -s build/visual_review/17_realm_arrival_reveal.png
           test -s build/visual_review/18_realm_arrival_clear.png
           file build/visual_review/*.png
+
+      - name: Upload hand rig inspection report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cc0-hand-godot-import-inspection
+          path: build/hand_inspection/hand-rig-report.txt
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Upload Godot visual review images
         uses: actions/upload-artifact@v4
