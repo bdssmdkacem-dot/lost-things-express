@@ -166,14 +166,16 @@ func _run_first_slice() -> void:
 	var articulated_fingers := 0
 	for finger in hands.get_children():
 		if finger.name.begins_with("Finger_"):
-			var proximal_joint := finger.get_node_or_null("ProximalJoint") as Node3D
-			var distal_joint := proximal_joint.get_node_or_null("DistalJoint") as Node3D if proximal_joint != null else null
-			var proximal_segment := proximal_joint.get_node_or_null("ProximalPhalanx") as MeshInstance3D if proximal_joint != null else null
-			var distal_segment := distal_joint.get_node_or_null("DistalPhalanx") as MeshInstance3D if distal_joint != null else null
-			var fingertip_nail := distal_joint.find_child("Fingernail_*", true, false) if distal_joint != null else null
-			if proximal_joint != null and distal_joint != null and proximal_segment != null and distal_segment != null and fingertip_nail != null and fingertip_nail.get_parent() == distal_joint:
+			var mcp := finger.get_node_or_null("MCPJoint") as Node3D
+			var pip := mcp.get_node_or_null("PIPJoint") as Node3D if mcp != null else null
+			var dip := pip.get_node_or_null("DIPJoint") as Node3D if pip != null else null
+			var proximal_segment := mcp.get_node_or_null("ProximalPhalanx") as MeshInstance3D if mcp != null else null
+			var middle_segment := pip.get_node_or_null("MiddlePhalanx") as MeshInstance3D if pip != null else null
+			var distal_segment := dip.get_node_or_null("DistalPhalanx") as MeshInstance3D if dip != null else null
+			var fingertip_nail := dip.find_child("Fingernail_*", true, false) if dip != null else null
+			if mcp != null and pip != null and dip != null and proximal_segment != null and middle_segment != null and distal_segment != null and fingertip_nail != null and fingertip_nail.get_parent() == dip:
 				articulated_fingers += 1
-	if not _check(articulated_fingers >= 8, "fingers lack nested proximal/distal pivots, phalanges, or fingertip-attached nails"):
+	if not _check(articulated_fingers >= 8, "fingers lack three phalanges, MCP/PIP/DIP pivots, or fingertip-attached nails"):
 		return
 	var left_sleeve := hands.get_node_or_null("Sleeve_L") as MeshInstance3D
 	var left_sleeve_mesh := left_sleeve.mesh as CapsuleMesh if left_sleeve != null else null
