@@ -398,13 +398,19 @@ func _run_first_slice() -> void:
 		return
 	# The clock is a deduction, not an automatic reward for collecting clues.
 	resumed_game.call("_show_clock_deduction")
-	if not _check(bool(resumed_game.get("clock_deduction_pending")) and (resumed_game.get("story_alternative") as Button).visible, "clock did not present both deduction choices after all evidence was found"):
+	if not _check(bool(resumed_game.get("clock_deduction_pending")) and (resumed_game.get("story_alternative") as Button).visible and (resumed_game.get("story_third_choice") as Button).visible, "clock did not present all three deduction choices after all evidence was found"):
 		return
 	resumed_game.call("_on_story_continue_pressed")
 	if not _check(bool(resumed_game.get("clock_deduction_pending")) and not bool(resumed_game.get("clock_puzzle_solved")) and str(resumed_game.get("story_body").text).contains("broken clock"), "wrong clock deduction did not give evidence-based feedback and allow another attempt"):
 		return
+	resumed_game.call("_on_story_third_choice_pressed")
+	if not _check(bool(resumed_game.get("clock_deduction_pending")) and not bool(resumed_game.get("clock_puzzle_solved")) and str(resumed_game.get("story_body").text).contains("station"), "wrong vanished-station deduction did not explain the contradictory evidence"):
+		return
 	resumed_game.call("_on_story_alternative_pressed")
 	if not _check(bool(resumed_game.get("clock_puzzle_solved")) and bool(resumed_game.get("world_transition_pending")) and str(resumed_game.get("story_title").text).contains("FIRST DEPARTURE"), "correct clock deduction did not resolve the loop and start the departure sequence"):
+		return
+	var revealed_ticket := resumed_game.get_node_or_null("SecondPassengerTicket") as Node3D
+	if not _check(revealed_ticket != null and revealed_ticket.find_child("TornSecondPassengerName", true, false) != null, "solving the clock did not reveal the physical second-passenger ticket"):
 		return
 	var clock_save := ConfigFile.new()
 	if not _check(clock_save.load("user://first_stage_progress.cfg") == OK and bool(clock_save.get_value("progress", "clock_puzzle_solved", false)), "clock deduction result was not persisted"):
