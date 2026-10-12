@@ -506,9 +506,14 @@ func _build_first_person_hands() -> void:
 			distal_mesh.height = finger_length * 0.47
 			distal.mesh = distal_mesh
 			distal.material_override = skin_light
-			distal.position.y = finger_length * 0.31
+			# The distal phalanx pivots at the distal knuckle instead of rotating as one rigid finger.
+			var distal_joint := Node3D.new()
+			distal_joint.name = "DistalJoint"
+			distal_joint.position = Vector3(0.0, finger_length * 0.42, 0.0)
+			finger.add_child(distal_joint)
+			distal.position.y = finger_length * 0.19
 			distal.rotation_degrees.z = side * -4.0
-			finger.add_child(distal)
+			distal_joint.add_child(distal)
 
 			var knuckle := MeshInstance3D.new()
 			knuckle.name = "Knuckle"
@@ -528,8 +533,8 @@ func _build_first_person_hands() -> void:
 			nail.mesh = nail_mesh
 			nail.material_override = nail_material
 			nail.scale = Vector3(0.9, 1.25, 0.25)
-			nail.position = Vector3(0.0, finger_length * 0.52, finger_radius * 1.12)
-			finger.add_child(nail)
+			nail.position = Vector3(0.0, finger_length * 0.18, finger_radius * 1.12)
+			distal_joint.add_child(nail)
 
 			# Two fine palm-facing creases keep the joints legible without heavy geometry.
 			for crease_index in range(2):
