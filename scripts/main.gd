@@ -1344,13 +1344,13 @@ func _on_story_alternative_pressed() -> void:
 	if clock_deduction_pending:
 		clock_deduction_pending = false
 		clock_puzzle_solved = true
-		world_transition_pending = true
+		world_transition_pending = false
 		train_departure_pending = false
 		_play_hand_action("take")
 		_save_progress()
 		_set_status("DEDUCTION CORRECT · The train is trapped in a repeating journey.")
 		_spawn_second_passenger_ticket()
-		_show_story_card("THE FIRST DEPARTURE", "The photograph names SUNSET STATION. The manifest records TWO TICKETS. ONE RETURN. Outside, the same cracked signal passes again. You have not repaired a broken clock: you have understood the loop holding the train in place. The hands reverse. A second ticket is revealed beneath the clock, stamped for two passengers with the second name torn away. The lamps begin to dim from carriage to carriage.", "RELEASE THE BRAKE")
+		_show_story_card("THE SECOND PASSENGER", "The photograph names SUNSET STATION. The manifest records TWO TICKETS. ONE RETURN. Outside, the same cracked signal passes again. You have understood the loop holding the train in place. The hands reverse and a second ticket slips from beneath the clock. Its torn passenger name is still unreadable from here. Inspect the ticket before releasing the brake.", "INSPECT THE TICKET")
 		return
 	if not ending_choice_pending:
 		return
@@ -3212,11 +3212,16 @@ func _interact() -> void:
 				_set_status("The clock is waiting for evidence from this carriage.")
 				_show_story_card("THE CLOCK NEEDS PROOF", "The photograph points to SUNSET STATION, but it does not explain the two tickets or the repeating signal outside. Before you set the clock moving, " + evidence_hint + ". The train is hiding a contradiction, not asking you to guess.", "RETURN TO THE CARRIAGE")
 			else:
-				if clock_puzzle_solved:
+				if clock_puzzle_solved and not second_ticket_read:
+					world_transition_pending = false
+					train_departure_pending = false
+					_set_status("The clock will not release the train until you inspect the second passenger ticket.")
+					_show_story_card("THE MISSING PASSENGER", "The clock has reversed, but the journey is still held in place. A second ticket has fallen beneath the clock. Its torn name is the last piece of evidence: inspect it before you release the brake.", "FIND THE SECOND TICKET")
+				elif clock_puzzle_solved:
 					world_transition_pending = true
 					train_departure_pending = false
-					_set_status("The loop is understood. Release the train when you are ready.")
-					_show_story_card("THE FIRST DEPARTURE", "You already proved that the same cracked signal returns while the train moves. The manifest records TWO TICKETS. ONE RETURN. The clock is no longer a mystery; it is the mechanism holding the journey in its loop.", "RELEASE THE BRAKE")
+					_set_status("The loop is understood. The second passenger has been remembered. Release the train when you are ready.")
+					_show_story_card("THE FIRST DEPARTURE", "The photograph names SUNSET STATION. The manifest records TWO TICKETS. ONE RETURN. The repeating signal proves the loop; the second ticket proves someone was meant to return with you. Only now can the train leave.", "RELEASE THE BRAKE")
 				else:
 					_show_clock_deduction()
 		"world_puzzle":
