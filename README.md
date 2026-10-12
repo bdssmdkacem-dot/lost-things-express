@@ -78,11 +78,13 @@ The Android export preset previously had `package/signed=false`, even though the
 
 ## Narrative and puzzle redesign (2026-10-12)
 
-The previous five-stage story and puzzles are not accepted as compelling yet. The new design contract is [Story and Puzzle Redesign](docs/design/story-and-puzzle-redesign.md): one central mystery, a recurring companion, evidence that contradicts the Conductor, five distinct deduction-driven puzzle mechanics, and two endings with meaningful emotional costs.
+The previous five-stage story and puzzles are not accepted as compelling yet. The new design contract is [Story and Puzzle Redesign](docs/design/story-and-puzzle-redesign.md): one central mystery carried by the train, a complete carriage-led first stage, distinct stage-specific puzzles, evidence that changes later chapters, visible train travel between stages, and endings with meaningful emotional costs.
 
 - [x] Document the new narrative premise, five-stage arc, puzzle principles and acceptance gates
+- [ ] Expand the first stage into a complete carriage-led chapter, from waking and meaningful exploration through its resolution and train departure
+- [ ] Replace instant world-gate hopping with authored train departure, in-transit and arrival sequences between complete stages
 - [ ] Replace the old story text and stage objectives in the game
-- [ ] Implement the five signature puzzle mechanics and evidence/journal progression
+- [ ] Implement distinctive stage puzzle mechanics and evidence/journal progression
 - [ ] Make previous stage outcomes feed the final manifest puzzle
 - [ ] Add in-world reactions and distinct ending sequences
 - [ ] Fresh-save Android playtest each puzzle without developer hints
