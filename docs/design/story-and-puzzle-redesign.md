@@ -1,6 +1,6 @@
 # Story and Puzzle Redesign — The Lost Things Express
 
-Status: **new design contract; gameplay implementation and playtesting are still required**.
+Status: **design contract with incremental implementation in progress; visual and device acceptance remain required**.
 
 ## Diagnosis
 
@@ -131,3 +131,12 @@ Every puzzle must pass all of these before it is accepted:
 7. Conduct a blind playtest before considering the narrative/puzzle work accepted.
 
 **Current status:** this document is a design contract, not proof that the redesigned story or puzzles are implemented. The existing code still contains the older clock repair, wind route, forest echoes, station announcement, and final mechanism. Those must be replaced and verified in-game before this redesign can be called complete.
+
+## First-stage clock deduction — implemented slice
+
+The clock no longer releases the train automatically when the player has collected the photograph, manifest, and repeating-window evidence. It presents two explicit interpretations:
+
+- **THE CLOCK IS BROKEN** — an incorrect explanation. The clock responds with evidence-based feedback: a broken clock does not explain why the same cracked signal returns while the train continues moving. Repeated attempts provide a clearer cross-reference to the two-ticket manifest.
+- **THE TRAIN IS LOOPING** — the correct deduction. It resolves the clock puzzle, saves the solved state and attempt count, reveals a second ticket, and begins the first departure beat. The departure/travel sequence still needs end-to-end visual and Android playtesting before acceptance.
+
+Acceptance checks now cover both choices, wrong-answer feedback, successful resolution, and saved puzzle state. This is a meaningful gameplay improvement, not a claim that the complete first chapter or final visual quality is finished.
