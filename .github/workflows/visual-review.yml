@@ -69,6 +69,9 @@ jobs:
           test -s build/visual_review/12_final_choice.png
           test -s build/visual_review/13_ending_release.png
           test -s build/visual_review/14_ending_restore.png
+          test -s build/visual_review/15_realm_departure_lighting.png
+          test -s build/visual_review/16_realm_transition_blackout.png
+          test -s build/visual_review/17_realm_arrival_reveal.png
           file build/visual_review/*.png
 
       - name: Upload Godot visual review images
