@@ -30,7 +30,7 @@ func _capture() -> void:
 	light.light_energy = 2.0
 	stage.add_child(light)
 	var camera := Camera3D.new()
-		camera.fov = 42.0
+	camera.fov = 42.0
 	camera.position = Vector3(0.0, 0.0, 2.8)
 	stage.add_child(camera)
 	var hand := packed.instantiate() as Node3D
