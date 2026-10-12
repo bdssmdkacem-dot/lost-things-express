@@ -1,7 +1,7 @@
 extends SceneTree
 
 const ASSET_PATH := "res://assets/models/hand-posable.glb"
-const REPORT_PATH := "user://hand-rig-report.txt"
+const REPORT_PATH := "res://build/hand_inspection/hand-rig-report.txt"
 
 func _initialize() -> void:
 	call_deferred("_inspect")
@@ -59,6 +59,7 @@ func _walk(node: Node, report: PackedStringArray, depth: int) -> void:
 		_walk(child, report, depth + 1)
 
 func _write_report(report: PackedStringArray) -> void:
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://build/hand_inspection"))
 	var file := FileAccess.open(REPORT_PATH, FileAccess.WRITE)
 	if file:
 		file.store_string("\n".join(report) + "\n")
