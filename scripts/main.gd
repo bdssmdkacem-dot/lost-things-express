@@ -3526,10 +3526,13 @@ func _transition_to_world(next_index: int) -> void:
 	campaign_checkpoint_complete = false
 	_save_progress()
 	_start_world_level(next_index)
-	# Keep the world-arrival card behind the fade; let the realm reveal itself first.
+	# _start_world_level prepares the next realm and its story card. Hide that card
+	# during the visual reveal so players see the destination before reading its lore.
+	_close_story_card()
 	var fade_in := create_tween()
 	fade_in.tween_property(fade, "color:a", 0.0, 0.72).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	await fade_in.finished
+	_show_story_card(WORLD_LEVEL_NAMES[next_index], WORLD_LEVEL_OPENINGS[next_index] + "\n\nOBJECTIVE · " + WORLD_LEVEL_THEMES[next_index] + "\n\nInspect the environment for evidence before interacting. The world must change when you solve its mystery.", "BEGIN EXPLORING")
 	transition_busy = false
 
 
