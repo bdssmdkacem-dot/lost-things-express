@@ -449,6 +449,26 @@ func _run_first_slice() -> void:
 		return
 	resumed_game.set("world_transition_pending", false)
 	resumed_game.set("train_departure_pending", false)
+	# Exercise the departure beat itself: practical carriage lights dim and the camera jolt settles back to neutral.
+	var departure_camera := resumed_game.get("camera") as Camera3D
+	if not _check(departure_camera != null, "departure sequence has no player camera to animate"):
+		return
+	var departure_camera_start := departure_camera.position
+	var departure_lights: Array[OmniLight3D] = []
+	for light_node in resumed_game.find_children("*", "OmniLight3D", true, false):
+		var light_name := light_node.name.to_lower()
+		if light_node is OmniLight3D and (light_name.contains("carriage") or light_name.contains("lamp") or light_name.contains("sconce") or light_name.contains("practical")):
+			departure_lights.append(light_node as OmniLight3D)
+	if not _check(departure_lights.size() >= 3, "departure sequence cannot find enough practical carriage lights to dim"):
+		return
+	var departure_light_start := departure_lights[0].light_energy
+	await resumed_game.call("_play_departure_sequence")
+	if not _check(departure_lights[0].light_energy <= departure_light_start * 0.19, "departure sequence did not dim the practical lights"):
+		return
+	if not _check(departure_camera.position.distance_to(departure_camera_start) < 0.001, "departure camera jolt did not settle back to its original position"):
+		return
+	if not _check(str(resumed_game.get("status_label").text).contains("night run"), "departure sequence did not report the train's night run"):
+		return
 	var resumed_chest := resumed_game.get_node_or_null("MemoryChest") as Node3D
 	var resumed_photo := resumed_chest.get_node_or_null("SunsetPhotograph") as Node3D if resumed_chest else null
 	if not _check(resumed_photo != null and resumed_photo.visible, "saved chest progress did not restore the visible photograph reward"):
