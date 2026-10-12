@@ -21,9 +21,10 @@ A premium fantasy train adventure where players explore strange stations, discov
 
 - One richly dressed antique sleeper carriage in landscape mobile orientation, with a clear central aisle and a visible second compartment through a framed doorway.
 - Polished dark walnut/mahogany joinery, emerald upholstery and carpet, brass/copper details, curtains, warm lamps, tables and overhead luggage.
-- Three meaningful puzzle objects: brass key, torn letter, memory chest.
-- A complete puzzle requiring the player to discover the key, read the letter, and open the chest.
-- A story reward that points to Sunset Station.
+- A complete first chapter beginning with waking inside the moving train: discover the brass key, physically read the torn letter, unlock the memory chest, and inspect the recovered photograph.
+- Optional but consequential evidence in the passenger manifest and anomalous window deepens the mystery without blocking players who miss it.
+- The clock in the next carriage triggers a narrative departure and night-run transition before the first destination stage loads; no instant world swap.
+- The first-stage test covers the manifest and window clue payoffs in addition to the key/letter/chest sequence.
 - Touch-first movement and camera controls, with desktop controls for development.
 - Collision around seating and carriage boundaries, readable mobile UI, and an APK that passes signature/package checks.
 - Puzzle progress is now saved automatically to the app's user data and restored on relaunch; the automated first-slice test checks the save/resume path. Pause/resume controls and a persistent look-sensitivity setting are now implemented and covered by automated tests. The physical letter stays visible between the player's hands while reading, with a close action and a printed clock warning; automated tests cover this interaction and persistent key state. Physical-device behavior and visual quality remain release gates.
