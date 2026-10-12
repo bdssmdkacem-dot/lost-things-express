@@ -6,6 +6,17 @@ Status: **new design contract; gameplay implementation and playtesting are still
 
 The current campaign is a chain of five abstract repair tasks with mostly explanatory text. The puzzles do not consistently arise from a character's need, make the player form a deduction, or change the situation after solving them. The Collector's reveal is delivered as exposition instead of being earned through play. More props and longer dialogue will not fix that.
 
+## Correct campaign structure — train journey, not portal hopping
+
+The train is the continuous home and connective tissue of the game. A stage is a complete playable chapter, not a short sequence of objects in a world that immediately opens a gate to the next world.
+
+- The player wakes inside a moving carriage. The first stage must fully develop this carriage-based opening: orientation, observation, movement, meaningful object handling, the letter, key, chest, photograph, and a story payoff. Every movement and interaction must have an observable purpose or reveal character/world information.
+- A destination/world is the setting of a stage, not a portal menu. The player must not solve three generic labelled objects and walk through a gate to trigger the next world's puzzle.
+- Each stage has a complete dramatic arc: arrival/context → exploration and evidence → a distinctive physical/environmental puzzle → consequence/reveal → departure preparation.
+- At stage completion, the player returns to or boards the train. A visible, audible train departure and travel sequence connects the chapters. Only after that inter-stage journey does the next stage begin. The railway transition is part of the narrative, not an instant level swap.
+- The train, carriage props, recurring sounds, letters, photographs, tickets and passenger manifest carry evidence forward. Previous discoveries must affect later scenes and puzzles.
+- Keep explicit transition state for stage active, departure, train in transit and arrival. Prevent the next stage from loading before the departure/travel beat has played.
+- The first acceptance target is a complete, polished first stage from waking in the carriage through its meaningful resolution and departure—not all five stages represented by prototype arenas.
 ## New player promise
 
 **Every lost thing is evidence. Every puzzle reconstructs one moment. Every answer changes what the train can reveal.**
