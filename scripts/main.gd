@@ -1345,7 +1345,7 @@ func _on_story_continue_pressed() -> void:
 		if not is_inside_tree():
 			return
 		_close_story_card()
-		_start_world_level(0)
+		_transition_to_world(0)
 	elif ending_choice_pending:
 		ending_choice_pending = false
 		ending_decision = "restore"
