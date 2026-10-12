@@ -1222,10 +1222,10 @@ func _on_story_continue_pressed() -> void:
 	elif world_transition_pending:
 		world_transition_pending = false
 		train_departure_pending = true
-		_show_story_card("THE TRAIN DEPARTS", "The clock answers from the next carriage. Every lamp dims in sequence, from the rear coach to the locomotive. The coupling beneath your feet pulls taut; the platform begins to slide away.\\n\\nYou have recovered a photograph, but not the memory that belongs to it. The train is taking you to the place printed on its back.", "RIDE TO THE NEXT STAGE")
+		_show_story_card("THE TRAIN DEPARTS", "The clock answers from the next carriage. Every lamp dims in sequence, from the rear coach to the locomotive. The coupling beneath your feet pulls taut; the platform begins to slide away.\n\nYou have recovered a photograph, but not the memory that belongs to it. The train is taking you to the place printed on its back.", "RIDE TO THE NEXT STAGE")
 	elif train_departure_pending:
 		train_departure_pending = false
-		_show_story_card("BETWEEN STAGES · THE NIGHT RUN", "The wheels strike the rail joints: three slow knocks, then two quick ones—the same pattern that answered the key. The windows fill with copper light. For a moment, a second passenger appears in the reflection beside you.\\n\\nWhen the train slows, the sign outside reads THE CLOCKWORK KINGDOM.", "ARRIVE AT THE CLOCKWORK KINGDOM")
+		_show_story_card("BETWEEN STAGES · THE NIGHT RUN", "The wheels strike the rail joints: three slow knocks, then two quick ones—the same pattern that answered the key. The windows fill with copper light. For a moment, a second passenger appears in the reflection beside you.\n\nWhen the train slows, the sign outside reads THE CLOCKWORK KINGDOM.", "ARRIVE AT THE CLOCKWORK KINGDOM")
 		await get_tree().create_timer(2.2).timeout
 		if not is_inside_tree():
 			return
@@ -3062,12 +3062,12 @@ func _interact() -> void:
 			manifest_read = true
 			_save_progress()
 			_trigger_mystery_beat("One passenger is listed twice. The second entry is written in your handwriting, but the name has been scraped away.")
-			_show_story_card("THE PASSENGER MANIFEST", "The paper lists the same departure twice. The first line names you. The second line has been scratched out so hard it tore the page. Beside it, someone wrote: TWO TICKETS. ONE RETURN.\\n\\nThe train did not expect you to travel alone. This evidence may make the photograph mean something different later.", "PUT THE MANIFEST AWAY")
+			_show_story_card("THE PASSENGER MANIFEST", "The paper lists the same departure twice. The first line names you. The second line has been scratched out so hard it tore the page. Beside it, someone wrote: TWO TICKETS. ONE RETURN.\n\nThe train did not expect you to travel alone. This evidence may make the photograph mean something different later.", "PUT THE MANIFEST AWAY")
 		"window":
 			window_examined = true
 			_save_progress()
 			_trigger_mystery_beat("The landscape outside jumps backward for a heartbeat. The train is moving forward, but the same signal lamp returns.")
-			_show_story_card("THE WINDOW THAT REPEATS", "Outside, a green signal lamp passes the window. A moment later, the same lamp passes again—with the same crack in its glass. The train is moving, yet the world has looped.\\n\\nA thin line of condensation appears on the inside of the glass: SUNSET — PLATFORM TWO. The destination is trying to reach you.", "TURN FROM THE WINDOW")
+			_show_story_card("THE WINDOW THAT REPEATS", "Outside, a green signal lamp passes the window. A moment later, the same lamp passes again—with the same crack in its glass. The train is moving, yet the world has looped.\n\nA thin line of condensation appears on the inside of the glass: SUNSET — PLATFORM TWO. The destination is trying to reach you.", "TURN FROM THE WINDOW")
 		"clock":
 			if not chest_open:
 				_set_status("The next carriage is still sealed. Complete the memory chest first.")
