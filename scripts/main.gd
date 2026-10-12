@@ -476,7 +476,7 @@ func _build_first_person_hands() -> void:
 		palm.scale = Vector3(0.90, 1.02, 0.58)
 		first_person_hands.add_child(palm)
 
-		# Four fingers have separate proximal/distal phalanges, visible knuckle transitions,
+		# Articulated finger rig: separate phalanges and joint pivots for functional grip,
 		# varied lengths and individual nails. Parent rotation remains compatible with hand actions.
 		for finger_index in range(4):
 			var finger_x: float = side * 0.315 - side * (0.058 - float(finger_index) * 0.038)
