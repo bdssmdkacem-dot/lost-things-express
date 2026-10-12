@@ -407,7 +407,7 @@ func _run_first_slice() -> void:
 	if not _check(bool(resumed_game.get("clock_deduction_pending")) and not bool(resumed_game.get("clock_puzzle_solved")) and str(resumed_game.get("story_body").text).contains("station"), "wrong vanished-station deduction did not explain the contradictory evidence"):
 		return
 	resumed_game.call("_on_story_alternative_pressed")
-	if not _check(bool(resumed_game.get("clock_puzzle_solved")) and bool(resumed_game.get("world_transition_pending")) and str(resumed_game.get("story_title").text).contains("FIRST DEPARTURE"), "correct clock deduction did not resolve the loop and start the departure sequence"):
+	if not _check(bool(resumed_game.get("clock_puzzle_solved")) and not bool(resumed_game.get("world_transition_pending")) and str(resumed_game.get("story_title").text).contains("SECOND PASSENGER"), "correct clock deduction skipped the required second-passenger clue gate"):
 		return
 	var revealed_ticket := resumed_game.get_node_or_null("SecondPassengerTicket") as Node3D
 	if not _check(revealed_ticket != null and revealed_ticket.find_child("TornSecondPassengerName", true, false) != null and revealed_ticket.is_in_group("interactables") and revealed_ticket.get_meta("kind", "") == "second_ticket", "solving the clock did not reveal an interactable physical second-passenger ticket"):
@@ -422,6 +422,20 @@ func _run_first_slice() -> void:
 		return
 	var clock_save := ConfigFile.new()
 	if not _check(clock_save.load("user://first_stage_progress.cfg") == OK and bool(clock_save.get_value("progress", "clock_puzzle_solved", false)) and bool(clock_save.get_value("progress", "second_ticket_read", false)), "clock deduction and second-ticket reading were not persisted"):
+		return
+	# Solving the deduction alone must not release the train. The player must
+	# physically inspect the revealed ticket, then return to the clock.
+	resumed_game.set("story_card_open", false)
+	(resumed_game.get("story_overlay") as Control).visible = false
+	(resumed_game.get("player") as CharacterBody3D).global_position = (resumed_game.get_node("StationClock") as Node3D).global_position
+	resumed_game.call("_interact")
+	if not _check(not bool(resumed_game.get("world_transition_pending")) and str(resumed_game.get("story_title").text).contains("MISSING PASSENGER"), "clock released the train before the second ticket was inspected"):
+		return
+	resumed_game.set("story_card_open", false)
+	(resumed_game.get("story_overlay") as Control).visible = false
+	(resumed_game.get("player") as CharacterBody3D).global_position = (resumed_game.get_node("StationClock") as Node3D).global_position
+	resumed_game.call("_interact")
+	if not _check(bool(resumed_game.get("world_transition_pending")) and str(resumed_game.get("story_title").text).contains("FIRST DEPARTURE"), "reading the second ticket did not unlock the train departure at the clock"):
 		return
 	resumed_game.set("world_transition_pending", false)
 	resumed_game.set("train_departure_pending", false)
