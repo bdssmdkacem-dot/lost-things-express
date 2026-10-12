@@ -166,11 +166,14 @@ func _run_first_slice() -> void:
 	var articulated_fingers := 0
 	for finger in hands.get_children():
 		if finger.name.begins_with("Finger_"):
-			var distal_joint := finger.get_node_or_null("DistalJoint") as Node3D
-			var fingertip_nail := finger.find_child("Fingernail_*", true, false)
-			if distal_joint != null and fingertip_nail != null and fingertip_nail.get_parent() == distal_joint:
+			var proximal_joint := finger.get_node_or_null("ProximalJoint") as Node3D
+			var distal_joint := proximal_joint.get_node_or_null("DistalJoint") as Node3D if proximal_joint != null else null
+			var proximal_segment := proximal_joint.get_node_or_null("ProximalPhalanx") as MeshInstance3D if proximal_joint != null else null
+			var distal_segment := distal_joint.get_node_or_null("DistalPhalanx") as MeshInstance3D if distal_joint != null else null
+			var fingertip_nail := distal_joint.find_child("Fingernail_*", true, false) if distal_joint != null else null
+			if proximal_joint != null and distal_joint != null and proximal_segment != null and distal_segment != null and fingertip_nail != null and fingertip_nail.get_parent() == distal_joint:
 				articulated_fingers += 1
-	if not _check(articulated_fingers >= 8, "fingers lack independent distal joints or fingertip-attached nails"):
+	if not _check(articulated_fingers >= 8, "fingers lack nested proximal/distal pivots, phalanges, or fingertip-attached nails"):
 		return
 	var left_sleeve := hands.get_node_or_null("Sleeve_L") as MeshInstance3D
 	var left_sleeve_mesh := left_sleeve.mesh as CapsuleMesh if left_sleeve != null else null
