@@ -637,12 +637,14 @@ func _play_hand_action(action: String) -> void:
 	hand_action_tween.parallel().tween_property(first_person_hands, "rotation", final_hand_rotation, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	for part in first_person_hands.get_children():
 		if part.name.begins_with("Finger_"):
-			var finger_curl := -16.0 if action == "read" else -8.0
-			hand_action_tween.parallel().tween_property(part, "rotation_degrees", Vector3(finger_curl, 0.0, 0.0), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-			var distal_joint = part.get_node_or_null("DistalJoint")
-			if distal_joint:
-				var distal_curl := -24.0 if action == "read" else -10.0
-				hand_action_tween.parallel().tween_property(distal_joint, "rotation_degrees", Vector3(distal_curl, 0.0, 0.0), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+			var proximal_joint := part.get_node_or_null("ProximalJoint") as Node3D
+			if proximal_joint:
+				var proximal_curl := -16.0 if action == "read" else -8.0
+				hand_action_tween.parallel().tween_property(proximal_joint, "rotation_degrees", Vector3(proximal_curl, 0.0, 0.0), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+				var distal_joint := proximal_joint.get_node_or_null("DistalJoint") as Node3D
+				if distal_joint:
+					var distal_curl := -24.0 if action == "read" else -10.0
+					hand_action_tween.parallel().tween_property(distal_joint, "rotation_degrees", Vector3(distal_curl, 0.0, 0.0), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 		elif part.name.begins_with("Thumb_"):
 			var thumb_roll := 24.0 if part.name.ends_with("R") else -24.0
 			var thumb_curl := -28.0 if action == "read" else -12.0
