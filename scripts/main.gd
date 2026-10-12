@@ -49,6 +49,9 @@ var letter_inspecting := false
 var chest_open := false
 var manifest_read := false
 var window_examined := false
+var clock_deduction_pending := false
+var clock_wrong_attempts := 0
+var clock_puzzle_solved := false
 var train_departure_pending := false
 var nearby_object: Node3D
 
@@ -1216,7 +1219,22 @@ func _animate_intro_train_parts(node: Node, delta: float) -> void:
 					part.scale = Vector3(0.38, 0.28, 0.36)
 			_animate_intro_train_parts(part, delta)
 
+func _show_clock_deduction(feedback: String = "The clock has three possible explanations. Use the evidence, not a guess: why does the same signal return while the train keeps moving?") -> void:
+	clock_deduction_pending = true
+	_set_status("FINAL DEDUCTION · Explain the repeating signal.")
+	_show_story_card("WHY DOES THE SIGNAL RETURN?", feedback, "THE CLOCK IS BROKEN")
+	if is_instance_valid(story_alternative):
+		story_alternative.text = "THE TRAIN IS LOOPING"
+		story_alternative.visible = true
+
 func _on_story_continue_pressed() -> void:
+	if clock_deduction_pending:
+		clock_wrong_attempts += 1
+		var feedback := "A broken clock can stop time, but it cannot make the same cracked signal pass twice while the train is still moving. Compare what the window shows with the manifest."
+		if clock_wrong_attempts >= 2:
+			feedback = "Look at the evidence together: the same signal returns with the same crack, while the manifest insists on TWO TICKETS. ONE RETURN. The clock is not merely broken; the journey is repeating."
+		_show_clock_deduction(feedback)
+		return
 	if world_intro_active:
 		_enter_stage_one()
 	elif world_transition_pending:
@@ -1239,6 +1257,16 @@ func _on_story_continue_pressed() -> void:
 		_close_story_card()
 
 func _on_story_alternative_pressed() -> void:
+	if clock_deduction_pending:
+		clock_deduction_pending = false
+		clock_puzzle_solved = true
+		world_transition_pending = true
+		train_departure_pending = false
+		_play_hand_action("take")
+		_save_progress()
+		_set_status("DEDUCTION CORRECT · The train is trapped in a repeating journey.")
+		_show_story_card("THE FIRST DEPARTURE", "The photograph names SUNSET STATION. The manifest records TWO TICKETS. ONE RETURN. Outside, the same cracked signal passes again. You have not repaired a broken clock: you have understood the loop holding the train in place. The hands reverse, a second ticket slips from beneath the clock, and the lamps begin to dim from carriage to carriage.", "RELEASE THE BRAKE")
+		return
 	if not ending_choice_pending:
 		return
 	ending_choice_pending = false
@@ -3082,12 +3110,11 @@ func _interact() -> void:
 				_set_status("The clock is waiting for evidence from this carriage.")
 				_show_story_card("THE CLOCK NEEDS PROOF", "The photograph points to SUNSET STATION, but it does not explain the two tickets or the repeating signal outside. Before you set the clock moving, " + evidence_hint + ". The train is hiding a contradiction, not asking you to guess.", "RETURN TO THE CARRIAGE")
 			else:
-				_play_hand_action("take")
-				world_transition_pending = true
-				train_departure_pending = true
-				_save_progress()
-				_set_status("The three clues agree: two tickets, one returning signal, and a station absent from every map.")
-				_show_story_card("THE FIRST DEPARTURE", "The photograph names SUNSET STATION. The manifest records TWO TICKETS. ONE RETURN. Outside, the same signal passes twice. The clock is not a countdown: it is the only mechanism keeping the train on this impossible loop. You have enough evidence to release it. The lamps dim, the wheels gather speed, and the next destination begins to appear beyond the glass.", "RELEASE THE BRAKE")
+				if clock_puzzle_solved:
+					_set_status("The loop is understood. Release the train when you are ready.")
+					_show_story_card("THE LOOP UNDERSTOOD", "You already proved that the same signal returns with the same crack. The clock is waiting for the decision you made.", "CONTINUE")
+				else:
+					_show_clock_deduction()
 		"world_puzzle":
 			if world_level_complete:
 				_set_status("The memory is restored. Follow the railway gate.")
@@ -3189,6 +3216,8 @@ func _save_progress() -> void:
 	config.set_value("progress", "chest_open", chest_open)
 	config.set_value("progress", "manifest_read", manifest_read)
 	config.set_value("progress", "window_examined", window_examined)
+	config.set_value("progress", "clock_puzzle_solved", clock_puzzle_solved)
+	config.set_value("progress", "clock_wrong_attempts", clock_wrong_attempts)
 	var error := config.save("user://first_stage_progress.cfg")
 	if error != OK:
 		push_warning("Could not save first-stage progress (error %d)." % error)
@@ -3206,6 +3235,8 @@ func _load_progress() -> void:
 	chest_open = bool(config.get_value("progress", "chest_open", false))
 	manifest_read = bool(config.get_value("progress", "manifest_read", false))
 	window_examined = bool(config.get_value("progress", "window_examined", false))
+	clock_puzzle_solved = bool(config.get_value("progress", "clock_puzzle_solved", false))
+	clock_wrong_attempts = int(config.get_value("progress", "clock_wrong_attempts", 0))
 	if has_key:
 		var key := get_node_or_null("BrassKey")
 		if key:
@@ -3711,8 +3742,10 @@ func _objective_text() -> String:
 		return "FIRST STAGE · Inspect the repeating signal outside the window."
 	if chest_open and not (manifest_read and window_examined):
 		return "FIRST STAGE · Compare the manifest and the repeating signal at the clock."
+	if chest_open and manifest_read and window_examined and clock_puzzle_solved:
+		return "FIRST STAGE · The loop is understood. Release the train."
 	if chest_open:
-		return "FIRST STAGE · Evidence complete. Return to the clock and release the train."
+		return "FIRST STAGE · Evidence complete. Return to the clock and solve the deduction."
 	if not has_key:
 		return "FIRST STAGE · Find the brass key near the seats."
 	if not letter_read:
