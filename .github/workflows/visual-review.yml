@@ -65,7 +65,7 @@ jobs:
           set -euxo pipefail
           godot --headless --path . --script tests/inspect_hand_asset.gd
           mkdir -p build/hand_inspection
-          cp "$HOME/.local/share/godot/app_userdata/The Lost Things Express/hand-rig-report.txt" build/hand_inspection/hand-rig-report.txt
+          test -s build/hand_inspection/hand-rig-report.txt
 
       - name: Capture real Godot scene states
         run: |
