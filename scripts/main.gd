@@ -3496,19 +3496,29 @@ func _transition_to_world(next_index: int) -> void:
 	_save_progress()
 	_close_story_card()
 	var fade := _ensure_transition_fade()
-	var fade_out := create_tween()
-	fade_out.tween_property(fade, "color:a", 1.0, 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	await fade_out.finished
-	if not is_inside_tree():
-		return
-	# A restrained two-part camera impulse makes the railway gate feel physical,
-	# without leaving the player's view offset when the next realm loads.
+	# Let players see the world lights fall and feel the coupling load before
+	# the screen reaches black; never hide the entire physical beat behind darkness.
+	var active_lights: Array[Light3D] = []
+	for light_node in find_children("*", "Light3D", true, false):
+		if light_node is Light3D and light_node.is_visible_in_tree():
+			active_lights.append(light_node as Light3D)
 	var camera_start := camera.position
+	var departure_beat := create_tween()
+	departure_beat.set_parallel(true)
+	departure_beat.tween_property(fade, "color:a", 0.38, 0.24).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	for active_light in active_lights:
+		departure_beat.tween_property(active_light, "light_energy", active_light.light_energy * 0.24, 0.30)
 	var jolt := create_tween()
 	jolt.tween_property(camera, "position", camera_start + Vector3(0.045, -0.018, 0.0), 0.09)
 	jolt.tween_property(camera, "position", camera_start + Vector3(-0.026, 0.010, 0.0), 0.13)
 	jolt.tween_property(camera, "position", camera_start, 0.18)
+	await departure_beat.finished
 	await jolt.finished
+	if not is_inside_tree():
+		return
+	var blackout := create_tween()
+	blackout.tween_property(fade, "color:a", 1.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await blackout.finished
 	if not is_inside_tree():
 		return
 	campaign_checkpoint_world = next_index
