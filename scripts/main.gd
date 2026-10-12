@@ -564,7 +564,7 @@ func _build_first_person_hands() -> void:
 		thumb_nail.scale = Vector3(0.9, 1.0, 0.22)
 		thumb_nail.position = Vector3(side * 0.235, -0.165, -0.533)
 		thumb_nail.rotation_degrees.z = side * 38.0
-		first_person_hands.add_child(thumb)
+		# Thumb was already attached above; add only its nail here to avoid a duplicate-parent error.
 		first_person_hands.add_child(thumb_nail)
 
 func _play_hand_action(action: String) -> void:
