@@ -3850,8 +3850,10 @@ func _objective_text() -> String:
 		return "FIRST STAGE · Inspect the repeating signal outside the window."
 	if chest_open and not (manifest_read and window_examined):
 		return "FIRST STAGE · Compare the manifest and the repeating signal at the clock."
-	if chest_open and manifest_read and window_examined and clock_puzzle_solved:
-		return "FIRST STAGE · The loop is understood. Release the train."
+	if chest_open and manifest_read and window_examined and clock_puzzle_solved and not second_ticket_read:
+		return "FIRST STAGE · Inspect the second ticket beneath the clock."
+	if chest_open and manifest_read and window_examined and clock_puzzle_solved and second_ticket_read:
+		return "FIRST STAGE · Return to the clock and release the train."
 	if chest_open:
 		return "FIRST STAGE · Evidence complete. Return to the clock and solve the deduction."
 	if not has_key:
