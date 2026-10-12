@@ -476,7 +476,7 @@ func _build_first_person_hands() -> void:
 		palm.scale = Vector3(0.90, 1.02, 0.58)
 		first_person_hands.add_child(palm)
 
-		# Anatomical chain: finger root -> proximal pivot -> distal pivot -> fingertip.
+		# Three phalanges per finger with MCP/PIP/DIP pivots; thumb is handled separately.
 		for finger_index in range(4):
 			var finger_x: float = side * 0.315 - side * (0.058 - float(finger_index) * 0.038)
 			var finger_length: float = [0.122, 0.145, 0.136, 0.112][finger_index]
@@ -488,65 +488,79 @@ func _build_first_person_hands() -> void:
 			finger.rotation_degrees = Vector3(-4.0, 0.0, side * (8.0 + finger_index * 1.8))
 			first_person_hands.add_child(finger)
 
-			var proximal_joint := Node3D.new()
-			proximal_joint.name = "ProximalJoint"
-			finger.add_child(proximal_joint)
+			var mcp := Node3D.new()
+			mcp.name = "MCPJoint"
+			finger.add_child(mcp)
 
 			var proximal := MeshInstance3D.new()
 			proximal.name = "ProximalPhalanx"
 			var proximal_mesh := CapsuleMesh.new()
 			proximal_mesh.radius = finger_radius
-			proximal_mesh.height = finger_length * 0.72
+			proximal_mesh.height = finger_length * 0.52
 			proximal.mesh = proximal_mesh
 			proximal.material_override = skin_light
-			proximal.position.y = finger_length * 0.28
-			proximal_joint.add_child(proximal)
+			proximal.position.y = finger_length * 0.20
+			mcp.add_child(proximal)
 
 			var knuckle := MeshInstance3D.new()
-			knuckle.name = "ProximalKnuckle"
+			knuckle.name = "MCPKnuckle"
 			var knuckle_mesh := SphereMesh.new()
-			knuckle_mesh.radius = finger_radius * 0.91
-			knuckle_mesh.height = finger_radius * 1.65
+			knuckle_mesh.radius = finger_radius * 0.90
+			knuckle_mesh.height = finger_radius * 1.6
 			knuckle.mesh = knuckle_mesh
 			knuckle.material_override = skin_material
-			knuckle.position.y = finger_length * 0.51
-			proximal_joint.add_child(knuckle)
+			knuckle.position.y = finger_length * 0.38
+			mcp.add_child(knuckle)
 
-			var distal_joint := Node3D.new()
-			distal_joint.name = "DistalJoint"
-			distal_joint.position.y = finger_length * 0.52
-			proximal_joint.add_child(distal_joint)
+			var pip := Node3D.new()
+			pip.name = "PIPJoint"
+			pip.position.y = finger_length * 0.39
+			mcp.add_child(pip)
+
+			var middle := MeshInstance3D.new()
+			middle.name = "MiddlePhalanx"
+			var middle_mesh := CapsuleMesh.new()
+			middle_mesh.radius = finger_radius * 0.88
+			middle_mesh.height = finger_length * 0.35
+			middle.mesh = middle_mesh
+			middle.material_override = skin_light
+			middle.position.y = finger_length * 0.145
+			pip.add_child(middle)
+
+			var pip_crease := MeshInstance3D.new()
+			pip_crease.name = "PIPCrease"
+			var pip_crease_mesh := BoxMesh.new()
+			pip_crease_mesh.size = Vector3(finger_radius * 1.05, 0.0025, 0.0012)
+			pip_crease.mesh = pip_crease_mesh
+			pip_crease.material_override = skin_shadow
+			pip_crease.position = Vector3(0.0, finger_length * 0.27, finger_radius * 0.86)
+			pip.add_child(pip_crease)
+
+			var dip := Node3D.new()
+			dip.name = "DIPJoint"
+			dip.position.y = finger_length * 0.30
+			pip.add_child(dip)
 
 			var distal := MeshInstance3D.new()
 			distal.name = "DistalPhalanx"
 			var distal_mesh := CapsuleMesh.new()
-			distal_mesh.radius = finger_radius * 0.79
-			distal_mesh.height = finger_length * 0.49
+			distal_mesh.radius = finger_radius * 0.76
+			distal_mesh.height = finger_length * 0.25
 			distal.mesh = distal_mesh
 			distal.material_override = skin_light
-			distal.position.y = finger_length * 0.22
-			distal_joint.add_child(distal)
+			distal.position.y = finger_length * 0.105
+			dip.add_child(distal)
 
 			var nail := MeshInstance3D.new()
 			nail.name = "Fingernail_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
 			var nail_mesh := SphereMesh.new()
-			nail_mesh.radius = finger_radius * 0.58
-			nail_mesh.height = finger_radius * 0.78
+			nail_mesh.radius = finger_radius * 0.54
+			nail_mesh.height = finger_radius * 0.68
 			nail.mesh = nail_mesh
 			nail.material_override = nail_material
-			nail.scale = Vector3(0.92, 1.22, 0.24)
-			nail.position = Vector3(0.0, finger_length * 0.43, finger_radius * 0.66)
-			distal_joint.add_child(nail)
-
-			for crease_index in range(2):
-				var crease := MeshInstance3D.new()
-				crease.name = "JointCrease_%d" % crease_index
-				var crease_mesh := BoxMesh.new()
-				crease_mesh.size = Vector3(finger_radius, 0.003, 0.0012)
-				crease.mesh = crease_mesh
-				crease.material_override = skin_shadow
-				crease.position = Vector3(0.0, finger_length * (0.49 if crease_index == 0 else 0.18), finger_radius * 0.91)
-				proximal_joint.add_child(crease)
+			nail.scale = Vector3(0.92, 1.18, 0.22)
+			nail.position = Vector3(0.0, finger_length * 0.19, finger_radius * 0.66)
+			dip.add_child(nail)
 
 		# A soft thenar mound bridges the thumb into the palm, avoiding a detached-capsule silhouette.
 		var thenar := MeshInstance3D.new()
