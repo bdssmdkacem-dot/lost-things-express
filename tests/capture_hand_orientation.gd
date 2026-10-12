@@ -113,6 +113,14 @@ func _save(filename: String) -> bool:
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: empty viewport image " + filename)
 		quit(1)
 		return false
+	var sampled_colors := {}
+	for y in range(0, image.get_height(), 8):
+		for x in range(0, image.get_width(), 8):
+			sampled_colors[image.get_pixel(x, y).to_rgba32()] = true
+	if sampled_colors.size() < 20:
+		push_error("HAND_ORIENTATION_CAPTURE_FAILED: rendered image lacks visual detail (" + str(sampled_colors.size()) + " sampled colors)")
+		quit(1)
+		return false
 	var path := ProjectSettings.globalize_path(OUT.path_join(filename))
 	var err := image.save_png(path)
 	if err != OK:
