@@ -534,8 +534,25 @@ func _run_first_slice() -> void:
 		resumed_game.get("player").global_position = gate.global_position + Vector3(0.0, 0.05, 0.5)
 		resumed_game.call("_interact")
 		if world_index < 4:
+			# The gate now performs a fade + damped carriage jolt asynchronously.
+			while bool(resumed_game.get("transition_busy")):
+				await process_frame
 			if not _check(int(resumed_game.get("world_level_index")) == world_index + 1, "exit gate failed to advance from world %d" % (world_index + 1)):
 				return
+			if world_index == 0:
+				var transition_fade := resumed_game.get("transition_fade") as ColorRect
+				if not _check(transition_fade != null and is_zero_approx(transition_fade.color.a), "realm transition did not reveal the new world after fading back in"):
+					return
+				# Relaunch at the boundary between realms to verify the checkpoint is durable.
+				resumed_game.queue_free()
+				await process_frame
+				resumed_game = packed_scene.instantiate() as Node3D
+				root.add_child(resumed_game)
+				await process_frame
+				if not _check(int(resumed_game.get("world_level_index")) == 1 and int(resumed_game.get("world_puzzle_progress")) == 0, "relaunch did not resume at the newly entered realm checkpoint"):
+					return
+				if not _check(resumed_game.get_node_or_null("PlayableWorld_02") != null, "saved realm checkpoint did not rebuild the second world's arena"):
+					return
 		else:
 			if not _check(bool(resumed_game.get("ending_choice_pending")) and (resumed_game.get("story_alternative") as Button).visible, "final gate did not present both ending choices"):
 				return
