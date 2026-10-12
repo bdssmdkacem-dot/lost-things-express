@@ -10,6 +10,7 @@ on:
       - "art/blender/**"
       - "tests/capture_first_stage.gd"
       - "tests/test_first_slice.gd"
+      - "tests/test_hand_asset_rig.gd"
       - "docs/ART_DIRECTION.md"
       - "README.md"
       - ".github/workflows/visual-review.yml"
@@ -66,6 +67,9 @@ jobs:
           godot --headless --path . --script tests/inspect_hand_asset.gd
           mkdir -p build/hand_inspection
           test -s build/hand_inspection/hand-rig-report.txt
+
+      - name: Smoke-test imported hand rig hierarchy and reversible joint pose
+        run: godot --headless --path . --script tests/test_hand_asset_rig.gd
 
       - name: Capture real Godot scene states
         run: |
