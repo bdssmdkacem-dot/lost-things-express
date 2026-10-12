@@ -1,0 +1,55 @@
+name: Prepare CC0 Anatomical Hand Asset
+
+on:
+  push:
+    paths:
+      - ".github/workflows/import-cc0-hand.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare-hand:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download and validate rigged hand
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p hand-asset
+          curl --fail --location --retry 4 --retry-delay 2 \
+            "https://www.innerscene.com/api/library/posable-anatomical-right-hand-f6098b4f/download" \
+            --output hand-asset/hand-posable.glb
+          python3 - <<'PY'
+          import json, struct
+          from pathlib import Path
+          p = Path("hand-asset/hand-posable.glb")
+          data = p.read_bytes()
+          if len(data) < 20 or data[:4] != b"glTF":
+              raise SystemExit("Downloaded asset is not a GLB file")
+          version, total = struct.unpack_from("<II", data, 4)
+          if version != 2 or total != len(data):
+              raise SystemExit("Invalid GLB v2 header or length")
+          offset, doc = 12, None
+          while offset + 8 <= len(data):
+              length, kind = struct.unpack_from("<II", data, offset)
+              chunk = data[offset + 8:offset + 8 + length]
+              if kind == 0x4E4F534A:
+                  doc = json.loads(chunk.decode("utf-8").rstrip("\\x00 "))
+                  break
+              offset += 8 + length
+          if not doc:
+              raise SystemExit("GLB has no JSON scene chunk")
+          skins, meshes = doc.get("skins", []), doc.get("meshes", [])
+          joints = max((len(s.get("joints", [])) for s in skins), default=0)
+          if not skins or joints < 12 or not meshes:
+              raise SystemExit(f"Expected skinned hand; skins={len(skins)}, joints={joints}, meshes={len(meshes)}")
+          print(f"Validated GLB: {len(data)} bytes, {len(meshes)} meshes, {joints} joints")
+          PY
+      - name: Upload validated source asset
+        uses: actions/upload-artifact@v4
+        with:
+          name: cc0-anatomical-hand-glb
+          path: hand-asset/hand-posable.glb
+          if-no-files-found: error
