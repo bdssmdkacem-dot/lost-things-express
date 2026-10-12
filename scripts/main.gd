@@ -3070,12 +3070,24 @@ func _interact() -> void:
 			_show_story_card("THE WINDOW THAT REPEATS", "Outside, a green signal lamp passes the window. A moment later, the same lamp passes again—with the same crack in its glass. The train is moving, yet the world has looped.\n\nA thin line of condensation appears on the inside of the glass: SUNSET — PLATFORM TWO. The destination is trying to reach you.", "TURN FROM THE WINDOW")
 		"clock":
 			if not chest_open:
-				_set_status("The next carriage is still sealed. Complete the memory chest first.")
+				_set_status("The next carriage is still sealed. Find the key, read the letter, and open the memory chest.")
+				_show_story_card("THE SEALED CLOCK", "The clock's hands twitch, then stop. The warning on the letter is clear: DO NOT LET THE CLOCK FINISH. The photograph alone is not enough to explain why. Find the other evidence in this carriage before touching the clock again.", "KEEP INVESTIGATING")
+			elif not manifest_read or not window_examined:
+				var missing_evidence := []
+				if not manifest_read:
+					missing_evidence.append("read the passenger manifest")
+				if not window_examined:
+					missing_evidence.append("examine the repeating window")
+				var evidence_hint := " and ".join(missing_evidence)
+				_set_status("The clock is waiting for evidence from this carriage.")
+				_show_story_card("THE CLOCK NEEDS PROOF", "The photograph points to SUNSET STATION, but it does not explain the two tickets or the repeating signal outside. Before you set the clock moving, " + evidence_hint + ". The train is hiding a contradiction, not asking you to guess.", "RETURN TO THE CARRIAGE")
 			else:
 				_play_hand_action("take")
 				world_transition_pending = true
-				_set_status("The station clock begins to chime. A new route is awakening beyond this carriage.")
-				_show_story_card("THE CLOCK THAT OPENS WORLDS", "Three quiet chimes ripple through the train. The first route opens: THE CLOCKWORK KINGDOM. Restore the bells in the order dawn, noon, midnight.", "ENTER THE CLOCKWORK KINGDOM")
+				train_departure_pending = true
+				_save_progress()
+				_set_status("The three clues agree: two tickets, one returning signal, and a station absent from every map.")
+				_show_story_card("THE FIRST DEPARTURE", "The photograph names SUNSET STATION. The manifest records TWO TICKETS. ONE RETURN. Outside, the same signal passes twice. The clock is not a countdown: it is the only mechanism keeping the train on this impossible loop. You have enough evidence to release it. The lamps dim, the wheels gather speed, and the next destination begins to appear beyond the glass.", "RELEASE THE BRAKE")
 		"world_puzzle":
 			if world_level_complete:
 				_set_status("The memory is restored. Follow the railway gate.")
