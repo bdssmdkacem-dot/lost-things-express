@@ -11,6 +11,7 @@ on:
       - "tests/capture_first_stage.gd"
       - "tests/test_first_slice.gd"
       - "tests/test_hand_asset_rig.gd"
+      - "tests/capture_hand_orientation.gd"
       - "docs/ART_DIRECTION.md"
       - "README.md"
       - ".github/workflows/visual-review.yml"
@@ -70,6 +71,24 @@ jobs:
 
       - name: Smoke-test imported hand rig hierarchy and reversible joint pose
         run: godot --headless --path . --script tests/test_hand_asset_rig.gd
+
+      - name: Capture imported hand orientation and test joint pose
+        run: |
+          set -euxo pipefail
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --script tests/capture_hand_orientation.gd
+          test -s build/hand_orientation_review/yaw_000.png
+          test -s build/hand_orientation_review/yaw_090.png
+          test -s build/hand_orientation_review/yaw_180.png
+          test -s build/hand_orientation_review/yaw_270.png
+          test -s build/hand_orientation_review/test_joint_pose.png
+
+      - name: Upload imported hand orientation review
+        uses: actions/upload-artifact@v4
+        with:
+          name: anatomical-hand-orientation-review
+          path: build/hand_orientation_review/*.png
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Capture real Godot scene states
         run: |
