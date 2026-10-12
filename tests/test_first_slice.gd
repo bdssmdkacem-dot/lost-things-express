@@ -162,6 +162,16 @@ func _run_first_slice() -> void:
 			nail_count += 1
 	if not _check(nail_count >= 10, "first-person hands are missing visible fingernails and thumbnails"):
 		return
+	# Functional rig checks: fingertips must articulate independently, and nails must follow them.
+	var articulated_fingers := 0
+	for finger in hands.get_children():
+		if finger.name.begins_with("Finger_"):
+			var distal_joint := finger.get_node_or_null("DistalJoint") as Node3D
+			var fingertip_nail := finger.find_child("Fingernail_*", true, false)
+			if distal_joint != null and fingertip_nail != null and fingertip_nail.get_parent() == distal_joint:
+				articulated_fingers += 1
+	if not _check(articulated_fingers >= 8, "fingers lack independent distal joints or fingertip-attached nails"):
+		return
 	var left_sleeve := hands.get_node_or_null("Sleeve_L") as MeshInstance3D
 	var left_sleeve_mesh := left_sleeve.mesh as CapsuleMesh if left_sleeve != null else null
 	if not _check(left_sleeve_mesh != null and left_sleeve_mesh.radius <= 0.085, "first-person sleeves are too bulky for the physical letter pose"):
@@ -242,8 +252,8 @@ func _run_first_slice() -> void:
 	if not _check(str((game.get("interact_button") as Button).text).contains("CLOSE LETTER"), "the physical letter has no clear close action"):
 		return
 	await create_timer(0.80).timeout
-	var thumb_left := hands.get_node_or_null("Thumb_L") as MeshInstance3D
-	var thumb_right := hands.get_node_or_null("Thumb_R") as MeshInstance3D
+	var thumb_left := hands.get_node_or_null("Thumb_L") as Node3D
+	var thumb_right := hands.get_node_or_null("Thumb_R") as Node3D
 	if not _check(thumb_left != null and thumb_right != null and absf(thumb_left.position.x) < 0.31 and absf(thumb_right.position.x) < 0.31, "both thumbs did not move inward to grip the letter edges"):
 		return
 	game.call("_interact")
