@@ -3111,8 +3111,10 @@ func _interact() -> void:
 				_show_story_card("THE CLOCK NEEDS PROOF", "The photograph points to SUNSET STATION, but it does not explain the two tickets or the repeating signal outside. Before you set the clock moving, " + evidence_hint + ". The train is hiding a contradiction, not asking you to guess.", "RETURN TO THE CARRIAGE")
 			else:
 				if clock_puzzle_solved:
+					world_transition_pending = true
+					train_departure_pending = false
 					_set_status("The loop is understood. Release the train when you are ready.")
-					_show_story_card("THE LOOP UNDERSTOOD", "You already proved that the same signal returns with the same crack. The clock is waiting for the decision you made.", "CONTINUE")
+					_show_story_card("THE FIRST DEPARTURE", "You already proved that the same cracked signal returns while the train moves. The manifest records TWO TICKETS. ONE RETURN. The clock is no longer a mystery; it is the mechanism holding the journey in its loop.", "RELEASE THE BRAKE")
 				else:
 					_show_clock_deduction()
 		"world_puzzle":
