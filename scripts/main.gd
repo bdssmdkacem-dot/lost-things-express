@@ -76,18 +76,18 @@ var world_level_complete := false
 var world_puzzle_sequence: Array[int] = []
 const WORLD_LEVEL_NAMES := ["THE CLOCKWORK KINGDOM", "THE CLOUD ISLANDS", "THE REMEMBERING FOREST", "SUNSET STATION", "THE LAST TERMINAL"]
 const WORLD_LEVEL_THEMES := [
-	"Repair the escapement: the minute hand is trapped one chime before midnight.",
-	"Reconnect the broken sky route by reading the wind vanes and the shadows beneath the bridges.",
-	"Listen for the lullaby hidden inside three forest echoes; the memory tree is repeating it out of order.",
-	"Rebuild the unfinished platform announcement from the ticket, timetable, and station photograph.",
-	"Bring the key, ticket, remembered melody, and timetable to the final clock. Then choose what the photograph means to you."
+	"Use the shadow and the worn gear teeth to infer the missing chime. Restore DAWN, then NOON, then MIDNIGHT; the clock must not be forced.",
+	"Read the vanes before touching the bridge anchors. The highest bridge catches the wind first, the lowest last: HIGH, MIDDLE, LOW.",
+	"Rebuild the remembered phrase from the sound marks: laughter leads into the lullaby, and the breath-like whisper comes last.",
+	"Compare the letter's ink, the witness mark, and the delivery stamp. The evidence order is LETTER, DELIVERY, WITNESS—not the timetable's printed order.",
+	"The terminal asks for a contradiction, not a simple sequence: place PRESENT first, test the PAST against the evidence, then face the FUTURE."
 ]
 const WORLD_LEVEL_OPENINGS := [
-	"The whole citadel is caught at 11:59. Every clock has stopped one tooth before the final chime. A voice leaks from the brasswork: \"You can still leave without remembering.\" Find what is jamming the escapement.",
-	"Three islands drift apart over a cloudless drop. Their wind vanes point in different directions, but the shadows reveal a route someone tried to keep open. A second shadow appears beside yours, then vanishes.",
-	"The trees repeat three sounds: a laugh, a breath, and a lullaby. One of them makes your hands tremble, though you cannot say why. The Collector calls it noise. The forest calls it a name.",
-	"The station clock works, but the loudspeaker stops just before a passenger's name. The photograph matches this platform down to a crack in the tile. The timetable says the train was late—not gone.",
-	"The last terminal has no tracks beyond it. The key, ticket, melody, and timetable fit into one mechanism. The voice that has followed you asks for the photograph: \"Give me the memory, and I will give you peace.\""
+	"The citadel is frozen at 11:59. A long shadow points to the only gear whose teeth are polished on the wrong side; the clockmaker's note says the smallest shadow marks noon. Restore the three chimes in the order the day moves: DAWN, NOON, MIDNIGHT. The Conductor whispers: \"One more minute, and you will forget why you boarded.\"",
+	"Three islands drift apart. The wind vanes disagree until you notice the high vane turns first and the low vane last. A counterweight can reconnect the route, but only if the anchors are set HIGH, MIDDLE, LOW. Across the gap, a child's mitten is caught on a rail—proof the Conductor's claim that you travelled alone is false.",
+	"The forest repeats laughter, a breath, and a lullaby. Three carved marks beside the roots show a phrase: a smile, a cradle, then a fading breath. The tree is not asking you to guess a melody; it is asking you to remember the order in which someone was comforted. Pip hums the first note before realizing it.",
+	"The loudspeaker cuts off before a passenger's name. The letter's ink is fresh, a witness scratched a mark into the platform tile, and the delivery stamp is older than the timetable claims. Reconstruct the evidence in the order it happened: LETTER, DELIVERY, WITNESS. The photograph matches a crack in the tile exactly.",
+	"The terminal has no tracks beyond it. The mechanism shows three faces—PRESENT, PAST, FUTURE—but the Conductor has placed the past behind a false seal. Test the present first, compare it with the past you recovered, then choose the future. The voice asks: \"Give me the memory, and I will give you peace.\""
 ]
 const WORLD_LEVEL_REVEALS := [
 	"The escapement turns. The clock advances to midnight, and a brass token drops from the mechanism. Half a passenger's name is engraved on it. The Collector's voice falls silent for the first time.",
@@ -3063,7 +3063,7 @@ func _interact() -> void:
 					_play_hand_action("take")
 					nearby_object.visible = false
 					nearby_object.remove_from_group("interactables")
-					_trigger_mystery_beat("A clear note rings out. The world remembers a little more.")
+					_trigger_mystery_beat(["The bell answers the shadow.", "The bridge cable tightens against the wind.", "Pip finishes the note before you do.", "The platform evidence fits the photograph.", "The mechanism recognizes the memory you almost buried."][world_level_index])
 					if world_puzzle_progress >= world_puzzle_sequence.size():
 						world_level_complete = true
 						_spawn_world_gate()
@@ -3072,8 +3072,8 @@ func _interact() -> void:
 					else:
 						_set_status("Clue restored · %d of 3" % world_puzzle_progress)
 				else:
-					world_puzzle_progress = 0
-					_show_story_card("THE CLUE DOES NOT FIT", "The mechanism falls silent. Start again and follow the clue: " + WORLD_LEVEL_THEMES[world_level_index], "TRY AGAIN")
+					# Keep valid deductions already made; a wrong choice should teach, not erase progress.
+					_show_story_card("THE CLUE DOES NOT FIT", "The mechanism rejects that choice, but the evidence is unchanged. Re-read the world clue and try another object; your earlier discoveries are not lost.\n\nCLUE · " + WORLD_LEVEL_THEMES[world_level_index], "TRY AGAIN")
 		"world_gate":
 			if not world_level_complete:
 				_set_status("The route is still asleep. Solve this world's puzzle first.")
