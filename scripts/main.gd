@@ -3705,13 +3705,21 @@ func _objective_text() -> String:
 		if world_level_complete:
 			return "WORLD %d/5 · Puzzle restored. Find the railway gate." % (world_level_index + 1)
 		return "%s · Restore the sequence (%d/3)." % [WORLD_LEVEL_NAMES[world_level_index], world_puzzle_progress]
+	if chest_open and not manifest_read:
+		return "FIRST STAGE · Read the passenger manifest: TWO TICKETS. ONE RETURN."
+	if chest_open and not window_examined:
+		return "FIRST STAGE · Inspect the repeating signal outside the window."
+	if chest_open and not (manifest_read and window_examined):
+		return "FIRST STAGE · Compare the manifest and the repeating signal at the clock."
 	if chest_open:
-		return "Stage one complete: continue to the clock in the next carriage."
+		return "FIRST STAGE · Evidence gathered. Return to the clock and release the train."
 	if not has_key:
-		return "Objective: Find the brass key near the seats."
+		return "FIRST STAGE · Find the brass key near the seats."
 	if not letter_read:
-		return "Objective: Read the letter on the side table."
-	return "Objective: Unlock the memory chest with the key."
+		return "FIRST STAGE · Read the letter on the side table."
+	if not chest_open:
+		return "FIRST STAGE · Use the key after reading the warning letter."
+	return "FIRST STAGE · Investigate the carriage evidence."
 
 func _set_status(message: String) -> void:
 	if is_instance_valid(status_label):
