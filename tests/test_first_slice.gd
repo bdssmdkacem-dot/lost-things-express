@@ -35,6 +35,8 @@ func _run_first_slice() -> void:
 	var letter := game.get_node_or_null("TornLetter") as Node3D
 	var chest := game.get_node_or_null("MemoryChest") as Node3D
 	var station_clock := game.get_node_or_null("StationClock") as Node3D
+	var manifest := game.get_node_or_null("PassengerManifest") as Node3D
+	var rainless_window := game.get_node_or_null("RainlessWindow") as Node3D
 	if not _check(player != null, "player was not created"):
 		return
 	if not _check(key != null and letter != null and chest != null, "one or more story props are missing"):
@@ -42,6 +44,8 @@ func _run_first_slice() -> void:
 	if not _check(chest.get_node_or_null("ChestFrontPanel_L") != null and chest.get_node_or_null("ChestFrontPanel_R") != null and chest.find_child("LidSealMedallion", true, false) != null, "the memory chest is missing its crafted panel and lid details"):
 		return
 	if not _check(station_clock != null and station_clock.is_in_group("interactables"), "the next carriage clock interaction is missing"):
+		return
+	if not _check(manifest != null and manifest.is_in_group("interactables") and rainless_window != null and rainless_window.is_in_group("interactables"), "the first carriage is missing its optional manifest and anomalous window evidence"):
 		return
 	var window_vista := game.get_node_or_null("WindowVista") as Node3D
 	if not _check(window_vista != null and window_vista.get_child_count() == 9, "the carriage windows are missing their floating-island vista and distant station beacons"):
@@ -295,6 +299,18 @@ func _run_first_slice() -> void:
 	player.global_position = photo.global_position + Vector3(0.0, 0.0, 0.22)
 	game.call("_interact")
 	if not _check(bool(game.get("story_card_open")) and str(game.get("story_body").text).contains("SUNSET STATION"), "inspecting the photograph did not reveal its station clue"):
+		return
+	game.call("_close_story_card")
+
+	# Optional evidence expands the first stage and must pay off with unique story information.
+	player.global_position = manifest.global_position + Vector3(0.0, 0.0, 0.20)
+	game.call("_interact")
+	if not _check(bool(game.get("manifest_read")) and str(game.get("story_title").text).contains("PASSENGER MANIFEST") and str(game.get("story_body").text).contains("TWO TICKETS. ONE RETURN."), "manifest inspection did not reveal its passenger mystery"):
+		return
+	game.call("_close_story_card")
+	player.global_position = rainless_window.global_position + Vector3(0.0, 0.0, 0.20)
+	game.call("_interact")
+	if not _check(bool(game.get("window_examined")) and str(game.get("story_title").text).contains("WINDOW THAT REPEATS") and str(game.get("story_body").text).contains("PLATFORM TWO"), "window inspection did not reveal the repeating-route clue"):
 		return
 	game.call("_close_story_card")
 
