@@ -84,6 +84,30 @@ func _capture_first_stage() -> void:
 		if not _save_viewport_image(world_image):
 			return
 
+	# Capture the real transition at three points, not just static realm stills.
+	# This makes the light fall, blackout, and arrival reveal reviewable as rendered frames.
+	game.call("_start_world_level", 0)
+	game.call("_close_story_card")
+	var transition_fade := game.call("_ensure_transition_fade") as ColorRect
+	if not _check_capture(transition_fade != null, "transition fade layer could not be created"):
+		return
+	transition_fade.color.a = 0.0
+	await process_frame
+	game.call("_transition_to_world", 1)
+	await create_timer(0.14).timeout
+	if not _save_viewport_image("15_realm_departure_lighting.png"):
+		return
+	await create_timer(0.39).timeout
+	if not _save_viewport_image("16_realm_transition_blackout.png"):
+		return
+	await create_timer(0.42).timeout
+	if not _save_viewport_image("17_realm_arrival_reveal.png"):
+		return
+	while bool(game.get("transition_busy")):
+		await process_frame
+	if not _check_capture(int(game.get("world_level_index")) == 1 and transition_fade.color.a < 0.01, "realm transition did not finish on the next world with a clear viewport"):
+		return
+
 	# Capture both real ending choices and their distinct epilogues.
 	game.set("world_level_complete", true)
 	game.call("_spawn_world_gate")
@@ -126,3 +150,10 @@ func _save_viewport_image(filename: String) -> bool:
 		return false
 	print("VISUAL_CAPTURE_SAVED: " + output_path + " size=%dx%d" % [image.get_width(), image.get_height()])
 	return true
+
+func _check_capture(condition: bool, message: String) -> bool:
+	if condition:
+		return true
+	push_error("VISUAL_CAPTURE_FAILED: " + message)
+	quit(1)
+	return false
