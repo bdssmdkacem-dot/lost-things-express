@@ -390,6 +390,12 @@ func _run_first_slice() -> void:
 		return
 	if not _check(bool(resumed_game.get("chest_open")), "saved chest progress was not restored"):
 		return
+	if not _check(bool(resumed_game.get("manifest_read")), "saved passenger-manifest evidence was not restored"):
+		return
+	if not _check(bool(resumed_game.get("window_examined")), "saved repeating-window evidence was not restored"):
+		return
+	if not _check(str(resumed_game.call("_objective_text")).to_lower().contains("evidence complete"), "resumed objective did not return the player to the clock after restoring all evidence"):
+		return
 	var resumed_chest := resumed_game.get_node_or_null("MemoryChest") as Node3D
 	var resumed_photo := resumed_chest.get_node_or_null("SunsetPhotograph") as Node3D if resumed_chest else null
 	if not _check(resumed_photo != null and resumed_photo.visible, "saved chest progress did not restore the visible photograph reward"):
