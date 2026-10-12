@@ -3078,7 +3078,7 @@ func _interact() -> void:
 					missing_evidence.append("read the passenger manifest")
 				if not window_examined:
 					missing_evidence.append("examine the repeating window")
-				var evidence_hint := missing_evidence[0] if missing_evidence.size() == 1 else missing_evidence[0] + " and " + missing_evidence[1]
+				var evidence_hint: String = str(missing_evidence[0]) if missing_evidence.size() == 1 else str(missing_evidence[0]) + " and " + str(missing_evidence[1])
 				_set_status("The clock is waiting for evidence from this carriage.")
 				_show_story_card("THE CLOCK NEEDS PROOF", "The photograph points to SUNSET STATION, but it does not explain the two tickets or the repeating signal outside. Before you set the clock moving, " + evidence_hint + ". The train is hiding a contradiction, not asking you to guess.", "RETURN TO THE CARRIAGE")
 			else:
