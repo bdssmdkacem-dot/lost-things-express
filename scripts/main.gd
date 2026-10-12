@@ -3712,7 +3712,7 @@ func _objective_text() -> String:
 	if chest_open and not (manifest_read and window_examined):
 		return "FIRST STAGE · Compare the manifest and the repeating signal at the clock."
 	if chest_open:
-		return "FIRST STAGE · Evidence gathered. Return to the clock and release the train."
+		return "FIRST STAGE · Evidence complete. Return to the clock and release the train."
 	if not has_key:
 		return "FIRST STAGE · Find the brass key near the seats."
 	if not letter_read:
