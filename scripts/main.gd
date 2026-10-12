@@ -1350,7 +1350,8 @@ func _play_departure_sequence() -> void:
 	# Staggered practical lights sell the train's power draw as the couplings load.
 	var lights: Array[OmniLight3D] = []
 	for node in find_children("*", "OmniLight3D", true, false):
-		if node is OmniLight3D and (node.name.to_lower().contains("carriage") or node.name.to_lower().contains("lamp") or node.name.to_lower().contains("sconce")):
+		var light_name := node.name.to_lower()
+		if node is OmniLight3D and (light_name.contains("carriage") or light_name.contains("lamp") or light_name.contains("sconce") or light_name.contains("practical")):
 			lights.append(node as OmniLight3D)
 	lights.sort_custom(func(a: OmniLight3D, b: OmniLight3D) -> bool: return a.global_position.z > b.global_position.z)
 	var original_camera_position := camera.position
