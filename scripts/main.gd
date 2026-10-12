@@ -60,6 +60,7 @@ var story_title: Label
 var story_body: Label
 var story_continue: Button
 var story_alternative: Button
+var story_third_choice: Button
 var ending_choice_pending := false
 var ending_decision := ""
 var story_card_open := false
@@ -1025,6 +1026,17 @@ func _build_story_overlay(root: Control) -> void:
 	story_alternative.visible = false
 	content.add_child(story_alternative)
 
+	story_third_choice = Button.new()
+	story_third_choice.name = "StoryThirdChoice"
+	story_third_choice.custom_minimum_size = Vector2(0, 50)
+	story_third_choice.add_theme_font_size_override("font_size", 17)
+	story_third_choice.add_theme_color_override("font_color", Color(0.88, 0.84, 0.77))
+	story_third_choice.add_theme_stylebox_override("normal", _ui_panel_style(Color(0.12, 0.09, 0.12, 1.0), Color(0.52, 0.36, 0.44, 1.0), 12, 10))
+	story_third_choice.add_theme_stylebox_override("pressed", _ui_panel_style(Color(0.24, 0.16, 0.22, 1.0), Color(0.76, 0.53, 0.58, 1.0), 12, 10))
+	story_third_choice.pressed.connect(_on_story_third_choice_pressed)
+	story_third_choice.visible = false
+	content.add_child(story_third_choice)
+
 	# Story cards and pause menus are modal: release any touch gesture captured underneath.
 func _build_pause_overlay(root: Control) -> void:
 	pause_overlay = ColorRect.new()
@@ -1159,6 +1171,8 @@ func _show_story_card(title_text: String, body_text: String, button_text: String
 	story_continue.text = button_text
 	if is_instance_valid(story_alternative):
 		story_alternative.visible = false
+	if is_instance_valid(story_third_choice):
+		story_third_choice.visible = false
 	story_overlay.visible = true
 	story_card_open = true
 	var fade := create_tween()
@@ -1219,6 +1233,69 @@ func _animate_intro_train_parts(node: Node, delta: float) -> void:
 					part.scale = Vector3(0.38, 0.28, 0.36)
 			_animate_intro_train_parts(part, delta)
 
+
+func _spawn_second_passenger_ticket() -> void:
+	if get_node_or_null("SecondPassengerTicket") != null:
+		return
+	var clock := get_node_or_null("StationClock") as Node3D
+	if clock == null:
+		return
+	var ticket := Node3D.new()
+	ticket.name = "SecondPassengerTicket"
+	# Place the revealed ticket just below the clock face, like it has slipped
+	# from the housing; the warm paper contrasts against the carriage wall.
+	ticket.position = clock.position + Vector3(0.48, -0.48, -0.09)
+	add_child(ticket)
+	var paper := MeshInstance3D.new()
+	paper.name = "TicketIvoryStock"
+	var paper_mesh := BoxMesh.new()
+	paper_mesh.size = Vector3(0.34, 0.018, 0.19)
+	paper.mesh = paper_mesh
+	var paper_material := StandardMaterial3D.new()
+	paper_material.albedo_color = Color(0.88, 0.77, 0.54)
+	paper_material.roughness = 0.88
+	paper.material_override = paper_material
+	ticket.add_child(paper)
+	var border_material := StandardMaterial3D.new()
+	border_material.albedo_color = Color(0.47, 0.15, 0.08)
+	border_material.roughness = 0.82
+	for edge in [
+		[Vector3(0.0, 0.011, -0.078), Vector3(0.29, 0.003, 0.004)],
+		[Vector3(0.0, 0.011, 0.078), Vector3(0.29, 0.003, 0.004)],
+		[Vector3(-0.145, 0.011, 0.0), Vector3(0.004, 0.003, 0.15)],
+		[Vector3(0.145, 0.011, 0.0), Vector3(0.004, 0.003, 0.15)]
+	]:
+		var stroke := MeshInstance3D.new()
+		var stroke_mesh := BoxMesh.new()
+		stroke_mesh.size = edge[1]
+		stroke.mesh = stroke_mesh
+		stroke.material_override = border_material
+		stroke.position = edge[0]
+		ticket.add_child(stroke)
+	for line_spec in [
+		[Vector3(-0.025, 0.012, -0.035), Vector3(0.19, 0.003, 0.006)],
+		[Vector3(-0.025, 0.012, -0.010), Vector3(0.22, 0.003, 0.006)],
+		[Vector3(-0.025, 0.012, 0.018), Vector3(0.13, 0.003, 0.006)]
+	]:
+		var ink := MeshInstance3D.new()
+		ink.name = "TicketPrintedLine"
+		var ink_mesh := BoxMesh.new()
+		ink_mesh.size = line_spec[1]
+		ink.mesh = ink_mesh
+		ink.material_override = border_material
+		ink.position = line_spec[0]
+		ticket.add_child(ink)
+	var torn_name := MeshInstance3D.new()
+	torn_name.name = "TornSecondPassengerName"
+	var torn_mesh := BoxMesh.new()
+	torn_mesh.size = Vector3(0.07, 0.004, 0.014)
+	torn_name.mesh = torn_mesh
+	torn_name.position = Vector3(0.085, 0.014, 0.048)
+	var torn_material := StandardMaterial3D.new()
+	torn_material.albedo_color = Color(0.24, 0.11, 0.055)
+	torn_name.material_override = torn_material
+	ticket.add_child(torn_name)
+
 func _show_clock_deduction(feedback: String = "The clock has three possible explanations. Use the evidence, not a guess: why does the same signal return while the train keeps moving?") -> void:
 	clock_deduction_pending = true
 	_set_status("FINAL DEDUCTION · Explain the repeating signal.")
@@ -1226,6 +1303,9 @@ func _show_clock_deduction(feedback: String = "The clock has three possible expl
 	if is_instance_valid(story_alternative):
 		story_alternative.text = "THE TRAIN IS LOOPING"
 		story_alternative.visible = true
+	if is_instance_valid(story_third_choice):
+		story_third_choice.text = "THE STATION HAS VANISHED"
+		story_third_choice.visible = true
 
 func _on_story_continue_pressed() -> void:
 	if clock_deduction_pending:
@@ -1265,13 +1345,24 @@ func _on_story_alternative_pressed() -> void:
 		_play_hand_action("take")
 		_save_progress()
 		_set_status("DEDUCTION CORRECT · The train is trapped in a repeating journey.")
-		_show_story_card("THE FIRST DEPARTURE", "The photograph names SUNSET STATION. The manifest records TWO TICKETS. ONE RETURN. Outside, the same cracked signal passes again. You have not repaired a broken clock: you have understood the loop holding the train in place. The hands reverse, a second ticket slips from beneath the clock, and the lamps begin to dim from carriage to carriage.", "RELEASE THE BRAKE")
+		_spawn_second_passenger_ticket()
+		_show_story_card("THE FIRST DEPARTURE", "The photograph names SUNSET STATION. The manifest records TWO TICKETS. ONE RETURN. Outside, the same cracked signal passes again. You have not repaired a broken clock: you have understood the loop holding the train in place. The hands reverse. A second ticket is revealed beneath the clock, stamped for two passengers with the second name torn away. The lamps begin to dim from carriage to carriage.", "RELEASE THE BRAKE")
 		return
 	if not ending_choice_pending:
 		return
 	ending_choice_pending = false
 	ending_decision = "release"
 	_show_story_card("THE MEMORY RELEASED", "You let the photograph rest in the lamplight. The past is not erased; it no longer commands the journey. The train moves toward morning, carrying the lesson rather than the wound. The clock falls silent at last.", "CONTINUE INTO MORNING")
+
+
+func _on_story_third_choice_pressed() -> void:
+	if not clock_deduction_pending:
+		return
+	clock_wrong_attempts += 1
+	var feedback := "The photograph still identifies SUNSET STATION, and condensation writes PLATFORM TWO on the window. The station has not vanished from the evidence; the same signal is returning to the moving train."
+	if clock_wrong_attempts >= 2:
+		feedback = "The station is still visible, so it has not simply vanished. The contradiction is that the train advances while the same cracked signal repeats. Combine that with TWO TICKETS. ONE RETURN."
+	_show_clock_deduction(feedback)
 
 func _tune_locomotive_lamp_materials(node: Node) -> void:
 	if node is MeshInstance3D:
@@ -3239,6 +3330,8 @@ func _load_progress() -> void:
 	window_examined = bool(config.get_value("progress", "window_examined", false))
 	clock_puzzle_solved = bool(config.get_value("progress", "clock_puzzle_solved", false))
 	clock_wrong_attempts = int(config.get_value("progress", "clock_wrong_attempts", 0))
+	if clock_puzzle_solved:
+		_spawn_second_passenger_ticket()
 	if has_key:
 		var key := get_node_or_null("BrassKey")
 		if key:
