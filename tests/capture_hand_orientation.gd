@@ -13,9 +13,15 @@ func _capture() -> void:
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: GLB import failed")
 		quit(1)
 		return
+	var viewport := SubViewport.new()
+	viewport.name = "HandOrientationViewport"
+	viewport.size = Vector2i(1280, 720)
+	viewport.transparent_bg = false
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(viewport)
 	var stage := Node3D.new()
 	stage.name = "HandOrientationStage"
-	root.add_child(stage)
+	viewport.add_child(stage)
 	var env_node := WorldEnvironment.new()
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
@@ -97,7 +103,12 @@ func _mesh_bounds(root_node: Node3D) -> AABB:
 	return combined
 
 func _save(filename: String) -> bool:
-	var image := root.get_texture().get_image()
+	var viewport := root.get_node_or_null("HandOrientationViewport") as SubViewport
+	if viewport == null:
+		push_error("HAND_ORIENTATION_CAPTURE_FAILED: review viewport missing")
+		quit(1)
+		return false
+	var image := viewport.get_texture().get_image()
 	if image == null or image.is_empty():
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: empty viewport image " + filename)
 		quit(1)
