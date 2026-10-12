@@ -3082,7 +3082,7 @@ func _interact() -> void:
 			else:
 				ending_choice_pending = true
 				ending_decision = ""
-				_show_story_card("THE LAST TERMINAL", "The five fragments form one truth: the train delayed, the platform was still there, and someone waited while you chose not to return. The Collector offers to take away the shame with the memory—but it cannot tell the difference between pain and love.\n\nYou cannot rewrite the goodbye. You can restore the full memory and accept it, or release its hold without pretending it never happened. Look at the photograph one last time. Your choice will decide how this journey ends.", "RESTORE THE MEMORY")
+				_show_story_card("THE LAST TERMINAL", "The five fragments form one truth: the train delayed, the platform was still there, and someone waited while you chose not to return. The Collector offers to take away the shame with the memory—but it cannot tell the difference between pain and love.\n\nNeither choice changes the past. You cannot rewrite the goodbye. You can restore the full memory and accept it, or release its hold without pretending it never happened. Look at the photograph one last time. Your choice will decide how this journey ends.", "RESTORE THE MEMORY")
 				story_alternative.text = "LET THE PAST GO"
 				story_alternative.visible = true
 		"chest":
