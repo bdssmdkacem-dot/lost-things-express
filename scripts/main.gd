@@ -3311,6 +3311,7 @@ func _start_world_level(index: int) -> void:
 				_world_level_box("Memory gate pillar", Vector3(x, 2.0, -4.9), Vector3(0.26, 4.0, 0.38), Color(0.42, 0.29, 0.65), false)
 			_world_level_box("Memory gate crown", Vector3(0, 4.05, -4.9), Vector3(5.8, 0.24, 0.45), Color(0.55, 0.40, 0.82), false)
 	_add_realm_detail_layers(p)
+	_add_realm_architecture_pass(p)
 	var labels := [
 		["DAWN BELL", "NOON BELL", "MIDNIGHT BELL"],
 		["LOW BRIDGE", "MIDDLE BRIDGE", "HIGH BRIDGE"],
@@ -3367,6 +3368,124 @@ func _start_world_level(index: int) -> void:
 		camera.rotation = Vector3(pitch, 0, 0)
 	_set_status(WORLD_LEVEL_NAMES[world_level_index] + " · " + WORLD_LEVEL_THEMES[world_level_index])
 	_show_story_card(WORLD_LEVEL_NAMES[world_level_index], WORLD_LEVEL_THEMES[world_level_index] + "\n\nExplore the three objects and activate them in the order implied by the clue. A wrong choice resets the sequence. Solve the puzzle to open the railway gate.", "BEGIN EXPLORING")
+
+
+func _add_realm_architecture_pass(palette: Array) -> void:
+	# This pass strengthens each realm's signature silhouette and architectural
+	# language. It deliberately replaces no gameplay objects or collision routes.
+	match world_level_index:
+		0:
+			# Clock faces are vertical and readable from the approach, with real hands,
+			# inset windows and a layered crown rather than blank cylinder towers.
+			for tower_x in [-6.0, -4.8, 4.8, 6.0]:
+				var face := _world_level_shape("Clock tower vertical dial", Vector3(tower_x, 3.25, -4.82), _world_cylinder(0.43, 0.43, 0.10), Color(0.91, 0.80, 0.58), Vector3.ONE, 0.16, 0.34)
+				face.rotation_degrees.x = 90.0
+				var hand_long := _world_level_box("Clock dial minute hand", Vector3(tower_x, 3.34, -4.74), Vector3(0.035, 0.29, 0.025), Color(0.12, 0.075, 0.035), false)
+				var hand_short := _world_level_box("Clock dial hour hand", Vector3(tower_x + 0.07, 3.25, -4.73), Vector3(0.18, 0.035, 0.025), Color(0.12, 0.075, 0.035), false)
+				for window_y in [1.65, 2.18]:
+					_world_level_box("Citadel tower amber slit window", Vector3(tower_x, window_y, -4.93), Vector3(0.12, 0.27, 0.035), Color(1.0, 0.58, 0.20), false)
+				_world_level_box("Tower crown lower moulding", Vector3(tower_x, 4.23, -5.5), Vector3(1.58, 0.10, 1.10), Color(0.25, 0.15, 0.085), false)
+			# A large central escapement wheel gives the gate a single iconic focal point.
+			var escapement := _world_level_shape("Central escapement wheel", Vector3(0, 2.45, -5.38), _world_cylinder(0.86, 0.86, 0.12), Color(0.70, 0.42, 0.13), Vector3.ONE, 0.82, 0.28)
+			escapement.rotation_degrees.x = 90.0
+			for spoke in range(8):
+				var a := TAU * float(spoke) / 8.0
+				var spoke_node := _world_level_box("Escapement wheel spoke", Vector3(cos(a) * 0.46, 2.45 + sin(a) * 0.46, -5.27), Vector3(0.055, 0.78, 0.035), Color(0.83, 0.57, 0.22), false)
+				spoke_node.rotation_degrees.z = -rad_to_deg(a)
+		1:
+			# Suspended waterfalls, deep rock undersides and arched bridge spans sell
+			# the vertical scale of a cloud archipelago.
+			for waterfall_x in [-5.5, 0.0, 5.5]:
+				var fall := MeshInstance3D.new()
+				fall.name = "Cloud island waterfall veil"
+				var fall_mesh := BoxMesh.new()
+				fall_mesh.size = Vector3(0.34, 2.1, 0.045)
+				fall.mesh = fall_mesh
+				var water := StandardMaterial3D.new()
+				water.albedo_color = Color(0.43, 0.78, 0.91, 0.48)
+				water.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+				water.roughness = 0.2
+				water.emission_enabled = true
+				water.emission = Color(0.12, 0.36, 0.52)
+				water.emission_energy_multiplier = 0.35
+				fall.material_override = water
+				fall.position = Vector3(waterfall_x, 0.05, -5.0)
+				world_level_root.add_child(fall)
+				for rock_layer in range(3):
+					_world_level_shape("Island underside stratified ledge", Vector3(waterfall_x + float(rock_layer - 1) * 0.35, 0.35 - float(rock_layer) * 0.38, -5.0), _world_cylinder(0.10, 0.40, 0.72), Color(0.20, 0.30, 0.36), Vector3(1.0, 1.0, 1.0), 0.0, 0.92)
+			# Arched bridge ribs sit outside the clear central approach.
+			for bridge_x in [-5.5, 0.0, 5.5]:
+				var rib := _world_level_shape("Cloud bridge arch rib", Vector3(bridge_x, 1.30, -3.15), _world_cylinder(0.11, 0.11, 2.4), Color(0.73, 0.59, 0.38), Vector3(1.0, 1.0, 0.5), 0.55, 0.38)
+				rib.rotation_degrees.z = 90.0
+				_world_level_box("Bridge parapet capstone", Vector3(bridge_x, 1.58, -3.15), Vector3(2.5, 0.09, 0.78), Color(0.62, 0.69, 0.68), false)
+		2:
+			# The forest gets an enclosing ancient-tree canopy, roots, mushrooms and
+			# luminous memory pods, giving the space an organic rather than modular feel.
+			for side in [-1.0, 1.0]:
+				for tree_z in [-7.0, -4.0, -1.0]:
+					var trunk_x: float = side * (5.5 if tree_z != -1.0 else 6.2)
+					var root := _world_level_shape("Ancient tree buttress root", Vector3(trunk_x - side * 0.34, 0.34, tree_z + 0.20), _world_cylinder(0.10, 0.24, 1.25), Color(0.15, 0.065, 0.032), Vector3(1.0, 1.0, 1.0), 0.0, 0.96)
+					root.rotation_degrees.z = side * 36.0
+					for mushroom in range(2):
+						var mushroom_pos := Vector3(trunk_x + side * (0.38 + float(mushroom) * 0.18), 0.22, tree_z + float(mushroom) * 0.42)
+						_world_level_shape("Forest memory mushroom stem", mushroom_pos + Vector3(0.0, 0.10, 0.0), _world_cylinder(0.045, 0.055, 0.20), Color(0.73, 0.66, 0.49), Vector3.ONE, 0.0, 0.85)
+						var cap := _world_level_shape("Forest memory mushroom cap", mushroom_pos + Vector3(0.0, 0.22, 0.0), _world_sphere(), Color(0.65, 0.28, 0.24), Vector3(0.18, 0.10, 0.18), 0.0, 0.38)
+						var glow := OmniLight3D.new()
+						glow.name = "Mushroom memory glow"
+						glow.position = mushroom_pos + Vector3(0.0, 0.30, 0.0)
+						glow.light_color = Color(0.40, 0.82, 0.42)
+						glow.light_energy = 0.12
+						glow.omni_range = 1.0
+						glow.shadow_enabled = false
+						world_level_root.add_child(glow)
+				# Hanging tendrils frame the upper silhouette without covering clue labels.
+				var vine := _world_level_shape("Forest hanging vine", Vector3(side * 4.7, 3.45, -4.4), _world_cylinder(0.035, 0.045, 1.8), Color(0.11, 0.20, 0.07), Vector3.ONE, 0.0, 0.98)
+				vine.rotation_degrees.z = side * 22.0
+		3:
+			# Sunset Station becomes a recognizable station facade: clock, ticket doors,
+			# repeated windows and platform edge markings, not a flat colored backdrop.
+			var station_clock := _world_level_shape("Sunset station master clock", Vector3(0.0, 3.28, -5.68), _world_cylinder(0.58, 0.58, 0.12), Color(0.90, 0.78, 0.57), Vector3.ONE, 0.2, 0.34)
+			station_clock.rotation_degrees.x = 90.0
+			_world_level_shape("Station clock brass bezel", Vector3(0.0, 3.28, -5.59), _world_cylinder(0.68, 0.68, 0.08), Color(0.78, 0.44, 0.14), Vector3.ONE, 0.82, 0.26).rotation_degrees.x = 90.0
+			_world_level_box("Station clock minute hand", Vector3(0.0, 3.40, -5.50), Vector3(0.035, 0.31, 0.025), Color(0.15, 0.07, 0.035), false)
+			_world_level_box("Station clock hour hand", Vector3(0.09, 3.29, -5.49), Vector3(0.20, 0.035, 0.025), Color(0.15, 0.07, 0.035), false)
+			for window_x in [-3.5, -1.75, 1.75, 3.5]:
+				_world_level_box("Station deep window recess", Vector3(window_x, 2.15, -5.69), Vector3(0.88, 1.30, 0.045), Color(0.035, 0.065, 0.085), false)
+				_world_level_box("Station lit window pane", Vector3(window_x, 2.15, -5.63), Vector3(0.70, 1.08, 0.035), Color(1.0, 0.54, 0.20), false)
+				_world_level_box("Station window mullion", Vector3(window_x, 2.15, -5.58), Vector3(0.035, 1.12, 0.025), Color(0.30, 0.12, 0.055), false)
+			_world_level_box("Station ticket door", Vector3(0.0, 1.30, -5.62), Vector3(1.0, 2.4, 0.08), Color(0.12, 0.045, 0.035), false)
+			_world_level_box("Station ticket door glass", Vector3(0.0, 1.58, -5.55), Vector3(0.60, 1.10, 0.025), Color(0.75, 0.34, 0.13), false)
+			for tile_x in range(-5, 6):
+				_world_level_box("Platform paving seam", Vector3(float(tile_x), 0.091, -1.45), Vector3(0.018, 0.006, 1.25), Color(0.78, 0.47, 0.28), false)
+		4:
+			# The final terminal is a memorial observatory: concentric vertical rings,
+			# suspended timepieces and a bright, singular decision portal.
+			for ring_index in range(3):
+				var ring_node := MeshInstance3D.new()
+				ring_node.name = "Terminal memory halo %d" % ring_index
+				var ring_mesh := TorusMesh.new()
+				ring_mesh.inner_radius = 1.42 + float(ring_index) * 0.32
+				ring_mesh.outer_radius = 1.50 + float(ring_index) * 0.32
+				ring_mesh.rings = 24
+				ring_mesh.ring_segments = 48
+				ring_node.mesh = ring_mesh
+				ring_node.position = Vector3(0.0, 2.55, -5.08 + float(ring_index) * 0.035)
+				ring_node.rotation_degrees.x = 90.0
+				var ring_material := StandardMaterial3D.new()
+				ring_material.albedo_color = Color(0.47, 0.32, 0.76)
+				ring_material.metallic = 0.7
+				ring_material.roughness = 0.24
+				ring_material.emission_enabled = true
+				ring_material.emission = Color(0.20, 0.08, 0.52)
+				ring_material.emission_energy_multiplier = 0.65
+				ring_node.material_override = ring_material
+				world_level_root.add_child(ring_node)
+			for clock_x in [-4.8, 4.8]:
+				var dial := _world_level_shape("Terminal suspended time dial", Vector3(clock_x, 3.0, -5.15), _world_cylinder(0.56, 0.56, 0.10), Color(0.82, 0.77, 0.93), Vector3.ONE, 0.42, 0.26)
+				dial.rotation_degrees.x = 90.0
+				_world_level_box("Terminal dial hand", Vector3(clock_x, 3.10, -5.04), Vector3(0.035, 0.30, 0.025), Color(0.11, 0.08, 0.18), false)
+	# Keep the path and puzzle-object silhouettes unobstructed on phone screens.
+	# The added architecture is visual-only; no player/camera settings are changed.
 
 
 func _add_realm_detail_layers(palette: Array) -> void:
