@@ -419,32 +419,33 @@ func _build_first_person_hands() -> void:
 	first_person_hands.visible = false
 	camera.add_child(first_person_hands)
 
+	# A restrained explorer costume: deep teal wool, stitched cuff and aged brass piping.
 	var sleeve_material := StandardMaterial3D.new()
-	sleeve_material.albedo_color = Color(0.055, 0.22, 0.23)
-	sleeve_material.roughness = 0.78
-	sleeve_material.emission_enabled = true
-	sleeve_material.emission = Color(0.012, 0.045, 0.048)
-	sleeve_material.emission_energy_multiplier = 0.35
+	sleeve_material.albedo_color = Color(0.035, 0.13, 0.15)
+	sleeve_material.roughness = 0.88
 	var cuff_material := StandardMaterial3D.new()
-	cuff_material.albedo_color = Color(0.67, 0.43, 0.17)
-	cuff_material.metallic = 0.35
-	cuff_material.roughness = 0.42
+	cuff_material.albedo_color = Color(0.58, 0.34, 0.12)
+	cuff_material.metallic = 0.28
+	cuff_material.roughness = 0.5
 	var skin_material := StandardMaterial3D.new()
-	skin_material.albedo_color = Color(0.64, 0.39, 0.26)
-	skin_material.roughness = 0.78
-	var skin_highlight := StandardMaterial3D.new()
-	skin_highlight.albedo_color = Color(0.77, 0.52, 0.37)
-	skin_highlight.roughness = 0.72
+	skin_material.albedo_color = Color(0.48, 0.275, 0.19)
+	skin_material.roughness = 0.84
+	var skin_light := StandardMaterial3D.new()
+	skin_light.albedo_color = Color(0.66, 0.405, 0.29)
+	skin_light.roughness = 0.78
+	var skin_shadow := StandardMaterial3D.new()
+	skin_shadow.albedo_color = Color(0.34, 0.17, 0.12)
+	skin_shadow.roughness = 0.92
 	var nail_material := StandardMaterial3D.new()
-	nail_material.albedo_color = Color(0.79, 0.57, 0.47)
-	nail_material.roughness = 0.44
+	nail_material.albedo_color = Color(0.72, 0.48, 0.39)
+	nail_material.roughness = 0.5
 
 	for side in [-1.0, 1.0]:
 		var arm := MeshInstance3D.new()
 		arm.name = "Sleeve_%s" % ("L" if side < 0.0 else "R")
 		var arm_mesh := CapsuleMesh.new()
-		arm_mesh.radius = 0.075
-		arm_mesh.height = 0.34
+		arm_mesh.radius = 0.079
+		arm_mesh.height = 0.37
 		arm.mesh = arm_mesh
 		arm.material_override = sleeve_material
 		arm.position = Vector3(side * 0.35, -0.43, -0.64)
@@ -454,103 +455,116 @@ func _build_first_person_hands() -> void:
 		var cuff := MeshInstance3D.new()
 		cuff.name = "BrassCuff_%s" % ("L" if side < 0.0 else "R")
 		var cuff_mesh := CylinderMesh.new()
-		cuff_mesh.top_radius = 0.073
-		cuff_mesh.bottom_radius = 0.073
-		cuff_mesh.height = 0.045
+		cuff_mesh.top_radius = 0.075
+		cuff_mesh.bottom_radius = 0.081
+		cuff_mesh.height = 0.052
 		cuff.mesh = cuff_mesh
 		cuff.material_override = cuff_material
 		cuff.position = Vector3(side * 0.35, -0.285, -0.68)
 		cuff.rotation_degrees.z = side * -24.0
 		first_person_hands.add_child(cuff)
 
-		# Broad, softly rounded palm; its heel connects visibly to the cuff.
+		# Palm is wider at the knuckles and narrows into the wrist rather than a sphere-like mitten.
 		var palm := MeshInstance3D.new()
 		palm.name = "Hand_%s" % ("L" if side < 0.0 else "R")
 		var palm_mesh := SphereMesh.new()
-		palm_mesh.radius = 0.075
-		palm_mesh.height = 0.12
+		palm_mesh.radius = 0.082
+		palm_mesh.height = 0.14
 		palm.mesh = palm_mesh
 		palm.material_override = skin_material
 		palm.position = Vector3(side * 0.315, -0.205, -0.59)
-		palm.scale = Vector3(0.92, 1.0, 0.58)
+		palm.scale = Vector3(0.90, 1.02, 0.58)
 		first_person_hands.add_child(palm)
 
-		# Four separated fingers with visible joints and small, camera-facing nails.
-		# Their spread follows the palm instead of bunching into a single capsule.
+		# Four fingers have separate proximal/distal phalanges, visible knuckle transitions,
+		# varied lengths and individual nails. Parent rotation remains compatible with hand actions.
 		for finger_index in range(4):
-			var finger_x: float = side * 0.315 - side * (0.055 - float(finger_index) * 0.036)
-			# Slightly fuller tapered fingers read at phone resolution; keep each digit
-			# separated so the letter grip does not collapse into a mitten silhouette.
-			var finger_length: float = [0.118, 0.138, 0.132, 0.108][finger_index]
-			var finger_radius: float = [0.018, 0.019, 0.018, 0.016][finger_index]
-			var finger_y := -0.145 - absf(1.5 - float(finger_index)) * 0.006
-			var finger := MeshInstance3D.new()
+			var finger_x: float = side * 0.315 - side * (0.058 - float(finger_index) * 0.038)
+			var finger_length: float = [0.122, 0.145, 0.136, 0.112][finger_index]
+			var finger_radius: float = [0.017, 0.0185, 0.018, 0.0155][finger_index]
+			var finger_y: float = -0.145 - absf(1.5 - float(finger_index)) * 0.005
+			var finger := Node3D.new()
 			finger.name = "Finger_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
-			var finger_mesh := CapsuleMesh.new()
-			finger_mesh.radius = finger_radius
-			finger_mesh.height = finger_length
-			finger.mesh = finger_mesh
-			finger.material_override = skin_highlight
 			finger.position = Vector3(finger_x, finger_y, -0.585)
-			finger.rotation_degrees = Vector3(-9.0, 0.0, side * (8.0 + finger_index * 1.8))
+			finger.rotation_degrees = Vector3(-8.0, 0.0, side * (8.0 + finger_index * 1.8))
 			first_person_hands.add_child(finger)
 
+			var proximal := MeshInstance3D.new()
+			proximal.name = "ProximalPhalanx"
+			var proximal_mesh := CapsuleMesh.new()
+			proximal_mesh.radius = finger_radius
+			proximal_mesh.height = finger_length * 0.63
+			proximal.mesh = proximal_mesh
+			proximal.material_override = skin_light
+			proximal.position.y = -finger_length * 0.10
+			finger.add_child(proximal)
+
+			var distal := MeshInstance3D.new()
+			distal.name = "DistalPhalanx"
+			var distal_mesh := CapsuleMesh.new()
+			distal_mesh.radius = finger_radius * 0.82
+			distal_mesh.height = finger_length * 0.47
+			distal.mesh = distal_mesh
+			distal.material_override = skin_light
+			distal.position.y = finger_length * 0.31
+			distal.rotation_degrees.z = side * -4.0
+			finger.add_child(distal)
+
 			var knuckle := MeshInstance3D.new()
-			knuckle.name = "Knuckle_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
+			knuckle.name = "Knuckle"
 			var knuckle_mesh := SphereMesh.new()
 			knuckle_mesh.radius = finger_radius * 1.04
-			knuckle_mesh.height = finger_radius * 2.1
+			knuckle_mesh.height = finger_radius * 1.8
 			knuckle.mesh = knuckle_mesh
 			knuckle.material_override = skin_material
-			knuckle.position = Vector3(0.0, -finger_length * 0.20, 0.002)
+			knuckle.position = Vector3(0.0, -finger_length * 0.20, 0.001)
 			finger.add_child(knuckle)
 
 			var nail := MeshInstance3D.new()
 			nail.name = "Fingernail_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
 			var nail_mesh := SphereMesh.new()
-			nail_mesh.radius = finger_radius * 0.72
-			nail_mesh.height = finger_radius * 0.92
+			nail_mesh.radius = finger_radius * 0.62
+			nail_mesh.height = finger_radius * 0.84
 			nail.mesh = nail_mesh
 			nail.material_override = nail_material
-			nail.scale = Vector3(0.92, 1.32, 0.28)
-			nail.position = Vector3(0.0, finger_length * 0.36, finger_radius * 1.28)
+			nail.scale = Vector3(0.9, 1.25, 0.25)
+			nail.position = Vector3(0.0, finger_length * 0.52, finger_radius * 1.12)
 			finger.add_child(nail)
-			# Fine joint crease on the camera-facing side adds a second anatomical cue
-			# without adding a heavy mesh or texture cost to the mobile view model.
-			var joint_crease := MeshInstance3D.new()
-			joint_crease.name = "FingerJointCrease_%s_%d" % ["L" if side < 0.0 else "R", finger_index]
-			var crease_mesh := BoxMesh.new()
-			crease_mesh.size = Vector3(finger_radius * 1.15, 0.006, 0.002)
-			joint_crease.mesh = crease_mesh
-			var crease_material := StandardMaterial3D.new()
-			crease_material.albedo_color = Color(0.43, 0.23, 0.16)
-			crease_material.roughness = 0.9
-			joint_crease.material_override = crease_material
-			joint_crease.position = Vector3(0.0, -finger_length * 0.12, finger_radius * 1.22)
-			finger.add_child(joint_crease)
 
-		# Thumb angles inward and rests against the paper edge during inspection.
+			# Two fine palm-facing creases keep the joints legible without heavy geometry.
+			for crease_index in range(2):
+				var crease := MeshInstance3D.new()
+				crease.name = "JointCrease_%d" % crease_index
+				var crease_mesh := BoxMesh.new()
+				crease_mesh.size = Vector3(finger_radius * 1.05, 0.004, 0.0015)
+				crease.mesh = crease_mesh
+				crease.material_override = skin_shadow
+				crease.position = Vector3(0.0, -finger_length * (0.04 if crease_index == 0 else -0.28), finger_radius * 1.05)
+				finger.add_child(crease)
+
+		# The thumb branches from the palm and crosses inward to hold the paper edge naturally.
 		var thumb := MeshInstance3D.new()
 		thumb.name = "Thumb_%s" % ("L" if side < 0.0 else "R")
 		var thumb_mesh := CapsuleMesh.new()
-		thumb_mesh.radius = 0.019
-		thumb_mesh.height = 0.115
+		thumb_mesh.radius = 0.021
+		thumb_mesh.height = 0.12
 		thumb.mesh = thumb_mesh
-		thumb.material_override = skin_highlight
+		thumb.material_override = skin_light
 		thumb.position = Vector3(side * 0.245, -0.205, -0.555)
-		thumb.rotation_degrees = Vector3(-10.0, 0.0, side * 42.0)
+		thumb.rotation_degrees = Vector3(-12.0, 0.0, side * 42.0)
 		first_person_hands.add_child(thumb)
 
 		var thumb_nail := MeshInstance3D.new()
 		thumb_nail.name = "Thumbnail_%s" % ("L" if side < 0.0 else "R")
 		var thumb_nail_mesh := SphereMesh.new()
-		thumb_nail_mesh.radius = 0.013
-		thumb_nail_mesh.height = 0.018
+		thumb_nail_mesh.radius = 0.012
+		thumb_nail_mesh.height = 0.017
 		thumb_nail.mesh = thumb_nail_mesh
 		thumb_nail.material_override = nail_material
 		thumb_nail.scale = Vector3(0.9, 1.0, 0.22)
 		thumb_nail.position = Vector3(side * 0.235, -0.165, -0.533)
 		thumb_nail.rotation_degrees.z = side * 38.0
+		first_person_hands.add_child(thumb)
 		first_person_hands.add_child(thumb_nail)
 
 func _play_hand_action(action: String) -> void:
