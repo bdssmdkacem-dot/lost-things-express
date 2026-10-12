@@ -30,8 +30,7 @@ func _capture() -> void:
 	light.light_energy = 2.0
 	stage.add_child(light)
 	var camera := Camera3D.new()
-	camera.current = true
-	camera.fov = 42.0
+		camera.fov = 42.0
 	camera.position = Vector3(0.0, 0.0, 2.8)
 	stage.add_child(camera)
 	var hand := packed.instantiate() as Node3D
@@ -48,10 +47,13 @@ func _capture() -> void:
 	var radius := maxf(bounds.size.length() * 0.72, 0.5)
 	camera.position = center + Vector3(0.0, 0.0, radius * 2.4)
 	camera.look_at(center, Vector3.UP)
+	camera.make_current()
+	await create_timer(0.25).timeout
 	for angle in [0, 90, 180, 270]:
 		hand.rotation_degrees = Vector3(0.0, float(angle), 0.0)
 		await process_frame
 		await RenderingServer.frame_post_draw
+		await create_timer(0.15).timeout
 		if not _save("yaw_%03d.png" % angle):
 			return
 
