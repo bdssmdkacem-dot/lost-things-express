@@ -75,7 +75,27 @@ var world_transition_pending := false
 var world_level_complete := false
 var world_puzzle_sequence: Array[int] = []
 const WORLD_LEVEL_NAMES := ["THE CLOCKWORK KINGDOM", "THE CLOUD ISLANDS", "THE REMEMBERING FOREST", "SUNSET STATION", "THE LAST TERMINAL"]
-const WORLD_LEVEL_THEMES := ["Restore the bells in the order dawn, noon, midnight.", "Restore the route from the highest bridge, then the lowest, then the middle.", "Follow the echoes: laughter, lullaby, then whisper.", "A promise must be read, delivered, then witnessed.", "Set the clock to present, past, then future."]
+const WORLD_LEVEL_THEMES := [
+	"Repair the escapement: the minute hand is trapped one chime before midnight.",
+	"Reconnect the broken sky route by reading the wind vanes and the shadows beneath the bridges.",
+	"Listen for the lullaby hidden inside three forest echoes; the memory tree is repeating it out of order.",
+	"Rebuild the unfinished platform announcement from the ticket, timetable, and station photograph.",
+	"Bring the key, ticket, remembered melody, and timetable to the final clock. Then choose what the photograph means to you."
+]
+const WORLD_LEVEL_OPENINGS := [
+	"The whole citadel is caught at 11:59. Every clock has stopped one tooth before the final chime. A voice leaks from the brasswork: \"You can still leave without remembering.\" Find what is jamming the escapement.",
+	"Three islands drift apart over a cloudless drop. Their wind vanes point in different directions, but the shadows reveal a route someone tried to keep open. A second shadow appears beside yours, then vanishes.",
+	"The trees repeat three sounds: a laugh, a breath, and a lullaby. One of them makes your hands tremble, though you cannot say why. The Collector calls it noise. The forest calls it a name.",
+	"The station clock works, but the loudspeaker stops just before a passenger's name. The photograph matches this platform down to a crack in the tile. The timetable says the train was late—not gone.",
+	"The last terminal has no tracks beyond it. The key, ticket, melody, and timetable fit into one mechanism. The voice that has followed you asks for the photograph: \"Give me the memory, and I will give you peace.\""
+]
+const WORLD_LEVEL_REVEALS := [
+	"The escapement turns. The clock advances to midnight, and a brass token drops from the mechanism. Half a passenger's name is engraved on it. The Collector's voice falls silent for the first time.",
+	"The bridges join. Across the gap, an empty passenger coach becomes visible. The ticket in your hand is stamped for two people, though only one name survives.",
+	"The echoes resolve into a lullaby you almost remember. In the tree rings, a figure resembling you walks away from a sunset platform while someone waits. The face remains hidden.",
+	"The loudspeaker completes the announcement. The delay gave you time to return to the platform. You chose not to. The memory is painful, but it is not the catastrophe the Collector promised.",
+	"The mechanism opens around the photograph. The Collector is not a stranger: it is the part of the train that learned to protect you by hiding what hurt. It cannot decide for you what healing means."
+]
 
 func _ready() -> void:
 	_setup_input_map()
@@ -1144,7 +1164,7 @@ func _begin_intro_sequence() -> void:
 		return
 	_show_story_card(
 		"THE LOST THINGS EXPRESS",
-		"Watch the Lost & Found Express cross the cloud kingdoms: a working steam locomotive, three linked coaches, and a railway joining five strange worlds.\n\nWhen you are ready, enter the first mystery.",
+		"The train has no conductor, and the station outside appears on no map. A torn letter in your own handwriting warns: \"If the clock reaches the last chime, you will forget why you boarded.\" Beyond the windows, five worlds are frozen at the instant someone abandoned a promise. The brass key in your hand is warm.\n\nSomeone speaks through the empty carriage: \"You can still leave without remembering.\"\n\nWhen you are ready, find out what the train is keeping from you.",
 		"ENTER STAGE ONE"
 	)
 
@@ -3048,7 +3068,7 @@ func _interact() -> void:
 						world_level_complete = true
 						_spawn_world_gate()
 						_set_status("PUZZLE SOLVED · The railway ahead has awakened.")
-						_show_story_card("A MEMORY RESTORED", "The three clues fall into place. The world is no longer trapped in its unfinished moment. A new railway gate has opened.", "CONTINUE")
+						_show_story_card(["THE MINUTE MOVES", "THE EMPTY COACH", "THE LULLABY RETURNS", "THE NAME IS SPOKEN", "THE COLLECTOR REVEALED"][world_level_index], WORLD_LEVEL_REVEALS[world_level_index] + "\n\nThe railway gate opens, but the memory you found changes what the next world means.", "CONTINUE")
 					else:
 						_set_status("Clue restored · %d of 3" % world_puzzle_progress)
 				else:
@@ -3062,7 +3082,7 @@ func _interact() -> void:
 			else:
 				ending_choice_pending = true
 				ending_decision = ""
-				_show_story_card("THE LAST TERMINAL", "The five worlds are connected again. Behind the final clock is a memory that belongs to you: the last evening at Sunset Station, and a promise you could not keep.\n\nYou may restore the memory and carry its truth forward, or let it go and carry only what it taught you. Neither choice changes the past; each changes how you leave this train.", "RESTORE THE MEMORY")
+				_show_story_card("THE LAST TERMINAL", "The five fragments form one truth: the train delayed, the platform was still there, and someone waited while you chose not to return. The Collector offers to take away the shame with the memory—but it cannot tell the difference between pain and love.\n\nYou cannot rewrite the goodbye. You can restore the full memory and accept it, or release its hold without pretending it never happened. Look at the photograph one last time. Your choice will decide how this journey ends.", "RESTORE THE MEMORY")
 				story_alternative.text = "LET THE PAST GO"
 				story_alternative.visible = true
 		"chest":
@@ -3367,7 +3387,7 @@ func _start_world_level(index: int) -> void:
 	if is_instance_valid(camera):
 		camera.rotation = Vector3(pitch, 0, 0)
 	_set_status(WORLD_LEVEL_NAMES[world_level_index] + " · " + WORLD_LEVEL_THEMES[world_level_index])
-	_show_story_card(WORLD_LEVEL_NAMES[world_level_index], WORLD_LEVEL_THEMES[world_level_index] + "\n\nExplore the three objects and activate them in the order implied by the clue. A wrong choice resets the sequence. Solve the puzzle to open the railway gate.", "BEGIN EXPLORING")
+	_show_story_card(WORLD_LEVEL_NAMES[world_level_index], WORLD_LEVEL_OPENINGS[world_level_index] + "\n\nOBJECTIVE · " + WORLD_LEVEL_THEMES[world_level_index] + "\n\nInspect the environment for evidence before interacting. The world must change when you solve its mystery.", "BEGIN EXPLORING")
 
 
 func _add_realm_architecture_pass(palette: Array) -> void:
