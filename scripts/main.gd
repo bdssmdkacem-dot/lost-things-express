@@ -542,17 +542,35 @@ func _build_first_person_hands() -> void:
 				crease.position = Vector3(0.0, -finger_length * (0.04 if crease_index == 0 else -0.28), finger_radius * 1.05)
 				finger.add_child(crease)
 
-		# The thumb branches from the palm and crosses inward to hold the paper edge naturally.
-		var thumb := MeshInstance3D.new()
+		# A soft thenar mound bridges the thumb into the palm, avoiding a detached-capsule silhouette.
+		var thenar := MeshInstance3D.new()
+		thenar.name = "ThenarPad_%s" % ("L" if side < 0.0 else "R")
+		var thenar_mesh := SphereMesh.new()
+		thenar_mesh.radius = 0.036
+		thenar_mesh.height = 0.078
+		thenar.mesh = thenar_mesh
+		thenar.material_override = skin_material
+		thenar.scale = Vector3(0.82, 1.0, 0.64)
+		thenar.position = Vector3(side * 0.275, -0.218, -0.555)
+		thenar.rotation_degrees.z = side * -28.0
+		first_person_hands.add_child(thenar)
+
+		# The thumb overlaps the thenar mound slightly and carries its nail as a child,
+		# so the nail follows every grip animation instead of floating beside the thumb.
+		var thumb := Node3D.new()
 		thumb.name = "Thumb_%s" % ("L" if side < 0.0 else "R")
-		var thumb_mesh := CapsuleMesh.new()
-		thumb_mesh.radius = 0.021
-		thumb_mesh.height = 0.12
-		thumb.mesh = thumb_mesh
-		thumb.material_override = skin_light
 		thumb.position = Vector3(side * 0.245, -0.205, -0.555)
 		thumb.rotation_degrees = Vector3(-12.0, 0.0, side * 42.0)
 		first_person_hands.add_child(thumb)
+
+		var thumb_segment := MeshInstance3D.new()
+		thumb_segment.name = "ThumbSegment"
+		var thumb_mesh := CapsuleMesh.new()
+		thumb_mesh.radius = 0.021
+		thumb_mesh.height = 0.12
+		thumb_segment.mesh = thumb_mesh
+		thumb_segment.material_override = skin_light
+		thumb.add_child(thumb_segment)
 
 		var thumb_nail := MeshInstance3D.new()
 		thumb_nail.name = "Thumbnail_%s" % ("L" if side < 0.0 else "R")
@@ -562,10 +580,9 @@ func _build_first_person_hands() -> void:
 		thumb_nail.mesh = thumb_nail_mesh
 		thumb_nail.material_override = nail_material
 		thumb_nail.scale = Vector3(0.9, 1.0, 0.22)
-		thumb_nail.position = Vector3(side * 0.235, -0.165, -0.533)
+		thumb_nail.position = Vector3(-side * 0.01, 0.04, 0.022)
 		thumb_nail.rotation_degrees.z = side * 38.0
-		# Thumb was already attached above; add only its nail here to avoid a duplicate-parent error.
-		first_person_hands.add_child(thumb_nail)
+		thumb.add_child(thumb_nail)
 
 func _play_hand_action(action: String) -> void:
 	if not is_instance_valid(first_person_hands):
@@ -616,7 +633,7 @@ func _play_hand_action(action: String) -> void:
 			var thumb_curl := -28.0 if action == "read" else -12.0
 			hand_action_tween.parallel().tween_property(part, "rotation_degrees", Vector3(thumb_curl, 0.0, thumb_roll), 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 			if action != "read":
-				var neutral_x := -0.39 if part.name.ends_with("L") else 0.39
+				var neutral_x := -0.245 if part.name.ends_with("L") else 0.245
 				hand_action_tween.parallel().tween_property(part, "position:x", neutral_x, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	hand_action_tween.tween_callback(func() -> void:
 		# Keep the letter visible in both hands while its message is being read.
