@@ -81,6 +81,11 @@ var world_level_root: Node3D
 var world_puzzle_progress := 0
 var world_transition_pending := false
 var world_level_complete := false
+var campaign_checkpoint_world := -1
+var campaign_checkpoint_puzzle_progress := 0
+var campaign_checkpoint_complete := false
+var transition_fade: ColorRect
+var transition_busy := false
 var world_puzzle_sequence: Array[int] = []
 const WORLD_LEVEL_NAMES := ["THE CLOCKWORK KINGDOM", "THE CLOUD ISLANDS", "THE REMEMBERING FOREST", "SUNSET STATION", "THE LAST TERMINAL"]
 const WORLD_LEVEL_THEMES := [
@@ -116,8 +121,11 @@ func _ready() -> void:
 		_set_status("Welcome back. The photograph points to Sunset Station.")
 	else:
 		_set_status("The train has arrived at a station that appears on no map.")
-	_build_world_intro()
-	_begin_intro_sequence()
+	if campaign_checkpoint_world >= 0:
+		_resume_saved_campaign()
+	else:
+		_build_world_intro()
+		_begin_intro_sequence()
 
 func _setup_input_map() -> void:
 	_add_key_action("move_forward", KEY_W)
@@ -3273,10 +3281,18 @@ func _interact() -> void:
 					_trigger_mystery_beat(["The bell answers the shadow.", "The bridge cable tightens against the wind.", "Pip finishes the note before you do.", "The platform evidence fits the photograph.", "The mechanism recognizes the memory you almost buried."][world_level_index])
 					if world_puzzle_progress >= world_puzzle_sequence.size():
 						world_level_complete = true
+						campaign_checkpoint_world = world_level_index
+						campaign_checkpoint_puzzle_progress = world_puzzle_progress
+						campaign_checkpoint_complete = true
 						_spawn_world_gate()
+						_save_progress()
 						_set_status("PUZZLE SOLVED · The railway ahead has awakened.")
 						_show_story_card(["THE MINUTE MOVES", "THE EMPTY COACH", "THE LULLABY RETURNS", "THE NAME IS SPOKEN", "THE COLLECTOR REVEALED"][world_level_index], WORLD_LEVEL_REVEALS[world_level_index] + "\n\nThe railway gate opens, but the memory you found changes what the next world means.", "CONTINUE")
 					else:
+						campaign_checkpoint_world = world_level_index
+						campaign_checkpoint_puzzle_progress = world_puzzle_progress
+						campaign_checkpoint_complete = false
+						_save_progress()
 						_set_status("Clue restored · %d of 3" % world_puzzle_progress)
 				else:
 					# Keep valid deductions already made; a wrong choice should teach, not erase progress.
@@ -3285,7 +3301,7 @@ func _interact() -> void:
 			if not world_level_complete:
 				_set_status("The route is still asleep. Solve this world's puzzle first.")
 			elif world_level_index < WORLD_LEVEL_NAMES.size() - 1:
-				_start_world_level(world_level_index + 1)
+				_transition_to_world(world_level_index + 1)
 			else:
 				ending_choice_pending = true
 				ending_decision = ""
@@ -3363,6 +3379,9 @@ func _save_progress() -> void:
 	config.set_value("progress", "clock_puzzle_solved", clock_puzzle_solved)
 	config.set_value("progress", "second_ticket_read", second_ticket_read)
 	config.set_value("progress", "clock_wrong_attempts", clock_wrong_attempts)
+	config.set_value("campaign", "world_index", campaign_checkpoint_world)
+	config.set_value("campaign", "puzzle_progress", campaign_checkpoint_puzzle_progress)
+	config.set_value("campaign", "world_complete", campaign_checkpoint_complete)
 	var error := config.save("user://first_stage_progress.cfg")
 	if error != OK:
 		push_warning("Could not save first-stage progress (error %d)." % error)
@@ -3383,6 +3402,9 @@ func _load_progress() -> void:
 	clock_puzzle_solved = bool(config.get_value("progress", "clock_puzzle_solved", false))
 	second_ticket_read = bool(config.get_value("progress", "second_ticket_read", false))
 	clock_wrong_attempts = int(config.get_value("progress", "clock_wrong_attempts", 0))
+	campaign_checkpoint_world = int(config.get_value("campaign", "world_index", -1))
+	campaign_checkpoint_puzzle_progress = int(config.get_value("campaign", "puzzle_progress", 0))
+	campaign_checkpoint_complete = bool(config.get_value("campaign", "world_complete", false))
 	if clock_puzzle_solved:
 		_spawn_second_passenger_ticket()
 	if has_key:
@@ -3421,6 +3443,85 @@ func _inventory_text() -> String:
 	lines.append("• Torn letter (read)" if letter_read else "• Torn letter — unread")
 	lines.append("• Sunset photograph" if chest_open else "• Memory chest reward — undiscovered")
 	return "\n".join(lines)
+
+func _ensure_transition_fade() -> ColorRect:
+	if is_instance_valid(transition_fade):
+		return transition_fade
+	var transition_layer := CanvasLayer.new()
+	transition_layer.name = "RealmTransitionLayer"
+	transition_layer.layer = 100
+	add_child(transition_layer)
+	transition_fade = ColorRect.new()
+	transition_fade.name = "RealmTransitionFade"
+	transition_fade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	transition_fade.color = Color(0.006, 0.009, 0.018, 0.0)
+	transition_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	transition_layer.add_child(transition_fade)
+	return transition_fade
+
+
+func _resume_saved_campaign() -> void:
+	var resume_world := clampi(campaign_checkpoint_world, 0, WORLD_LEVEL_NAMES.size() - 1)
+	var resume_progress := campaign_checkpoint_puzzle_progress
+	var resume_complete := campaign_checkpoint_complete
+	world_intro_active = false
+	_start_world_level(resume_world)
+	world_puzzle_progress = clampi(resume_progress, 0, world_puzzle_sequence.size())
+	world_level_complete = resume_complete or world_puzzle_progress >= world_puzzle_sequence.size()
+	for candidate in get_tree().get_nodes_in_group("interactables"):
+		if candidate is Node3D and candidate.get_meta("kind", "") == "world_puzzle":
+			var order := int(candidate.get_meta("puzzle_order", -1))
+			if world_puzzle_sequence.find(order) >= 0 and world_puzzle_sequence.find(order) < world_puzzle_progress:
+				candidate.visible = false
+				candidate.remove_from_group("interactables")
+	if world_level_complete:
+		world_puzzle_progress = world_puzzle_sequence.size()
+		if world_level_root.get_node_or_null("WorldExitGate") == null:
+			_spawn_world_gate()
+	campaign_checkpoint_world = resume_world
+	campaign_checkpoint_puzzle_progress = world_puzzle_progress
+	campaign_checkpoint_complete = world_level_complete
+	_save_progress()
+	_show_story_card("JOURNEY RESTORED", "Your last railway checkpoint is safe. The clues you already recovered remain recovered; continue from where the journey paused.", "CONTINUE JOURNEY")
+
+
+func _transition_to_world(next_index: int) -> void:
+	if transition_busy or next_index < 0 or next_index >= WORLD_LEVEL_NAMES.size():
+		return
+	transition_busy = true
+	# Commit the completed realm before any visual transition begins.
+	campaign_checkpoint_world = world_level_index
+	campaign_checkpoint_puzzle_progress = world_puzzle_progress
+	campaign_checkpoint_complete = world_level_complete
+	_save_progress()
+	_close_story_card()
+	var fade := _ensure_transition_fade()
+	var fade_out := create_tween()
+	fade_out.tween_property(fade, "color:a", 1.0, 0.42).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await fade_out.finished
+	if not is_inside_tree():
+		return
+	# A restrained two-part camera impulse makes the railway gate feel physical,
+	# without leaving the player's view offset when the next realm loads.
+	var camera_start := camera.position
+	var jolt := create_tween()
+	jolt.tween_property(camera, "position", camera_start + Vector3(0.045, -0.018, 0.0), 0.09)
+	jolt.tween_property(camera, "position", camera_start + Vector3(-0.026, 0.010, 0.0), 0.13)
+	jolt.tween_property(camera, "position", camera_start, 0.18)
+	await jolt.finished
+	if not is_inside_tree():
+		return
+	campaign_checkpoint_world = next_index
+	campaign_checkpoint_puzzle_progress = 0
+	campaign_checkpoint_complete = false
+	_save_progress()
+	_start_world_level(next_index)
+	# Keep the world-arrival card behind the fade; let the realm reveal itself first.
+	var fade_in := create_tween()
+	fade_in.tween_property(fade, "color:a", 0.0, 0.72).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await fade_in.finished
+	transition_busy = false
+
 
 func _start_world_level(index: int) -> void:
 	world_level_index = clampi(index, 0, WORLD_LEVEL_NAMES.size() - 1)
