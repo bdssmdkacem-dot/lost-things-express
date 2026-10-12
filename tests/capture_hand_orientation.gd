@@ -18,6 +18,9 @@ func _capture() -> void:
 	viewport.size = Vector2i(1280, 720)
 	viewport.transparent_bg = false
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ALWAYS
+	viewport.own_world_3d = true
+	viewport.world_3d = World3D.new()
 	root.add_child(viewport)
 	var stage := Node3D.new()
 	stage.name = "HandOrientationStage"
@@ -53,13 +56,16 @@ func _capture() -> void:
 	var radius := maxf(bounds.size.length() * 0.72, 0.5)
 	camera.position = center + Vector3(0.0, 0.0, radius * 2.4)
 	camera.look_at(center, Vector3.UP)
+	camera.current = true
 	camera.make_current()
-	await create_timer(0.25).timeout
+	await process_frame
+	await RenderingServer.frame_post_draw
+	await create_timer(0.5).timeout
 	for angle in [0, 90, 180, 270]:
 		hand.rotation_degrees = Vector3(0.0, float(angle), 0.0)
 		await process_frame
 		await RenderingServer.frame_post_draw
-		await create_timer(0.15).timeout
+		await create_timer(0.25).timeout
 		if not _save("yaw_%03d.png" % angle):
 			return
 
