@@ -410,10 +410,17 @@ func _run_first_slice() -> void:
 	if not _check(bool(resumed_game.get("clock_puzzle_solved")) and bool(resumed_game.get("world_transition_pending")) and str(resumed_game.get("story_title").text).contains("FIRST DEPARTURE"), "correct clock deduction did not resolve the loop and start the departure sequence"):
 		return
 	var revealed_ticket := resumed_game.get_node_or_null("SecondPassengerTicket") as Node3D
-	if not _check(revealed_ticket != null and revealed_ticket.find_child("TornSecondPassengerName", true, false) != null, "solving the clock did not reveal the physical second-passenger ticket"):
+	if not _check(revealed_ticket != null and revealed_ticket.find_child("TornSecondPassengerName", true, false) != null and revealed_ticket.is_in_group("interactables") and revealed_ticket.get_meta("kind", "") == "second_ticket", "solving the clock did not reveal an interactable physical second-passenger ticket"):
+		return
+	resumed_game.set("world_transition_pending", false)
+	resumed_game.set("story_card_open", false)
+	(resumed_game.get("story_overlay") as Control).visible = false
+	resumed_game.set("nearby_object", revealed_ticket)
+	resumed_game.call("_interact")
+	if not _check(bool(resumed_game.get("second_ticket_read")) and str(resumed_game.get("story_title").text).contains("SECOND TICKET"), "inspecting the physical second ticket did not reveal the return-journey clue"):
 		return
 	var clock_save := ConfigFile.new()
-	if not _check(clock_save.load("user://first_stage_progress.cfg") == OK and bool(clock_save.get_value("progress", "clock_puzzle_solved", false)), "clock deduction result was not persisted"):
+	if not _check(clock_save.load("user://first_stage_progress.cfg") == OK and bool(clock_save.get_value("progress", "clock_puzzle_solved", false)) and bool(clock_save.get_value("progress", "second_ticket_read", false)), "clock deduction and second-ticket reading were not persisted"):
 		return
 	resumed_game.set("world_transition_pending", false)
 	resumed_game.set("train_departure_pending", false)
