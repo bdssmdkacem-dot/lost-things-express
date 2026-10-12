@@ -52,6 +52,7 @@ var window_examined := false
 var clock_deduction_pending := false
 var clock_wrong_attempts := 0
 var clock_puzzle_solved := false
+var second_ticket_read := false
 var train_departure_pending := false
 var nearby_object: Node3D
 
@@ -1245,6 +1246,9 @@ func _spawn_second_passenger_ticket() -> void:
 	# Place the revealed ticket just below the clock face, like it has slipped
 	# from the housing; the warm paper contrasts against the carriage wall.
 	ticket.position = clock.position + Vector3(0.48, -0.48, -0.09)
+	ticket.set_meta("kind", "second_ticket")
+	ticket.set_meta("display_name", "Second passenger ticket")
+	ticket.add_to_group("interactables")
 	add_child(ticket)
 	var paper := MeshInstance3D.new()
 	paper.name = "TicketIvoryStock"
@@ -3182,6 +3186,13 @@ func _interact() -> void:
 			_save_progress()
 			_trigger_mystery_beat("One passenger is listed twice. The second entry is written in your handwriting, but the name has been scraped away.")
 			_show_story_card("THE PASSENGER MANIFEST", "The paper lists the same departure twice. The first line names you. The second line has been scratched out so hard it tore the page. Beside it, someone wrote: TWO TICKETS. ONE RETURN.\n\nThe train did not expect you to travel alone. This evidence may make the photograph mean something different later.", "PUT THE MANIFEST AWAY")
+		"second_ticket":
+			second_ticket_read = true
+			_save_progress()
+			_play_hand_action("read")
+			_trigger_mystery_beat("The ticket paper is warm, as if someone had only just held it. Beneath the torn name, the ink reads: RETURN JOURNEY — PLATFORM TWO.")
+			_set_status("NEW EVIDENCE · The second ticket confirms a return journey from Platform Two.")
+			_show_story_card("THE SECOND TICKET", "The paper is warm. The departure is SUNSET STATION — PLATFORM TWO. The fare is punched twice, but the passenger's name has been torn away. On the reverse, a line has been pressed into the paper hard enough to leave a groove: IF ONE OF US RETURNS, THE OTHER MUST REMEMBER.\n\nThe missing passenger is not a mistake in the manifest. Someone planned this return.", "RETURN TO THE CLOCK")
 		"window":
 			window_examined = true
 			_save_progress()
@@ -3310,6 +3321,7 @@ func _save_progress() -> void:
 	config.set_value("progress", "manifest_read", manifest_read)
 	config.set_value("progress", "window_examined", window_examined)
 	config.set_value("progress", "clock_puzzle_solved", clock_puzzle_solved)
+	config.set_value("progress", "second_ticket_read", second_ticket_read)
 	config.set_value("progress", "clock_wrong_attempts", clock_wrong_attempts)
 	var error := config.save("user://first_stage_progress.cfg")
 	if error != OK:
@@ -3329,6 +3341,7 @@ func _load_progress() -> void:
 	manifest_read = bool(config.get_value("progress", "manifest_read", false))
 	window_examined = bool(config.get_value("progress", "window_examined", false))
 	clock_puzzle_solved = bool(config.get_value("progress", "clock_puzzle_solved", false))
+	second_ticket_read = bool(config.get_value("progress", "second_ticket_read", false))
 	clock_wrong_attempts = int(config.get_value("progress", "clock_wrong_attempts", 0))
 	if clock_puzzle_solved:
 		_spawn_second_passenger_ticket()
