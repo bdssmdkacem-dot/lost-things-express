@@ -108,6 +108,11 @@ func _capture_first_stage() -> void:
 	if not _check_capture(int(game.get("world_level_index")) == 1 and transition_fade.color.a < 0.01, "realm transition did not finish on the next world with a clear viewport"):
 		return
 
+	game.call("_close_story_card")
+	await create_timer(0.12).timeout
+	if not _save_viewport_image("18_realm_arrival_clear.png"):
+		return
+
 	# Capture both real ending choices and their distinct epilogues.
 	game.set("world_level_complete", true)
 	game.call("_spawn_world_gate")
