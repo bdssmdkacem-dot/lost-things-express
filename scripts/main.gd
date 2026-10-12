@@ -47,6 +47,9 @@ var has_key := false
 var letter_read := false
 var letter_inspecting := false
 var chest_open := false
+var manifest_read := false
+var window_examined := false
+var train_departure_pending := false
 var nearby_object: Node3D
 
 var story_overlay: ColorRect
@@ -205,6 +208,9 @@ func _build_world() -> void:
 	# Place the letter visibly on the aisle-side edge of an ivory-marble table.
 	_create_interactable("Torn Letter", Vector3(1.95, 0.83, 1.15), Color(0.86, 0.77, 0.59), "letter")
 	_create_interactable("Memory Chest", Vector3(0.0, 0.45, -4.45), Color(0.33, 0.12, 0.055), "chest", Vector3(0.95, 0.75, 0.65))
+	# Optional clues expand the first chapter without blocking players who miss them.
+	_create_interactable("Passenger Manifest", Vector3(-1.72, 0.84, 1.10), Color(0.70, 0.61, 0.43), "manifest", Vector3(0.42, 0.025, 0.30))
+	_create_interactable("Rainless Window", Vector3(-2.16, 1.62, -2.55), Color(0.18, 0.43, 0.52), "window", Vector3(0.14, 0.72, 0.62))
 	_create_clock_interactable()
 
 func _create_clock_interactable() -> void:
@@ -1215,6 +1221,14 @@ func _on_story_continue_pressed() -> void:
 		_enter_stage_one()
 	elif world_transition_pending:
 		world_transition_pending = false
+		train_departure_pending = true
+		_show_story_card("THE TRAIN DEPARTS", "The clock answers from the next carriage. Every lamp dims in sequence, from the rear coach to the locomotive. The coupling beneath your feet pulls taut; the platform begins to slide away.\\n\\nYou have recovered a photograph, but not the memory that belongs to it. The train is taking you to the place printed on its back.", "RIDE TO THE NEXT STAGE")
+	elif train_departure_pending:
+		train_departure_pending = false
+		_show_story_card("BETWEEN STAGES · THE NIGHT RUN", "The wheels strike the rail joints: three slow knocks, then two quick ones—the same pattern that answered the key. The windows fill with copper light. For a moment, a second passenger appears in the reflection beside you.\\n\\nWhen the train slows, the sign outside reads THE CLOCKWORK KINGDOM.", "ARRIVE AT THE CLOCKWORK KINGDOM")
+		await get_tree().create_timer(2.2).timeout
+		if not is_inside_tree():
+			return
 		_close_story_card()
 		_start_world_level(0)
 	elif ending_choice_pending:
@@ -3044,6 +3058,16 @@ func _interact() -> void:
 			_set_status("The final line is fresh ink. Read the paper in your hands, then tap CLOSE LETTER.")
 		"photograph":
 			_show_story_card("SUNSET STATION", "The photograph is worn at the corners, but the copper sunset is impossibly vivid. A station name is stamped beneath the horizon: SUNSET STATION. On the back, your own name is written in unfamiliar handwriting.\n\nNEW LEAD · Find the station that does not appear on any map.", "KEEP THE PHOTOGRAPH")
+		"manifest":
+			manifest_read = true
+			_save_progress()
+			_trigger_mystery_beat("One passenger is listed twice. The second entry is written in your handwriting, but the name has been scraped away.")
+			_show_story_card("THE PASSENGER MANIFEST", "The paper lists the same departure twice. The first line names you. The second line has been scratched out so hard it tore the page. Beside it, someone wrote: TWO TICKETS. ONE RETURN.\\n\\nThe train did not expect you to travel alone. This evidence may make the photograph mean something different later.", "PUT THE MANIFEST AWAY")
+		"window":
+			window_examined = true
+			_save_progress()
+			_trigger_mystery_beat("The landscape outside jumps backward for a heartbeat. The train is moving forward, but the same signal lamp returns.")
+			_show_story_card("THE WINDOW THAT REPEATS", "Outside, a green signal lamp passes the window. A moment later, the same lamp passes again—with the same crack in its glass. The train is moving, yet the world has looped.\\n\\nA thin line of condensation appears on the inside of the glass: SUNSET — PLATFORM TWO. The destination is trying to reach you.", "TURN FROM THE WINDOW")
 		"clock":
 			if not chest_open:
 				_set_status("The next carriage is still sealed. Complete the memory chest first.")
@@ -3151,6 +3175,8 @@ func _save_progress() -> void:
 	config.set_value("progress", "has_key", has_key)
 	config.set_value("progress", "letter_read", letter_read)
 	config.set_value("progress", "chest_open", chest_open)
+	config.set_value("progress", "manifest_read", manifest_read)
+	config.set_value("progress", "window_examined", window_examined)
 	var error := config.save("user://first_stage_progress.cfg")
 	if error != OK:
 		push_warning("Could not save first-stage progress (error %d)." % error)
@@ -3166,6 +3192,8 @@ func _load_progress() -> void:
 	has_key = bool(config.get_value("progress", "has_key", false))
 	letter_read = bool(config.get_value("progress", "letter_read", false))
 	chest_open = bool(config.get_value("progress", "chest_open", false))
+	manifest_read = bool(config.get_value("progress", "manifest_read", false))
+	window_examined = bool(config.get_value("progress", "window_examined", false))
 	if has_key:
 		var key := get_node_or_null("BrassKey")
 		if key:
@@ -3842,6 +3870,45 @@ func _create_interactable(label: String, pos: Vector3, color: Color, kind: Strin
 		key_glow.shadow_enabled = false
 		item.add_child(key_glow)
 
+	elif kind == "manifest":
+		item.rotation_degrees.x = -4.0
+		var manifest_ink := StandardMaterial3D.new()
+		manifest_ink.albedo_color = Color(0.18, 0.12, 0.08)
+		manifest_ink.roughness = 0.9
+		for line_index in range(6):
+			var line_mesh := BoxMesh.new()
+			line_mesh.size = Vector3(0.27 if line_index != 3 else 0.18, 0.004, 0.009)
+			var line := MeshInstance3D.new()
+			line.name = "ManifestInkLine_%d" % line_index
+			line.mesh = line_mesh
+			line.material_override = manifest_ink
+			line.position = Vector3(0.0, 0.018, -0.115 + float(line_index) * 0.043)
+			item.add_child(line)
+	elif kind == "window":
+		var frame_material := StandardMaterial3D.new()
+		frame_material.albedo_color = Color(0.30, 0.19, 0.09)
+		frame_material.metallic = 0.35
+		for side in [-1.0, 1.0]:
+			var mullion := MeshInstance3D.new()
+			var mullion_mesh := BoxMesh.new()
+			mullion_mesh.size = Vector3(0.045, 0.78, 0.07)
+			mullion.mesh = mullion_mesh
+			mullion.material_override = frame_material
+			mullion.position = Vector3(side * 0.10, 0.0, 0.0)
+			item.add_child(mullion)
+		var reflection := MeshInstance3D.new()
+		reflection.name = "WindowColdReflection"
+		var reflection_mesh := BoxMesh.new()
+		reflection_mesh.size = Vector3(0.018, 0.55, 0.025)
+		reflection.mesh = reflection_mesh
+		var reflection_material := StandardMaterial3D.new()
+		reflection_material.albedo_color = Color(0.55, 0.84, 0.91, 0.42)
+		reflection_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		reflection_material.emission_enabled = true
+		reflection_material.emission = Color(0.12, 0.30, 0.38)
+		reflection.material_override = reflection_material
+		reflection.position = Vector3(-0.045, 0.0, 0.04)
+		item.add_child(reflection)
 	elif kind == "letter":
 		# Slightly tilt the parchment toward the player and add visible ink strokes.
 		item.rotation_degrees.x = -10.0
