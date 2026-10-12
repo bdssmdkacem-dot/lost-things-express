@@ -577,7 +577,7 @@ func _play_hand_action(action: String) -> void:
 	# Start each action from a known neutral grip; the read pose will bring both thumbs to the paper edges.
 	for part in first_person_hands.get_children():
 		if part.name.begins_with("Thumb_"):
-			part.position.x = -0.385 if part.name.ends_with("L") else 0.385
+			part.position.x = -0.245 if part.name.ends_with("L") else 0.245
 	first_person_hands.visible = true
 	hand_action_tween = create_tween()
 	hand_action_tween.set_parallel(true)
@@ -596,7 +596,7 @@ func _play_hand_action(action: String) -> void:
 			hand_action_tween.tween_property(first_person_hands, "rotation:x", deg_to_rad(-7.0), 0.28)
 			for part in first_person_hands.get_children():
 				if part.name.begins_with("Thumb_"):
-					hand_action_tween.tween_property(part, "position:x", -0.23 if part.name.ends_with("L") else 0.23, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+					hand_action_tween.tween_property(part, "position:x", -0.205 if part.name.ends_with("L") else 0.205, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		"open":
 			hand_action_tween.tween_property(first_person_hands, "position", Vector3(0.0, 0.16, -0.40), 0.32).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 			hand_action_tween.tween_property(first_person_hands, "rotation:x", deg_to_rad(-14.0), 0.32)
