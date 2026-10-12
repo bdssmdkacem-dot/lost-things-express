@@ -76,6 +76,19 @@ The Android export preset previously had `package/signed=false`, even though the
 - [ ] Complete Android device QA, store assets, privacy review and release preparation
 
 
+## Narrative and puzzle redesign (2026-10-12)
+
+The previous five-stage story and puzzles are not accepted as compelling yet. The new design contract is [Story and Puzzle Redesign](docs/design/story-and-puzzle-redesign.md): one central mystery, a recurring companion, evidence that contradicts the Conductor, five distinct deduction-driven puzzle mechanics, and two endings with meaningful emotional costs.
+
+- [x] Document the new narrative premise, five-stage arc, puzzle principles and acceptance gates
+- [ ] Replace the old story text and stage objectives in the game
+- [ ] Implement the five signature puzzle mechanics and evidence/journal progression
+- [ ] Make previous stage outcomes feed the final manifest puzzle
+- [ ] Add in-world reactions and distinct ending sequences
+- [ ] Fresh-save Android playtest each puzzle without developer hints
+
+**Important:** design documentation is not implementation. The current gameplay code still contains the earlier abstract puzzle flow, so narrative/puzzle acceptance remains open until the new campaign is playable and tested.
+
 ## Five-world campaign validation (2026-10-11)
 
 - [x] Add automated checks for all five puzzle arenas, puzzle progression, exit gates and both ending branches
