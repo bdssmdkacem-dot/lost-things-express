@@ -302,7 +302,15 @@ func _run_first_slice() -> void:
 		return
 	game.call("_close_story_card")
 
-	# Optional evidence expands the first stage and must pay off with unique story information.
+	# The first stage is not complete after the chest alone: the clock requires the
+	# manifest and the repeating-window evidence to form a connected deduction.
+	player.global_position = station_clock.global_position + Vector3(0.0, -2.2, 0.1)
+	game.call("_interact")
+	if not _check(bool(game.get("story_card_open")) and str(game.get("story_title").text).contains("CLOCK NEEDS PROOF"), "clock allowed progress without the carriage evidence chain"):
+		return
+	game.call("_close_story_card")
+
+	# Required evidence expands the first stage and must pay off with unique story information.
 	player.global_position = manifest.global_position + Vector3(0.0, 0.0, 0.20)
 	game.call("_interact")
 	if not _check(bool(game.get("manifest_read")) and str(game.get("story_title").text).contains("PASSENGER MANIFEST") and str(game.get("story_body").text).contains("TWO TICKETS. ONE RETURN."), "manifest inspection did not reveal its passenger mystery"):
