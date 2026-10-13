@@ -57,19 +57,29 @@ jobs:
       - name: Launch the actual game scene with generated carriage
         run: godot --headless --path . --quit-after 5
 
-      - name: Commit generated assets for the playable game
+      - name: Publish generated assets without binary rebase conflicts
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          output_dir="$(mktemp -d)"
+          trap 'rm -rf "$output_dir"' EXIT
+          # Preserve freshly generated binaries outside the worktree before syncing
+          # to main. Rebase cannot merge GLB/BLEND/PNG files and may race another run.
+          for file in assets/blender/train_carriage.blend assets/models/train_carriage.glb assets/blender/train_carriage_preview.png assets/blender/lost_things_locomotive.blend assets/models/lost_things_locomotive.glb assets/blender/lost_things_locomotive_preview.png; do
+            mkdir -p "$output_dir/$(dirname "$file")"
+            cp "$file" "$output_dir/$file"
+          done
+          git fetch origin main
+          git reset --hard origin/main
+          for file in assets/blender/train_carriage.blend assets/models/train_carriage.glb assets/blender/train_carriage_preview.png assets/blender/lost_things_locomotive.blend assets/models/lost_things_locomotive.glb assets/blender/lost_things_locomotive_preview.png; do
+            cp "$output_dir/$file" "$file"
+          done
           git add assets/blender/train_carriage.blend assets/models/train_carriage.glb assets/blender/train_carriage_preview.png assets/blender/lost_things_locomotive.blend assets/models/lost_things_locomotive.glb assets/blender/lost_things_locomotive_preview.png
           if git diff --cached --quiet; then
             echo "Generated assets are unchanged."
           else
             git commit -m "art: publish generated carriage assets"
-            # Documentation/source edits may land while Blender is rendering. Rebase
-            # the generated binary output onto the newest main instead of losing it.
-            git fetch origin main
-            git rebase origin/main
             git push origin HEAD:main
           fi
 
