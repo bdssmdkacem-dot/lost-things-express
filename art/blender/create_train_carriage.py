@@ -963,14 +963,22 @@ def create_carriage():
         scene.render.image_settings.file_format = "PNG"
         scene.render.image_settings.color_mode = "RGB"
         scene.render.image_settings.color_depth = "8"
-        scene.render.filepath = os.path.join(BLEND_DIR, "train_carriage_preview.png")
+        preview_path = os.path.join(BLEND_DIR, "train_carriage_preview.png")
+        scene.render.filepath = preview_path
         scene.render.film_transparent = False
+        # Never allow a stale preview from a previous run to satisfy CI.
+        if os.path.exists(preview_path):
+            os.remove(preview_path)
         try:
             bpy.ops.render.render(write_still=True)
-            print("TRAIN_CARRIAGE_PREVIEW_CREATED: assets/blender/train_carriage_preview.png")
         except Exception as e:
-            print("TRAIN_CARRIAGE_PREVIEW_SKIPPED (render failed):", e)
+            raise RuntimeError("Required train carriage preview render failed") from e
+        if not os.path.isfile(preview_path) or os.path.getsize(preview_path) < 1024:
+            raise RuntimeError("Blender did not produce a valid train carriage preview PNG")
+        print("TRAIN_CARRIAGE_PREVIEW_CREATED: assets/blender/train_carriage_preview.png")
     else:
+        if os.environ.get("CI", "").strip().lower() == "true":
+            raise RuntimeError("CI must produce a fresh carriage preview; refusing to export without one")
         print("TRAIN_CARRIAGE_PREVIEW_SKIPPED (headless/no-GPU environment). "
               "Set LOST_THINGS_FORCE_PREVIEW=1 to force a software render.")
 
