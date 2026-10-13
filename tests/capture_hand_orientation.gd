@@ -3,7 +3,7 @@ extends SceneTree
 const ASSET_PATH := "res://assets/models/hand-posable.glb"
 const OUT := "res://build/hand_orientation_review"
 
-var review_viewport: Window
+var review_viewport: SubViewport
 
 func _initialize() -> void:
 	call_deferred("_capture")
@@ -16,14 +16,25 @@ func _capture() -> void:
 		quit(1)
 		return
 
-	# Render into the actual main window viewport. A detached SubViewport can
-	# remain unpresented under headless/Xvfb, producing blank but valid PNGs.
-	review_viewport = root
+	# Render through a SubViewportContainer so the viewport is attached to the
+	# window tree and has a live 3D rendering scenario under Xvfb.
+	var container := SubViewportContainer.new()
+	container.name = "HandReviewContainer"
+	container.size = Vector2i(1280, 720)
+	container.stretch = true
+	root.add_child(container)
+
+	review_viewport = SubViewport.new()
+	review_viewport.name = "HandReviewViewport"
 	review_viewport.size = Vector2i(1280, 720)
+	review_viewport.disable_3d = false
+	review_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	review_viewport.world_3d = World3D.new()
+	container.add_child(review_viewport)
+
 	var stage := Node3D.new()
 	stage.name = "HandOrientationStage"
-	root.add_child(stage)
+	review_viewport.add_child(stage)
 
 	var env_node := WorldEnvironment.new()
 	var env := Environment.new()
