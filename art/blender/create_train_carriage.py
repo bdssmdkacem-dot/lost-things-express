@@ -921,6 +921,15 @@ def create_carriage():
             authored_obj.parent = coordinate_root
     coordinate_root.rotation_euler.x = math.radians(90.0)
 
+    # Keep the review camera in Blender's native Z-up world frame. The authored
+    # geometry is parented under the Y-up -> Z-up root, but leaving the camera
+    # under that root also rotates its camera-up axis and can produce an underside
+    # view (table/lamps appearing overhead). Rebuild its world transform explicitly.
+    camera.parent = None
+    camera.location = (0.0, -2.65, 1.62)
+    review_target = Vector((0.0, 0.05, 0.98))
+    camera.rotation_euler = (review_target - camera.location).to_track_quat("-Z", "Y").to_euler()
+
     # Save the .blend always.
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(BLEND_DIR, "train_carriage.blend"))
     print("TRAIN_CARRIAGE_BLEND_SAVED: assets/blender/train_carriage.blend")
