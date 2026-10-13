@@ -506,7 +506,7 @@ def create_carriage():
     noise = mn.new("ShaderNodeTexNoise"); noise.location = (-600, 80); noise.inputs["Scale"].default_value = 3.8; noise.inputs["Detail"].default_value = 5.0; noise.inputs["Roughness"].default_value = 0.72
     wave = mn.new("ShaderNodeTexWave"); wave.location = (-380, 80); wave.wave_type = "BANDS"; wave.bands_direction = "DIAGONAL"; wave.inputs["Scale"].default_value = 3.2; wave.inputs["Distortion"].default_value = 7.0; wave.inputs["Detail"].default_value = 4.0
     ramp = mn.new("ShaderNodeValToRGB"); ramp.location = (-140, 80); ramp.color_ramp.elements[0].position = 0.30; ramp.color_ramp.elements[0].color = (0.43, 0.37, 0.29, 1); ramp.color_ramp.elements[1].position = 0.56; ramp.color_ramp.elements[1].color = (0.91, 0.88, 0.82, 1)
-    ml.new(tc.outputs["Generated"], noise.inputs["Vector"]); ml.new(noise.outputs["Fac"], wave.inputs["Vector"]); ml.new(wave.outputs["Color"], ramp.inputs["Fac"]); ml.new(ramp.outputs["Color"], mb.inputs["Base Color"])
+    ml.new(tc.outputs["Generated"], noise.inputs["Vector"]); ml.new(noise.outputs["Color"], wave.inputs["Vector"]); ml.new(wave.outputs["Color"], ramp.inputs["Fac"]); ml.new(ramp.outputs["Color"], mb.inputs["Base Color"])
     bump = mn.new("ShaderNodeBump"); bump.inputs["Strength"].default_value = 0.07; bump.inputs["Distance"].default_value = 0.004; ml.new(ramp.outputs["Color"], bump.inputs["Height"]); ml.new(bump.outputs["Normal"], mb.inputs["Normal"])
     green_shade = material("Ref Lamp | deep emerald glass shade", (0.035, 0.19, 0.065, 0.82), roughness=0.24, emission=0.10)
     green_shade_emit = material("Ref Lamp | warm core under shade", (1.0, 0.55, 0.18, 1), roughness=0.25, emission=0.85)
@@ -537,6 +537,14 @@ def create_carriage():
                           (0.024, 0.024, 0.014), MATS["brass_highlight"])
         cube("Ref Seat | carved armrest", (x + (0.58 if side > 0 else -0.58), 0.78, z),
              (0.18, 0.18, 1.10), MATS["mahogany"], 0.06, seating)
+        arm_x = x + (0.58 if side > 0 else -0.58)
+        tube_curve("Ref Seat | sculpted armrest crown", [
+            (arm_x, 0.895, z - 0.52), (arm_x, 0.925, z - 0.34),
+            (arm_x, 0.935, z), (arm_x, 0.925, z + 0.34),
+            (arm_x, 0.895, z + 0.52)], 0.035, MATS["wood_light"], seating)
+        tube_curve("Ref Seat | fine brass armrest inlay", [
+            (arm_x, 0.912, z - 0.42), (arm_x, 0.927, z - 0.20),
+            (arm_x, 0.929, z + 0.20), (arm_x, 0.912, z + 0.42)], 0.006, MATS["brass_highlight"], seating)
         for dx, dz in [(-0.45, -0.45), (0.45, -0.45), (-0.45, 0.45), (0.45, 0.45)]:
             cylinder("Ref Seat | brass foot", (x + dx, 0.12, z + dz), 0.048, 0.20, MATS["brass"], vertices=12)
 
