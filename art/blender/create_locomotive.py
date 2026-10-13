@@ -279,12 +279,18 @@ scene.render.resolution_x = 1280
 scene.render.resolution_y = 900
 scene.render.resolution_percentage = 100
 scene.render.image_settings.file_format = "PNG"
-scene.render.filepath = os.path.join(BLEND_DIR, "lost_things_locomotive_preview.png")
+preview_path = os.path.join(BLEND_DIR, "lost_things_locomotive_preview.png")
+scene.render.filepath = preview_path
 scene.world.color = (0.025, 0.035, 0.055)
 scene.view_settings.view_transform = "AgX"
 scene.render.image_settings.color_mode = "RGBA"
+# Never accept a stale preview; this render is part of the asset-generation contract.
+if os.path.exists(preview_path):
+    os.remove(preview_path)
 # Render first, then remove camera/lights from the exported runtime asset.
 bpy.ops.render.render(write_still=True)
+if not os.path.isfile(preview_path) or os.path.getsize(preview_path) < 1024:
+    raise RuntimeError("Blender did not produce a valid locomotive preview PNG")
 bpy.ops.object.select_all(action="DESELECT")
 for obj in bpy.context.scene.objects:
     if obj.type in {"CAMERA", "LIGHT"}:
