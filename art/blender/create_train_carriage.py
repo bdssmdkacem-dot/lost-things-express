@@ -195,9 +195,11 @@ def create_carriage():
     root = bpy.context.scene.collection
     shell = bpy.data.collections.new("Carriage | Structure")
     details = bpy.data.collections.new("Carriage | Crafted Details")
-    seating = bpy.data.collections.new("Carriage | Velvet Seating")
+    seating = bpy.data.collections.new("Carriage | Tufted Seating")
     lighting = bpy.data.collections.new("Carriage | Lanterns")
-    for coll in (shell, details, seating, lighting):
+    table_props = bpy.data.collections.new("Carriage | Marble Table & Props")
+    curtains = bpy.data.collections.new("Carriage | Pleated Curtains")
+    for coll in (shell, details, seating, lighting, table_props, curtains):
         root.children.link(coll)
 
     # Coordinates: X across the carriage, Y up, Z along its 12m length.
@@ -492,12 +494,21 @@ def create_carriage():
     # Matches art/reference/carriage-reference-approved-2026-10-13.jpg
     # Intimate facing seats + central marble table + green lamp + props + curtains.
     # =========================================================================
-    props = bpy.data.collections.new("Carriage | Reference Props 2026-10-13")
-    root.children.link(props)
+    props = table_props
+    # Definitive user-supplied visual reference; preserve the original image unchanged:
+    # art/reference/carriage-reference-approved-2026-10-13.jpg
 
     # Materials specific to the locked reference photo
-    marble_ref = material("Ref Table | cream marble with soft veins", (0.78, 0.74, 0.68, 1), roughness=0.22)
-    green_shade = material("Ref Lamp | deep emerald glass shade", (0.04, 0.22, 0.08, 1), roughness=0.28, emission=0.18)
+    marble_ref = material("Ref Table | cream marble with soft veins", (0.82, 0.79, 0.72, 1), roughness=0.24)
+    # Procedural mineral veins: warped bands with cream/taupe variation, not a flat beige slab.
+    mn = marble_ref.node_tree.nodes; ml = marble_ref.node_tree.links; mb = mn.get("Principled BSDF")
+    tc = mn.new("ShaderNodeTexCoord"); tc.location = (-800, 80)
+    noise = mn.new("ShaderNodeTexNoise"); noise.location = (-600, 80); noise.inputs["Scale"].default_value = 3.8; noise.inputs["Detail"].default_value = 5.0; noise.inputs["Roughness"].default_value = 0.72
+    wave = mn.new("ShaderNodeTexWave"); wave.location = (-380, 80); wave.wave_type = "BANDS"; wave.bands_direction = "DIAGONAL"; wave.inputs["Scale"].default_value = 3.2; wave.inputs["Distortion"].default_value = 7.0; wave.inputs["Detail"].default_value = 4.0
+    ramp = mn.new("ShaderNodeValToRGB"); ramp.location = (-140, 80); ramp.color_ramp.elements[0].position = 0.30; ramp.color_ramp.elements[0].color = (0.43, 0.37, 0.29, 1); ramp.color_ramp.elements[1].position = 0.56; ramp.color_ramp.elements[1].color = (0.91, 0.88, 0.82, 1)
+    ml.new(tc.outputs["Generated"], noise.inputs["Vector"]); ml.new(noise.outputs["Fac"], wave.inputs["Vector"]); ml.new(wave.outputs["Color"], ramp.inputs["Fac"]); ml.new(ramp.outputs["Color"], mb.inputs["Base Color"])
+    bump = mn.new("ShaderNodeBump"); bump.inputs["Strength"].default_value = 0.07; bump.inputs["Distance"].default_value = 0.004; ml.new(ramp.outputs["Color"], bump.inputs["Height"]); ml.new(bump.outputs["Normal"], mb.inputs["Normal"])
+    green_shade = material("Ref Lamp | deep emerald glass shade", (0.035, 0.19, 0.065, 0.82), roughness=0.24, emission=0.10)
     green_shade_emit = material("Ref Lamp | warm core under shade", (1.0, 0.55, 0.18, 1), roughness=0.25, emission=0.85)
     book_cover = material("Ref Props | aged leather book", (0.18, 0.07, 0.03, 1), roughness=0.55)
     book_page = material("Ref Props | parchment pages", (0.82, 0.76, 0.62, 1), roughness=0.65)
@@ -530,9 +541,13 @@ def create_carriage():
             cylinder("Ref Seat | brass foot", (x + dx, 0.12, z + dz), 0.048, 0.20, MATS["brass"], vertices=12)
 
     # Central marble table matching the reference photo
-    cube("Ref Table | cream marble top", (0, 0.78, 0.0), (0.95, 0.06, 0.72), marble_ref, 0.025, props)
+    cube("Ref Table | cream marble top", (0, 0.78, 0.0), (1.10, 0.075, 0.82), marble_ref, 0.025, table_props)
     cylinder("Ref Table | brass column", (0, 0.45, 0.0), 0.055, 0.58, MATS["brass"], vertices=24)
-    cube("Ref Table | brass base plate", (0, 0.16, 0.0), (0.42, 0.04, 0.42), MATS["brass_highlight"], 0.02, props)
+    cube("Ref Table | brass base plate", (0, 0.16, 0.0), (0.42, 0.04, 0.42), MATS["brass_highlight"], 0.02, table_props)
+    cube("Ref Table | brass rim front", (0, 0.78, 0.414), (1.08, 0.025, 0.018), table_gold, 0.006, table_props)
+    cube("Ref Table | brass rim rear", (0, 0.78, -0.414), (1.08, 0.025, 0.018), table_gold, 0.006, table_props)
+    cube("Ref Table | brass rim left", (-0.55, 0.78, 0), (0.018, 0.025, 0.82), table_gold, 0.006, table_props)
+    cube("Ref Table | brass rim right", (0.55, 0.78, 0), (0.018, 0.025, 0.82), table_gold, 0.006, table_props)
 
     # Green-shade reading lamp (core of the reference)
     cylinder("Ref Lamp | brass base", (0.18, 0.85, -0.12), 0.07, 0.03, MATS["brass"], vertices=20)
@@ -544,13 +559,14 @@ def create_carriage():
     bevel(shade, 0.01, 2)
     for coll in list(shade.users_collection):
         coll.objects.unlink(shade)
-    props.objects.link(shade)
+    table_props.objects.link(shade)
     uv_sphere("Ref Lamp | warm filament", (0.18, 1.18, -0.12), (0.022, 0.028, 0.022), green_shade_emit)
 
-    # Books stacked on the table
-    cube("Ref Props | lower book", (-0.22, 0.84, 0.12), (0.28, 0.04, 0.22), book_cover, 0.015, props)
-    cube("Ref Props | lower book pages", (-0.22, 0.84, 0.12), (0.26, 0.035, 0.20), book_page, 0.01, props)
-    cube("Ref Props | upper book", (-0.18, 0.89, 0.15), (0.24, 0.035, 0.18), book_cover, 0.012, props)
+    # Stacked old books with inset parchment page blocks.
+    cube("Ref Props | lower book", (-0.22, 0.835, 0.12), (0.30, 0.045, 0.23), book_cover, 0.015, table_props)
+    cube("Ref Props | lower book pages", (-0.22, 0.840, 0.12), (0.265, 0.035, 0.195), book_page, 0.01, table_props)
+    cube("Ref Props | upper book", (-0.17, 0.885, 0.145), (0.25, 0.035, 0.19), book_cover, 0.012, table_props)
+    cube("Ref Props | upper book pages", (-0.17, 0.890, 0.145), (0.218, 0.026, 0.158), book_page, 0.008, table_props)
 
     # Magnifying glass
     cylinder("Ref Props | magnifier handle", (0.28, 0.83, 0.18), 0.012, 0.18, magnifier_brass, rotation=(0, math.radians(90), 0), vertices=10)
@@ -562,21 +578,22 @@ def create_carriage():
     assign(lens, material("Ref Props | glass lens", (0.7, 0.85, 0.9, 0.35), roughness=0.05))
     for coll in list(lens.users_collection):
         coll.objects.unlink(lens)
-    props.objects.link(lens)
+    table_props.objects.link(lens)
 
+    # Reference: art/reference/carriage-reference-approved-2026-10-13.jpg
     # Richer pleated curtains with gold tassels for the primary window pair near Z=0
     for side in (-1, 1):
         for zz in (-0.55, 0.55):
-            cube("Ref Curtain | deep emerald panel", (side * 2.58, 2.05, zz), (0.14, 1.25, 0.28), curtain_deep, 0.04, details)
+            cube("Ref Curtain | deep emerald panel", (side * 2.58, 2.05, zz), (0.14, 1.25, 0.28), curtain_deep, 0.04, curtains)
             for fold in (-0.08, -0.04, 0.0, 0.04, 0.08):
                 pleat_points = []
                 for step in range(9):
                     y = 1.45 + step * 0.145
                     z_fold = zz + fold + math.sin(step * math.pi / 4.0) * 0.012
                     pleat_points.append((side * 2.50, y, z_fold))
-                tube_curve("Ref Curtain | velvet pleat", pleat_points, 0.016, curtain_deep, details)
-            cube("Ref Curtain | gold edge trim", (side * 2.48, 2.05, zz), (0.025, 1.20, 0.04), curtain_gold, 0.01, details)
-            cube("Ref Curtain | brass tie-back", (side * 2.46, 1.85, zz), (0.08, 0.06, 0.22), MATS["brass_highlight"], 0.015, details)
+                tube_curve("Ref Curtain | velvet pleat", pleat_points, 0.016, curtain_deep, curtains)
+            cube("Ref Curtain | gold edge trim", (side * 2.48, 2.05, zz), (0.025, 1.20, 0.04), curtain_gold, 0.01, curtains)
+            cube("Ref Curtain | brass tie-back", (side * 2.46, 1.85, zz), (0.08, 0.06, 0.22), MATS["brass_highlight"], 0.015, curtains)
             cylinder("Ref Curtain | gold tassel body", (side * 2.45, 1.55, zz), 0.025, 0.18, curtain_gold, vertices=10)
             uv_sphere("Ref Curtain | tassel tip", (side * 2.45, 1.42, zz), (0.03, 0.04, 0.03), curtain_gold)
 
@@ -598,10 +615,10 @@ def create_carriage():
                 cube("Luggage | brass suitcase band", (suitcase_x + dx, 2.78, z), (0.026, 0.21, 0.60), luggage_inlay, 0.008, details)
             cube("Luggage | brass handle", (suitcase_x, 2.91, z), (0.12, 0.022, 0.030), table_gold, 0.008, details)
 
-    # Emerald upholstered ceiling panels and tailored velvet curtains establish the requested signature palette.
-    emerald_ceiling = material("Ceiling | emerald woven velvet", (0.018, 0.155, 0.078, 1), roughness=0.90)
+    # The locked reference specifies warm ivory ceiling insets beneath walnut arches.
+    ivory_ceiling = material("Ceiling | warm ivory inset panels", (0.72, 0.65, 0.51, 1), roughness=0.78)
     for panel_z in (-4.4, -2.6, -0.8, 1.0, 2.8, 4.6):
-        cube("Ceiling | emerald upholstered inset", (0, 3.365, panel_z), (4.75, 0.035, 1.38), emerald_ceiling, 0.045, details)
+        cube("Ceiling | ivory inset panel", (0, 3.365, panel_z), (4.75, 0.035, 1.38), ivory_ceiling, 0.045, details)
     curtain_mat = material("Curtains | deep emerald velvet", (0.006, 0.105, 0.042, 1), roughness=0.86)
     curtain_fold = material("Curtains | raised emerald folds", (0.010, 0.14, 0.052, 1), roughness=0.82)
     for side in (-1, 1):
@@ -799,15 +816,15 @@ def create_carriage():
                      (0.10, 0.12, 0.045), inlay, 0.018, details)
 
     # Correctly aimed, multi-temperature area lights: warm practical pools on wood
-    # and velvet, with a restrained cool fill so dark materials retain their detail.
+    # and velvet, with restrained cool fill. Green table lamp adds a local pool.
     for obj in list(bpy.data.objects):
         if obj.type == "LIGHT":
             bpy.data.objects.remove(obj, do_unlink=True)
     for idx, (pos, energy, color, size) in enumerate((
-        ((-1.65, 2.85, -3.4), 200, (1.0, 0.57, 0.30), 2.0),
-        ((1.65, 2.85, 0.0), 320, (1.0, 0.68, 0.42), 2.2),
-        ((-1.65, 2.85, 3.4), 275, (1.0, 0.57, 0.30), 2.0),
-        ((0.0, 2.55, 0.0), 160, (0.48, 0.70, 1.0), 3.5),
+        ((-1.65, 2.85, -3.4), 145, (1.0, 0.57, 0.30), 2.0),
+        ((1.65, 2.85, 0.0), 185, (1.0, 0.68, 0.42), 2.2),
+        ((-1.65, 2.85, 3.4), 155, (1.0, 0.57, 0.30), 2.0),
+        ((0.0, 2.55, 0.0), 82, (0.48, 0.70, 1.0), 3.5),
         # Warm practical light spills through the open portal into the next carriage.
         ((-1.45, 2.85, -7.7), 360, (1.0, 0.52, 0.28), 2.4),
         ((1.45, 2.85, -10.25), 330, (1.0, 0.66, 0.38), 2.4),
@@ -823,6 +840,22 @@ def create_carriage():
         target = Vector((0.0, 1.05, -9.1)) if pos[2] < -6.0 else Vector((0.0, 1.0, 0.0))
         direction = target - light.location
         light.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
+        for old_collection in list(light.users_collection):
+            old_collection.objects.unlink(light)
+        lighting.objects.link(light)
+
+    # Actual warm local light under the green shade; restrained to avoid flattening the scene.
+    bpy.ops.object.light_add(type="AREA", location=(0.18, 1.235, -0.12))
+    table_light = bpy.context.object
+    table_light.name = "Ref Lamp | warm local table light"
+    table_light.data.energy = 42
+    table_light.data.color = (1.0, 0.66, 0.36)
+    table_light.data.shape = "DISK"
+    table_light.data.size = 0.48
+    table_light.rotation_euler = (Vector((0.0, 0.45, 0.0)) - table_light.location).to_track_quat("-Z", "Y").to_euler()
+    for old_collection in list(table_light.users_collection):
+        old_collection.objects.unlink(table_light)
+    lighting.objects.link(table_light)
 
     # Slightly more legible physically based response in the authoring scene.
     bpy.context.scene.view_settings.view_transform = "AgX"
