@@ -896,15 +896,16 @@ def create_carriage():
     world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.82
     scene.world.color = (0.018, 0.035, 0.052)
 
-    # Match the game's eye-level opening shot so the preview checks the central aisle,
-    # green upholstery, doorway depth and far clock in the same composition as play.
-    bpy.ops.object.camera_add(location=(0.0, 1.58, 4.72))
+    # Reference-review camera: bring the central marble table, green reading lamp,
+    # books, magnifier and facing tufted seats into the foreground. The gameplay
+    # camera is authored in Godot separately; this camera exists for honest asset review.
+    bpy.ops.object.camera_add(location=(0.0, 1.62, 2.65))
     camera = bpy.context.object
-    camera.name = "Preview Camera | first-person carriage view"
-    camera.data.name = "Preview Camera | 16:9 mobile match"
-    camera.data.lens = 16.0
+    camera.name = "Preview Camera | reference compartment detail"
+    camera.data.name = "Preview Camera | 16:9 reference review"
+    camera.data.lens = 28.0
     camera.data.sensor_fit = "VERTICAL"
-    look_at = Vector((0.0, 1.92, -4.85))
+    look_at = Vector((0.0, 1.00, -0.05))
     camera.rotation_euler = (look_at - camera.location).to_track_quat("-Z", "Y").to_euler()
     scene.camera = camera
 
