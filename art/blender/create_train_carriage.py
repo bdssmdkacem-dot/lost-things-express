@@ -578,18 +578,18 @@ def create_carriage():
     for coll in list(shade.users_collection):
         coll.objects.unlink(shade)
     table_props.objects.link(shade)
-    uv_sphere("Ref Lamp | warm filament", (0.18, 1.205, -0.12), (0.032, 0.036, 0.032), green_shade_emit)
+    uv_sphere("Ref Lamp | warm filament", (seat_bay_x + 0.18, 1.205, -0.12), (0.032, 0.036, 0.032), green_shade_emit)
 
     # Stacked old books with inset parchment page blocks.
-    cube("Ref Props | lower book", (-0.22, 0.835, 0.12), (0.30, 0.045, 0.23), book_cover, 0.015, table_props)
-    cube("Ref Props | lower book pages", (-0.22, 0.840, 0.12), (0.265, 0.035, 0.195), book_page, 0.01, table_props)
-    cube("Ref Props | upper book", (-0.17, 0.885, 0.145), (0.25, 0.035, 0.19), book_cover, 0.012, table_props)
-    cube("Ref Props | upper book pages", (-0.17, 0.890, 0.145), (0.218, 0.026, 0.158), book_page, 0.008, table_props)
+    cube("Ref Props | lower book", (seat_bay_x - 0.22, 0.835, 0.12), (0.30, 0.045, 0.23), book_cover, 0.015, table_props)
+    cube("Ref Props | lower book pages", (seat_bay_x - 0.22, 0.840, 0.12), (0.265, 0.035, 0.195), book_page, 0.01, table_props)
+    cube("Ref Props | upper book", (seat_bay_x - 0.17, 0.885, 0.145), (0.25, 0.035, 0.19), book_cover, 0.012, table_props)
+    cube("Ref Props | upper book pages", (seat_bay_x - 0.17, 0.890, 0.145), (0.218, 0.026, 0.158), book_page, 0.008, table_props)
 
     # Magnifying glass
-    cylinder("Ref Props | magnifier handle", (0.28, 0.83, 0.18), 0.012, 0.18, magnifier_brass, rotation=(0, math.radians(90), 0), vertices=10)
-    cylinder("Ref Props | magnifier rim", (0.38, 0.83, 0.18), 0.055, 0.012, magnifier_brass, rotation=(math.radians(90), 0, 0), vertices=24)
-    bpy.ops.mesh.primitive_cylinder_add(vertices=24, radius=0.045, depth=0.006, location=(0.38, 0.83, 0.18))
+    cylinder("Ref Props | magnifier handle", (seat_bay_x + 0.28, 0.83, 0.18), 0.012, 0.18, magnifier_brass, rotation=(0, math.radians(90), 0), vertices=10)
+    cylinder("Ref Props | magnifier rim", (seat_bay_x + 0.38, 0.83, 0.18), 0.055, 0.012, magnifier_brass, rotation=(math.radians(90), 0, 0), vertices=24)
+    bpy.ops.mesh.primitive_cylinder_add(vertices=24, radius=0.045, depth=0.006, location=(seat_bay_x + 0.38, 0.83, 0.18))
     lens = bpy.context.object
     lens.name = "Ref Props | magnifier lens"
     lens.rotation_euler = (math.radians(90), 0, 0)
