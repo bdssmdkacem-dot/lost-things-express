@@ -516,51 +516,59 @@ def create_carriage():
     curtain_gold = material("Ref Curtain | antique gold tassel & trim", (0.72, 0.52, 0.18, 1), metallic=0.45, roughness=0.35)
     curtain_deep = material("Ref Curtain | deep emerald velvet", (0.015, 0.085, 0.038, 1), roughness=0.62)
 
-    # Primary facing-seat pair centered on the reference camera (around Z ≈ 0)
-    for side, x in ((-1, -1.55), (1, 1.55)):
-        z = 0.0
-        cube("Ref Seat | walnut plinth", (x, 0.34, z), (1.35, 0.28, 1.35), MATS["dark_wood"], 0.08, seating)
-        cube("Ref Seat | emerald cushion", (x, 0.55, z), (1.32, 0.26, 1.30), seat_leather, 0.11, seating)
-        cube("Ref Seat | emerald back", (x, 1.12, z - 0.52), (1.32, 0.95, 0.24), seat_leather, 0.10, seating)
-        cube("Ref Seat | wood surround", (x, 1.12, z - 0.65), (1.42, 1.05, 0.12), MATS["mahogany"], 0.06, seating)
-        for edge in (-0.58, 0.58):
+    # Reference seating bay is deliberately on the right side of the carriage.
+    # The longitudinal aisle (centered at X=0) must remain unobstructed.
+    # Two seats face each other along Z with the marble table between them.
+    seat_bay_x = 1.58
+    for side in (-1, 1):
+        z = side * 1.22
+        back_z = z - side * 0.52
+        surround_z = z - side * 0.65
+        cube("Ref Seat | walnut plinth", (seat_bay_x, 0.34, z), (1.35, 0.28, 1.10), MATS["dark_wood"], 0.08, seating)
+        cube("Ref Seat | emerald cushion", (seat_bay_x, 0.55, z), (1.32, 0.26, 1.08), seat_leather, 0.11, seating)
+        cube("Ref Seat | emerald back", (seat_bay_x, 1.12, back_z), (1.32, 0.95, 0.24), seat_leather, 0.10, seating)
+        cube("Ref Seat | wood surround", (seat_bay_x, 1.12, surround_z), (1.42, 1.05, 0.12), MATS["mahogany"], 0.06, seating)
+        for edge in (-0.48, 0.48):
             tube_curve("Ref Seat | side piping", [
-                (x + edge, 0.70, z - 0.55),
-                (x + edge, 0.72, z - 0.20),
-                (x + edge, 0.72, z + 0.20),
-                (x + edge, 0.70, z + 0.55),
+                (seat_bay_x + edge, 0.70, z - side * 0.46),
+                (seat_bay_x + edge, 0.72, z - side * 0.20),
+                (seat_bay_x + edge, 0.72, z + side * 0.20),
+                (seat_bay_x + edge, 0.70, z + side * 0.46),
             ], 0.013, velvet_highlight, seating)
         for bx in (-0.40, 0.0, 0.40):
             for by in (0.85, 1.10, 1.35):
                 uv_sphere("Ref Seat | tuft button",
-                          (x + bx, by, z - 0.60),
+                          (seat_bay_x + bx, by, back_z + side * 0.065),
                           (0.024, 0.024, 0.014), MATS["brass_highlight"])
-        cube("Ref Seat | carved armrest", (x + (0.58 if side > 0 else -0.58), 0.78, z),
-             (0.18, 0.18, 1.10), MATS["mahogany"], 0.06, seating)
-        arm_x = x + (0.58 if side > 0 else -0.58)
-        tube_curve("Ref Seat | sculpted armrest crown", [
-            (arm_x, 0.895, z - 0.52), (arm_x, 0.925, z - 0.34),
-            (arm_x, 0.935, z), (arm_x, 0.925, z + 0.34),
-            (arm_x, 0.895, z + 0.52)], 0.035, MATS["wood_light"], seating)
-        tube_curve("Ref Seat | fine brass armrest inlay", [
-            (arm_x, 0.912, z - 0.42), (arm_x, 0.927, z - 0.20),
-            (arm_x, 0.929, z + 0.20), (arm_x, 0.912, z + 0.42)], 0.006, MATS["brass_highlight"], seating)
-        for dx, dz in [(-0.45, -0.45), (0.45, -0.45), (-0.45, 0.45), (0.45, 0.45)]:
-            cylinder("Ref Seat | brass foot", (x + dx, 0.12, z + dz), 0.048, 0.20, MATS["brass"], vertices=12)
+        for dx in (-0.58, 0.58):
+            arm_x = seat_bay_x + dx
+            cube("Ref Seat | carved armrest", (arm_x, 0.78, z),
+                 (0.18, 0.18, 0.92), MATS["mahogany"], 0.06, seating)
+            tube_curve("Ref Seat | sculpted armrest crown", [
+                (arm_x, 0.895, z - 0.43), (arm_x, 0.925, z - 0.25),
+                (arm_x, 0.935, z), (arm_x, 0.925, z + 0.25),
+                (arm_x, 0.895, z + 0.43)], 0.035, MATS["wood_light"], seating)
+            tube_curve("Ref Seat | fine brass armrest inlay", [
+                (arm_x, 0.912, z - 0.34), (arm_x, 0.927, z - 0.16),
+                (arm_x, 0.929, z + 0.16), (arm_x, 0.912, z + 0.34)],
+                0.006, MATS["brass_highlight"], seating)
+        for dx, dz in [(-0.45, -0.38), (0.45, -0.38), (-0.45, 0.38), (0.45, 0.38)]:
+            cylinder("Ref Seat | brass foot", (seat_bay_x + dx, 0.12, z + dz),
+                     0.048, 0.20, MATS["brass"], vertices=12)
 
     # Central marble table matching the reference photo
-    cube("Ref Table | cream marble top", (0, 0.79, 0.0), (1.34, 0.085, 0.94), marble_ref, 0.035, table_props)
-    cylinder("Ref Table | brass column", (0, 0.45, 0.0), 0.055, 0.58, MATS["brass"], vertices=24)
-    cube("Ref Table | brass base plate", (0, 0.16, 0.0), (0.42, 0.04, 0.42), MATS["brass_highlight"], 0.02, table_props)
-    cube("Ref Table | brass rim front", (0, 0.79, 0.474), (1.32, 0.028, 0.020), table_gold, 0.006, table_props)
-    cube("Ref Table | brass rim rear", (0, 0.79, -0.474), (1.32, 0.028, 0.020), table_gold, 0.006, table_props)
-    cube("Ref Table | brass rim left", (-0.67, 0.79, 0), (0.020, 0.028, 0.94), table_gold, 0.006, table_props)
-    cube("Ref Table | brass rim right", (0.67, 0.79, 0), (0.020, 0.028, 0.94), table_gold, 0.006, table_props)
+    cube("Ref Table | cream marble top", (seat_bay_x, 0.79, 0.0), (1.34, 0.085, 0.94), marble_ref, 0.035, table_props)
+    cylinder("Ref Table | brass column", (seat_bay_x, 0.45, 0.0), 0.055, 0.58, MATS["brass"], vertices=24)
+    cube("Ref Table | brass base plate", (seat_bay_x, 0.16, 0.0), (0.42, 0.04, 0.42), MATS["brass_highlight"], 0.02, table_props)
+    cube("Ref Table | brass rim front", (seat_bay_x, 0.79, 0.474), (1.32, 0.028, 0.020), table_gold, 0.006, table_props)
+    cube("Ref Table | brass rim rear", (seat_bay_x, 0.79, -0.474), (1.32, 0.028, 0.020), table_gold, 0.006, table_props)
+    cube("Ref Table | brass rim left", (seat_bay_x - 0.67, 0.79, 0), (0.020, 0.028, 0.94), table_gold, 0.006, table_props)
+    cube("Ref Table | brass rim right", (seat_bay_x + 0.67, 0.79, 0), (0.020, 0.028, 0.94), table_gold, 0.006, table_props)
 
     # Green-shade reading lamp (core of the reference)
-    cylinder("Ref Lamp | brass base", (0.18, 0.88, -0.12), 0.085, 0.035, MATS["brass"], rotation=(math.radians(90), 0, 0), vertices=24)
-    cylinder("Ref Lamp | brass stem", (0.18, 1.00, -0.12), 0.020, 0.24, MATS["brass_highlight"], rotation=(math.radians(90), 0, 0), vertices=16)
-    bpy.ops.mesh.primitive_cone_add(vertices=48, radius1=0.17, radius2=0.065, depth=0.19, location=(0.18, 1.17, -0.12))
+    cylinder("Ref Lamp | brass base", (seat_bay_x + 0.18, 0.88, -0.12), 0.085, 0.035, MATS["brass"], rotation=(math.radians(90), 0, 0), vertices=24)
+    cylinder("Ref Lamp | brass stem", (seat_bay_x + 0.18, 1.00, -0.12), 0.020, 0.24, MATS["brass_highlight"], rotation=(math.radians(90), 0, 0), vertices=16)
+    bpy.ops.mesh.primitive_cone_add(vertices=48, radius1=0.17, radius2=0.065, depth=0.19, location=(seat_bay_x + 0.18, 1.17, -0.12))
     # Primitive cones/cylinders default to Blender Z-up; the scene is authored Y-up.
     bpy.context.object.rotation_euler.x = math.radians(90)
     shade = bpy.context.object
