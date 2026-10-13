@@ -605,6 +605,17 @@ def create_carriage():
             cylinder("Ref Curtain | gold tassel body", (side * 2.45, 1.55, zz), 0.025, 0.18, curtain_gold, vertices=10)
             uv_sphere("Ref Curtain | tassel tip", (side * 2.45, 1.42, zz), (0.03, 0.04, 0.03), curtain_gold)
 
+    # Consolidate helper-created meshes/curves into the named reusable collections too.
+    for obj in list(bpy.data.objects):
+        if obj.name.startswith(("Ref Table |", "Ref Lamp |", "Ref Props |")):
+            for old_collection in list(obj.users_collection):
+                old_collection.objects.unlink(obj)
+            table_props.objects.link(obj)
+        elif obj.name.startswith("Ref Curtain |"):
+            for old_collection in list(obj.users_collection):
+                old_collection.objects.unlink(obj)
+            curtains.objects.link(obj)
+
     print("REFERENCE_COMPARTMENT_2026_10_13_ADDED")
 
 
