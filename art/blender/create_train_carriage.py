@@ -558,9 +558,11 @@ def create_carriage():
     cube("Ref Table | brass rim right", (0.67, 0.79, 0), (0.020, 0.028, 0.94), table_gold, 0.006, table_props)
 
     # Green-shade reading lamp (core of the reference)
-    cylinder("Ref Lamp | brass base", (0.18, 0.88, -0.12), 0.085, 0.035, MATS["brass"], vertices=24)
-    cylinder("Ref Lamp | brass stem", (0.18, 1.00, -0.12), 0.020, 0.24, MATS["brass_highlight"], vertices=16)
-    bpy.ops.mesh.primitive_cone_add(vertices=32, radius1=0.17, radius2=0.065, depth=0.19, location=(0.18, 1.17, -0.12))
+    cylinder("Ref Lamp | brass base", (0.18, 0.88, -0.12), 0.085, 0.035, MATS["brass"], rotation=(math.radians(90), 0, 0), vertices=24)
+    cylinder("Ref Lamp | brass stem", (0.18, 1.00, -0.12), 0.020, 0.24, MATS["brass_highlight"], rotation=(math.radians(90), 0, 0), vertices=16)
+    bpy.ops.mesh.primitive_cone_add(vertices=48, radius1=0.17, radius2=0.065, depth=0.19, location=(0.18, 1.17, -0.12))
+    # Primitive cones/cylinders default to Blender Z-up; the scene is authored Y-up.
+    bpy.context.object.rotation_euler.x = math.radians(90)
     shade = bpy.context.object
     shade.name = "Ref Lamp | emerald glass shade"
     assign(shade, green_shade)
