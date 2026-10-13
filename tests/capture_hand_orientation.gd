@@ -124,7 +124,7 @@ func _save(filename: String) -> bool:
 		for x in range(0, image.get_width(), 4):
 			var color: Color = image.get_pixel(x, y)
 			sampled_colors[color.to_rgba32()] = true
-			if color.distance_to(background) > 0.06:
+			if Vector3(color.r, color.g, color.b).distance_to(Vector3(background.r, background.g, background.b)) > 0.06:
 				non_background_pixels += 1
 	if sampled_colors.size() < 20 or non_background_pixels < 100:
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: image appears blank (" + str(sampled_colors.size()) + " colors, " + str(non_background_pixels) + " foreground samples): " + filename)
