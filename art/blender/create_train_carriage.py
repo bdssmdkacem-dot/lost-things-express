@@ -549,18 +549,18 @@ def create_carriage():
             cylinder("Ref Seat | brass foot", (x + dx, 0.12, z + dz), 0.048, 0.20, MATS["brass"], vertices=12)
 
     # Central marble table matching the reference photo
-    cube("Ref Table | cream marble top", (0, 0.78, 0.0), (1.10, 0.075, 0.82), marble_ref, 0.025, table_props)
+    cube("Ref Table | cream marble top", (0, 0.79, 0.0), (1.34, 0.085, 0.94), marble_ref, 0.035, table_props)
     cylinder("Ref Table | brass column", (0, 0.45, 0.0), 0.055, 0.58, MATS["brass"], vertices=24)
     cube("Ref Table | brass base plate", (0, 0.16, 0.0), (0.42, 0.04, 0.42), MATS["brass_highlight"], 0.02, table_props)
-    cube("Ref Table | brass rim front", (0, 0.78, 0.414), (1.08, 0.025, 0.018), table_gold, 0.006, table_props)
-    cube("Ref Table | brass rim rear", (0, 0.78, -0.414), (1.08, 0.025, 0.018), table_gold, 0.006, table_props)
-    cube("Ref Table | brass rim left", (-0.55, 0.78, 0), (0.018, 0.025, 0.82), table_gold, 0.006, table_props)
-    cube("Ref Table | brass rim right", (0.55, 0.78, 0), (0.018, 0.025, 0.82), table_gold, 0.006, table_props)
+    cube("Ref Table | brass rim front", (0, 0.79, 0.474), (1.32, 0.028, 0.020), table_gold, 0.006, table_props)
+    cube("Ref Table | brass rim rear", (0, 0.79, -0.474), (1.32, 0.028, 0.020), table_gold, 0.006, table_props)
+    cube("Ref Table | brass rim left", (-0.67, 0.79, 0), (0.020, 0.028, 0.94), table_gold, 0.006, table_props)
+    cube("Ref Table | brass rim right", (0.67, 0.79, 0), (0.020, 0.028, 0.94), table_gold, 0.006, table_props)
 
     # Green-shade reading lamp (core of the reference)
-    cylinder("Ref Lamp | brass base", (0.18, 0.85, -0.12), 0.07, 0.03, MATS["brass"], vertices=20)
-    cylinder("Ref Lamp | brass stem", (0.18, 0.98, -0.12), 0.016, 0.22, MATS["brass_highlight"], vertices=12)
-    bpy.ops.mesh.primitive_cone_add(vertices=24, radius1=0.11, radius2=0.045, depth=0.14, location=(0.18, 1.12, -0.12))
+    cylinder("Ref Lamp | brass base", (0.18, 0.88, -0.12), 0.085, 0.035, MATS["brass"], vertices=24)
+    cylinder("Ref Lamp | brass stem", (0.18, 1.00, -0.12), 0.020, 0.24, MATS["brass_highlight"], vertices=16)
+    bpy.ops.mesh.primitive_cone_add(vertices=32, radius1=0.17, radius2=0.065, depth=0.19, location=(0.18, 1.17, -0.12))
     shade = bpy.context.object
     shade.name = "Ref Lamp | emerald glass shade"
     assign(shade, green_shade)
@@ -568,7 +568,7 @@ def create_carriage():
     for coll in list(shade.users_collection):
         coll.objects.unlink(shade)
     table_props.objects.link(shade)
-    uv_sphere("Ref Lamp | warm filament", (0.18, 1.18, -0.12), (0.022, 0.028, 0.022), green_shade_emit)
+    uv_sphere("Ref Lamp | warm filament", (0.18, 1.205, -0.12), (0.032, 0.036, 0.032), green_shade_emit)
 
     # Stacked old books with inset parchment page blocks.
     cube("Ref Props | lower book", (-0.22, 0.835, 0.12), (0.30, 0.045, 0.23), book_cover, 0.015, table_props)
@@ -864,10 +864,10 @@ def create_carriage():
         lighting.objects.link(light)
 
     # Actual warm local light under the green shade; restrained to avoid flattening the scene.
-    bpy.ops.object.light_add(type="AREA", location=(0.18, 1.235, -0.12))
+    bpy.ops.object.light_add(type="AREA", location=(0.18, 1.285, -0.12))
     table_light = bpy.context.object
     table_light.name = "Ref Lamp | warm local table light"
-    table_light.data.energy = 42
+    table_light.data.energy = 58
     table_light.data.color = (1.0, 0.66, 0.36)
     table_light.data.shape = "DISK"
     table_light.data.size = 0.48
@@ -903,9 +903,9 @@ def create_carriage():
     camera = bpy.context.object
     camera.name = "Preview Camera | reference compartment detail"
     camera.data.name = "Preview Camera | 16:9 reference review"
-    camera.data.lens = 28.0
+    camera.data.lens = 36.0
     camera.data.sensor_fit = "VERTICAL"
-    look_at = Vector((0.0, 1.00, -0.05))
+    look_at = Vector((0.0, 0.98, -0.05))
     camera.rotation_euler = (look_at - camera.location).to_track_quat("-Z", "Y").to_euler()
     scene.camera = camera
 
