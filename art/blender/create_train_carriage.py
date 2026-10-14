@@ -936,8 +936,8 @@ def create_carriage():
     # under that root also rotates its camera-up axis and can produce an underside
     # view (table/lamps appearing overhead). Rebuild its world transform explicitly.
     camera.parent = None
-    camera.location = (0.0, -2.65, 1.62)
-    review_target = Vector((0.0, 0.05, 0.98))
+    camera.location = (4.35, -1.80, 1.55)
+    review_target = Vector((1.58, 0.0, 0.82))
     camera.rotation_euler = (review_target - camera.location).to_track_quat("-Z", "Y").to_euler()
 
     # Save the .blend always.
