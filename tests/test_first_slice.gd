@@ -30,6 +30,16 @@ func _run_first_slice() -> void:
 	if not _check(status_hud != null and interact_hud != null and not status_hud.visible and not interact_hud.visible, "gameplay HUD remained visible behind the opening story card"):
 		return
 
+	# Long title-card copy must not push the primary action below the viewport.
+	var story_card := game.find_child("StoryCard", true, false) as Control
+	game.call("_show_story_card", "THE LOST THINGS EXPRESS", "The train has no conductor, and the station outside appears on no map. A torn letter in your own handwriting warns that the clock may make you forget why you boarded. Beyond the windows, five worlds are frozen at the instant someone abandoned a promise. A brass key lies beneath the seats, impossibly warm.\n\nSomeone speaks through the empty carriage: You can still leave without remembering.\n\nWhen you are ready, find out what the train is keeping from you.", "ENTER STAGE ONE")
+	await process_frame
+	await process_frame
+	var story_continue_button := game.get("story_continue") as Button
+	if not _check(story_card != null and story_continue_button != null and story_continue_button.get_global_rect().position.y >= 0.0 and story_continue_button.get_global_rect().end.y <= float(root.size.y) + 1.0, "long opening story card clips ENTER STAGE ONE outside the viewport"):
+		return
+	game.call("_close_story_card")
+
 	var player := game.get("player") as CharacterBody3D
 	var key := game.get_node_or_null("BrassKey") as Node3D
 	var letter := game.get_node_or_null("TornLetter") as Node3D
