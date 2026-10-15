@@ -936,8 +936,12 @@ def create_carriage():
     # under that root also rotates its camera-up axis and can produce an underside
     # view (table/lamps appearing overhead). Rebuild its world transform explicitly.
     camera.parent = None
-    camera.location = (4.35, -1.80, 1.55)
-    review_target = Vector((1.58, 0.0, 0.82))
+    # Keep the camera inside the carriage volume, looking diagonally from the aisle
+    # toward the side seating bay. The previous exterior-side position looked through
+    # the carriage shell and produced a mostly black, unusable review image.
+    camera.location = (0.10, -3.20, 2.45)
+    camera.data.lens = 52.0
+    review_target = Vector((1.58, 0.0, 0.88))
     camera.rotation_euler = (review_target - camera.location).to_track_quat("-Z", "Y").to_euler()
 
     # Save the .blend always.
