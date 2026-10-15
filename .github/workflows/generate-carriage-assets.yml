@@ -41,6 +41,45 @@ jobs:
           test -s assets/blender/lost_things_locomotive_preview.png
           echo "Generated carriage and locomotive assets; visual approval is still required."
 
+      - name: Validate glTF runtime material colors
+        run: |
+          python3 - <<'PY'
+          import json
+          import struct
+          from pathlib import Path
+
+          path = Path("assets/models/train_carriage.glb")
+          data = path.read_bytes()
+          if data[:4] != b"glTF":
+              raise SystemExit("Generated carriage is not a GLB file")
+          offset = 12
+          gltf = None
+          while offset < len(data):
+              size, chunk_type = struct.unpack_from("<I4s", data, offset)
+              offset += 8
+              chunk = data[offset:offset + size]
+              offset += size
+              if chunk_type == b"JSON":
+                  gltf = json.loads(chunk.decode("utf-8").rstrip("\\x00 "))
+                  break
+          if gltf is None:
+              raise SystemExit("Generated GLB has no JSON chunk")
+
+          materials = {m.get("name", ""): m for m in gltf.get("materials", [])}
+          requirements = {
+              "Seats | deep emerald green leather": lambda c: c[1] > c[0] * 3 and c[1] < 0.25,
+              "Mahogany": lambda c: c[0] < 0.15 and c[0] > c[1] * 2,
+              "Ref Table | cream marble with soft veins": lambda c: c[0] < 0.95 and c[1] < 0.95,
+          }
+          for name, color_check in requirements.items():
+              material = materials.get(name)
+              factor = (material or {}).get("pbrMetallicRoughness", {}).get("baseColorFactor")
+              if not factor or not color_check(factor):
+                  raise SystemExit(f"GLB runtime color missing/invalid for {name}: {factor}")
+              print(f"GLTF_MATERIAL_COLOR_OK: {name} = {factor}")
+          print(f"GLTF_MATERIALS_VALIDATED: {len(materials)}")
+          PY
+
       - name: Install Godot 4.3
         uses: chickensoft-games/setup-godot@v1
         with:
