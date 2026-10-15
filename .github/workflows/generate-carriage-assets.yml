@@ -60,7 +60,7 @@ jobs:
               chunk = data[offset:offset + size]
               offset += size
               if chunk_type == b"JSON":
-                  gltf = json.loads(chunk.decode("utf-8").rstrip("\\x00 "))
+                  gltf = json.loads(chunk.decode("utf-8").rstrip("\x00 "))
                   break
           if gltf is None:
               raise SystemExit("Generated GLB has no JSON chunk")
