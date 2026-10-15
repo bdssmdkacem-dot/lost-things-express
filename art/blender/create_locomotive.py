@@ -249,12 +249,12 @@ for z in (3.18,):
     tube("Rear coupling loop", [(-0.18, 0.68, z + 0.12), (-0.16, 0.46, z + 0.30), (0.0, 0.42, z + 0.35), (0.16, 0.46, z + 0.30), (0.18, 0.68, z + 0.12)], 0.035, STEEL)
 
 # Grounded preview setup: the asset itself remains isolated from the studio.
-bpy.ops.object.camera_add(location=(8.6, 5.4, -9.4))
+bpy.ops.object.camera_add(location=(10.8, 5.2, -12.0))
 camera = bpy.context.object
 camera.name = "Locomotive review camera"
 target = Vector((0.0, 1.55, 0.0))
 camera.rotation_euler = (target - camera.location).to_track_quat("-Z", "Y").to_euler()
-camera.data.lens = 54
+camera.data.lens = 40
 bpy.context.scene.camera = camera
 for name, loc, power, size, color in [
     ("Warm key", (1.5, 7.0, -5.0), 1250, 5.0, (1.0, 0.72, 0.48)),
