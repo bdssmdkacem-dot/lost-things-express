@@ -468,6 +468,10 @@ func _run_first_slice() -> void:
 	var restored_ticket := resumed_game.get_node_or_null("SecondPassengerTicket") as Node3D
 	if not _check(restored_ticket != null and restored_ticket.is_in_group("interactables") and restored_ticket.get_meta("kind", "") == "second_ticket", "relaunch did not restore the physical second-passenger ticket"):
 		return
+	# A relaunch still shows the opening cinematic first; explicitly enter Stage One before testing the clock departure.
+	resumed_game.call("_enter_stage_one")
+	if not _check(not bool(resumed_game.get("world_intro_active")), "resumed player could not enter Stage One before using the saved clock evidence"):
+		return
 	resumed_game.set("story_card_open", false)
 	(resumed_game.get("story_overlay") as Control).visible = false
 	(resumed_game.get("player") as CharacterBody3D).global_position = (resumed_game.get_node("StationClock") as Node3D).global_position
