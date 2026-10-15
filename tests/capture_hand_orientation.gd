@@ -20,7 +20,7 @@ func _capture() -> void:
 
 	var stage := Node3D.new()
 	stage.name = "HandOrientationStage"
-	review_viewport.add_child(stage)
+	root.add_child(stage)
 
 	var env_node := WorldEnvironment.new()
 	var env := Environment.new()
