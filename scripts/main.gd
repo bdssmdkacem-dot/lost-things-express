@@ -54,6 +54,7 @@ var clock_wrong_attempts := 0
 var clock_puzzle_solved := false
 var second_ticket_read := false
 var train_departure_pending := false
+var arrival_pending := false
 var nearby_object: Node3D
 
 var story_overlay: ColorRect
@@ -1409,12 +1410,12 @@ func _on_story_continue_pressed() -> void:
 		await _play_departure_sequence()
 		if not is_inside_tree():
 			return
+		arrival_pending = true
 		_show_story_card("BETWEEN STAGES · THE NIGHT RUN", "The wheels strike the rail joints: three slow knocks, then two quick ones—the same pattern that answered the key. Copper light streams past the windows. For one heartbeat, a second passenger appears in the reflection beside you.\n\nThe train slows. Beyond the glass, the sign reads THE CLOCKWORK KINGDOM.", "ARRIVE AT THE CLOCKWORK KINGDOM")
-		await get_tree().create_timer(1.4).timeout
-		if not is_inside_tree():
-			return
+	elif arrival_pending:
+		arrival_pending = false
 		_close_story_card()
-		_transition_to_world(0)
+		await _transition_to_world(0)
 	elif ending_choice_pending:
 		ending_choice_pending = false
 		ending_decision = "restore"
