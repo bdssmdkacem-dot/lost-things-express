@@ -473,7 +473,7 @@ def create_carriage():
     # Keep side tables on the aisle-facing edge, in the gaps between benches.
     # The previous wall-side placement hid the marble tops and lamps behind seat backs
     # in the actual first-person camera composition.
-    for z in (-2.05, 4.30):  # keep this legacy table out of the locked reference seating bay
+    for z in (4.30,):  # keep legacy side tables away from the locked reference seating bay
         for side in (-1, 1):
             x = side * 1.20
             cube("Table | ivory marble top", (x, 0.76, z), (0.50, 0.085, 0.50), marble, 0.035, details)
