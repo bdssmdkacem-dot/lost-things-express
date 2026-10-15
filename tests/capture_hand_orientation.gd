@@ -3,7 +3,6 @@ extends SceneTree
 const ASSET_PATH := "res://assets/models/hand-posable.glb"
 const OUT := "res://build/hand_orientation_review"
 
-var review_viewport: SubViewport
 
 func _initialize() -> void:
 	call_deferred("_capture")
@@ -16,21 +15,8 @@ func _capture() -> void:
 		quit(1)
 		return
 
-	# Render through a SubViewportContainer so the viewport is attached to the
-	# window tree and has a live 3D rendering scenario under Xvfb.
-	var container := SubViewportContainer.new()
-	container.name = "HandReviewContainer"
-	container.size = Vector2i(1280, 720)
-	container.stretch = true
-	root.add_child(container)
-
-	review_viewport = SubViewport.new()
-	review_viewport.name = "HandReviewViewport"
-	review_viewport.size = Vector2i(1280, 720)
-	review_viewport.disable_3d = false
-	review_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	review_viewport.world_3d = World3D.new()
-	container.add_child(review_viewport)
+	# Render directly in the SceneTree root viewport. A detached SubViewport can
+	# return a uniform clear-color image under headless/Xvfb even when the rig is valid.
 
 	var stage := Node3D.new()
 	stage.name = "HandOrientationStage"
@@ -123,7 +109,8 @@ func _mesh_bounds(root_node: Node3D) -> AABB:
 	return combined
 
 func _save(filename: String) -> bool:
-	var image := review_viewport.get_texture().get_image()
+	await RenderingServer.frame_post_draw
+	var image := root.get_viewport().get_texture().get_image()
 	if image == null or image.is_empty():
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: empty main viewport image " + filename)
 		quit(1)
