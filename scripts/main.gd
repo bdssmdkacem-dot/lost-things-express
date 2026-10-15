@@ -3334,7 +3334,7 @@ func _interact() -> void:
 					world_transition_pending = true
 					train_departure_pending = false
 					_set_status("The loop is understood. The second passenger has been remembered. Release the train when you are ready.")
-					_show_story_card("THE FIRST DEPARTURE", "The photograph names SUNSET STATION. The manifest records TWO TICKETS. ONE RETURN. The repeating signal proves the loop; the second ticket proves someone was meant to return with you. Only now can the train leave.", "RELEASE THE BRAKE")
+					_show_story_card("STAGE ONE COMPLETE · THE FIRST DEPARTURE", "You solved the first carriage mystery. The photograph names SUNSET STATION. The manifest records TWO TICKETS. ONE RETURN. The repeating signal proves the loop; the second ticket proves someone was meant to return with you. Only now can the train leave.", "RELEASE THE BRAKE")
 				else:
 					_show_clock_deduction()
 		"world_puzzle":
