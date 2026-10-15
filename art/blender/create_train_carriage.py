@@ -939,9 +939,13 @@ def create_carriage():
     # Keep the camera inside the carriage volume, looking diagonally from the aisle
     # toward the side seating bay. The previous exterior-side position looked through
     # the carriage shell and produced a mostly black, unusable review image.
-    camera.location = (0.10, -3.20, 2.45)
-    camera.data.lens = 52.0
-    review_target = Vector((1.58, 0.0, 0.88))
+    # Blender native Z-up coordinates after the authored scene root is rotated:
+    # keep the camera above the floor and on the aisle side, not below the carriage.
+    # A wider lens and a diagonal view make the full marble tabletop, both seats,
+    # lamp, books and magnifier visible together without the nearest seat blocking them.
+    camera.location = (0.10, 2.55, 3.35)
+    camera.data.lens = 38.0
+    review_target = Vector((1.58, -0.88, 0.92))
     camera.rotation_euler = (review_target - camera.location).to_track_quat("-Z", "Y").to_euler()
 
     # Save the .blend always.
