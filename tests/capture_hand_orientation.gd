@@ -21,6 +21,8 @@ func _capture() -> void:
 	var stage := Node3D.new()
 	stage.name = "HandOrientationStage"
 	root.add_child(stage)
+	current_scene = stage
+	root.get_viewport().set_size(Vector2i(1280, 720))
 
 	var env_node := WorldEnvironment.new()
 	var env := Environment.new()
