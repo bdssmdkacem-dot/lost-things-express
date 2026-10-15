@@ -3409,7 +3409,7 @@ func _interact() -> void:
 				)
 				_set_status("The lock clicks. The lid rises — and the train falls completely silent.")
 				_trigger_mystery_beat("For one breath, every lamp goes dim. Inside the chest, a photograph glows with a copper sunset.")
-				_show_story_card("A MEMORY RETURNS", "The lock turns with a sound far too loud for this quiet carriage. The lid rises. For one impossible second, the whole train goes silent.\n\nInside: a photograph of Sunset Station — and, on its back, your own name in handwriting you do not recognize.\n\nSTAGE ONE COMPLETE · MEMORY RECOVERED", "CONTINUE")
+				_show_story_card("A MEMORY RETURNS", "The lock turns with a sound far too loud for this quiet carriage. The lid rises. For one impossible second, the whole train goes silent.\n\nInside: a photograph of Sunset Station — and, on its back, your own name in handwriting you do not recognize.\n\nMEMORY RECOVERED · FIND THE REST OF THE EVIDENCE", "CONTINUE")
 		_:
 			_set_status("Nothing happens here yet.")
 	_save_progress()
