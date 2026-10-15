@@ -943,9 +943,9 @@ def create_carriage():
     # keep the camera above the floor and on the aisle side, not below the carriage.
     # A wider lens and a diagonal view make the full marble tabletop, both seats,
     # lamp, books and magnifier visible together without the nearest seat blocking them.
-    camera.location = (0.10, 2.45, 1.72)
-    camera.data.lens = 38.0
-    review_target = Vector((1.58, -0.15, 0.88))
+    camera.location = (-0.10, 0.0, 2.25)
+    camera.data.lens = 22.0
+    review_target = Vector((1.58, 0.0, 0.82))
     camera.rotation_euler = (review_target - camera.location).to_track_quat("-Z", "Y").to_euler()
 
     # Save the .blend always.
