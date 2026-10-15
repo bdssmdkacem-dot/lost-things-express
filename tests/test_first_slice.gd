@@ -514,7 +514,9 @@ func _run_first_slice() -> void:
 		return
 	# Exercise all five campaign arenas, not just their cinematic names.
 	for world_index in range(5):
-		resumed_game.call("_start_world_level", world_index)
+		# The arrival-button test has already instantiated world zero; avoid queue_free/name collisions when verifying it.
+		if world_index > 0:
+			resumed_game.call("_start_world_level", world_index)
 		await process_frame
 		if not _check(int(resumed_game.get("world_level_index")) == world_index, "campaign failed to enter world %d" % (world_index + 1)):
 			return
