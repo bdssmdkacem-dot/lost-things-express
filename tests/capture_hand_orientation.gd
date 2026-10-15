@@ -66,7 +66,7 @@ func _capture() -> void:
 		await process_frame
 		await RenderingServer.frame_post_draw
 		await create_timer(0.3).timeout
-		if not _save("yaw_%03d.png" % angle):
+		if not await _save("yaw_%03d.png" % angle):
 			return
 
 	var skeletons := hand.find_children("*", "Skeleton3D", true, false)
@@ -88,7 +88,7 @@ func _capture() -> void:
 	await process_frame
 	await RenderingServer.frame_post_draw
 	await create_timer(0.3).timeout
-	if not _save("test_joint_pose.png"):
+	if not await _save("test_joint_pose.png"):
 		return
 	print("HAND_ORIENTATION_CAPTURE_COMPLETE: four views and one joint pose saved for visual review.")
 	quit(0)
