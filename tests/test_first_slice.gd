@@ -474,9 +474,7 @@ func _run_first_slice() -> void:
 	resumed_game.call("_interact")
 	if not _check(bool(resumed_game.get("world_transition_pending")) and str(resumed_game.get("story_title").text).contains("FIRST DEPARTURE"), "reading the second ticket did not unlock the train departure at the clock"):
 		return
-	resumed_game.set("world_transition_pending", false)
-	resumed_game.set("train_departure_pending", false)
-	# Exercise the departure beat itself: practical carriage lights dim and the camera jolt settles back to neutral.
+	# Test the complete player-facing departure sequence and explicit arrival-button gate.
 	var departure_camera := resumed_game.get("camera") as Camera3D
 	if not _check(departure_camera != null, "departure sequence has no player camera to animate"):
 		return
@@ -489,12 +487,20 @@ func _run_first_slice() -> void:
 	if not _check(departure_lights.size() >= 3, "departure sequence cannot find enough practical carriage lights to dim"):
 		return
 	var departure_light_start := departure_lights[0].light_energy
-	await resumed_game.call("_play_departure_sequence")
+	await resumed_game.call("_on_story_continue_pressed")
+	if not _check(bool(resumed_game.get("train_departure_pending")) and str(resumed_game.get("story_title").text).contains("THE TRAIN DEPARTS"), "the first departure choice did not offer the ride confirmation"):
+		return
+	await resumed_game.call("_on_story_continue_pressed")
+	if not _check(bool(resumed_game.get("arrival_pending")) and bool(resumed_game.get("story_card_open")) and str(resumed_game.get("story_title").text).contains("BETWEEN STAGES") and str(resumed_game.get("story_continue").text).contains("ARRIVE"), "arrival card was not held for the player's explicit arrival action"):
+		return
 	if not _check(departure_lights[0].light_energy <= departure_light_start * 0.19, "departure sequence did not dim the practical lights"):
 		return
 	if not _check(departure_camera.position.distance_to(departure_camera_start) < 0.001, "departure camera jolt did not settle back to its original position"):
 		return
 	if not _check(str(resumed_game.get("status_label").text).contains("night run"), "departure sequence did not report the train's night run"):
+		return
+	await resumed_game.call("_on_story_continue_pressed")
+	if not _check(not bool(resumed_game.get("arrival_pending")) and int(resumed_game.get("world_level_index")) == 0, "explicit ARRIVE action did not launch the first playable world"):
 		return
 	var resumed_chest := resumed_game.get_node_or_null("MemoryChest") as Node3D
 	var resumed_photo := resumed_chest.get_node_or_null("SunsetPhotograph") as Node3D if resumed_chest else null
