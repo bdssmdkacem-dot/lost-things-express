@@ -522,8 +522,8 @@ def create_carriage():
     seat_bay_x = 1.58
     for side in (-1, 1):
         z = side * 1.22
-        back_z = z - side * 0.52
-        surround_z = z - side * 0.65
+        back_z = z + side * 0.52
+        surround_z = z + side * 0.65
         cube("Ref Seat | walnut plinth", (seat_bay_x, 0.34, z), (1.35, 0.28, 1.10), MATS["dark_wood"], 0.08, seating)
         cube("Ref Seat | emerald cushion", (seat_bay_x, 0.55, z), (1.32, 0.26, 1.08), seat_leather, 0.11, seating)
         cube("Ref Seat | emerald back", (seat_bay_x, 1.12, back_z), (1.32, 0.95, 0.24), seat_leather, 0.10, seating)
@@ -538,7 +538,7 @@ def create_carriage():
         for bx in (-0.40, 0.0, 0.40):
             for by in (0.85, 1.10, 1.35):
                 uv_sphere("Ref Seat | tuft button",
-                          (seat_bay_x + bx, by, back_z + side * 0.065),
+                          (seat_bay_x + bx, by, back_z - side * 0.065),
                           (0.024, 0.024, 0.014), MATS["brass_highlight"])
         for dx in (-0.58, 0.58):
             arm_x = seat_bay_x + dx
@@ -943,9 +943,9 @@ def create_carriage():
     # keep the camera above the floor and on the aisle side, not below the carriage.
     # A wider lens and a diagonal view make the full marble tabletop, both seats,
     # lamp, books and magnifier visible together without the nearest seat blocking them.
-    camera.location = (0.10, 2.55, 3.35)
+    camera.location = (0.10, 2.45, 1.72)
     camera.data.lens = 38.0
-    review_target = Vector((1.58, -0.88, 0.92))
+    review_target = Vector((1.58, -0.15, 0.88))
     camera.rotation_euler = (review_target - camera.location).to_track_quat("-Z", "Y").to_euler()
 
     # Save the .blend always.
