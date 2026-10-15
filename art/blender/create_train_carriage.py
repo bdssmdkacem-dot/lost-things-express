@@ -1010,6 +1010,31 @@ def create_carriage():
         print("TRAIN_CARRIAGE_PREVIEW_SKIPPED (headless/no-GPU environment). "
               "Set LOST_THINGS_FORCE_PREVIEW=1 to force a software render.")
 
+    # Blender-only procedural ramps/noise create the rich .blend preview above, but
+    # the glTF exporter cannot serialize those node graphs as textures. When a
+    # Base Color input is linked to an unsupported procedural chain, glTF omits
+    # baseColorFactor and viewers such as Godot display the material as white.
+    # The .blend was saved before this export-only pass, so preserve its procedural
+    # materials there while exporting their authored palette colors reliably.
+    export_material_fallbacks = 0
+    for export_mat in bpy.data.materials:
+        if not export_mat.use_nodes or not export_mat.node_tree:
+            continue
+        principled = export_mat.node_tree.nodes.get("Principled BSDF")
+        if principled is None:
+            continue
+        base_color = principled.inputs.get("Base Color")
+        if base_color is not None and base_color.is_linked:
+            for link in list(base_color.links):
+                export_mat.node_tree.links.remove(link)
+            base_color.default_value = export_mat.diffuse_color
+            export_material_fallbacks += 1
+        normal_input = principled.inputs.get("Normal")
+        if normal_input is not None and normal_input.is_linked:
+            for link in list(normal_input.links):
+                export_mat.node_tree.links.remove(link)
+    print("GLTF_EXPORT_MATERIAL_FALLBACKS: %d" % export_material_fallbacks)
+
     # Apply transforms for stable glTF scale and export selected scene objects.
     bpy.ops.export_scene.gltf(
         filepath=os.path.join(MODEL_DIR, "train_carriage.glb"),
