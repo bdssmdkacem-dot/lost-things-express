@@ -91,6 +91,7 @@ jobs:
           retention-days: 14
 
       - name: Capture real Godot scene states
+        if: always()
         run: |
           set -euxo pipefail
           LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --script tests/capture_first_stage.gd
@@ -123,6 +124,7 @@ jobs:
           retention-days: 14
 
       - name: Upload Godot visual review images
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: lost-things-express-first-stage-visual-review
