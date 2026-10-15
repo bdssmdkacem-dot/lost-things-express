@@ -278,6 +278,8 @@ func _run_first_slice() -> void:
 	var chest_story := str(game.get("story_body").text)
 	if not _check(chest_story.contains("MEMORY RECOVERED"), "chest reveal did not reward the player with the recovered-memory story card"):
 		return
+	if not _check(not chest_story.contains("STAGE ONE COMPLETE") and chest_story.contains("FIND THE REST OF THE EVIDENCE"), "chest reveal falsely marked the full first stage complete before the clock and second-ticket sequence"):
+		return
 	# The chest lid now opens with a short cinematic tween.
 	await create_timer(0.85).timeout
 	var lid := chest.get_node_or_null("Lid") as Node3D
