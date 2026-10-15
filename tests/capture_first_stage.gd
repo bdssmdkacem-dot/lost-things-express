@@ -113,7 +113,14 @@ func _capture_first_stage() -> void:
 	if not _save_viewport_image("18_realm_arrival_clear.png"):
 		return
 
-	# Capture both real ending choices and their distinct epilogues.
+	# Capture the actual final realm, not the second realm used by the transition test.
+	# Direct arena setup bypasses campaign callbacks, so clear pending transition flags
+	# before opening the final choice exactly as the gameplay test does.
+	game.call("_start_world_level", 4)
+	game.set("world_intro_active", false)
+	game.set("world_transition_pending", false)
+	game.set("arrival_pending", false)
+	game.set("train_departure_pending", false)
 	game.set("world_level_complete", true)
 	game.call("_spawn_world_gate")
 	var final_gate: Node3D = (game.get("world_level_root") as Node3D).get_node_or_null("WorldExitGate") if game.get("world_level_root") is Node3D else null
@@ -123,16 +130,25 @@ func _capture_first_stage() -> void:
 		return
 	game.get("player").global_position = final_gate.global_position + Vector3(0.0, 0.05, 0.5)
 	game.call("_interact")
-	await create_timer(0.25).timeout
+	await process_frame
+	await create_timer(0.35).timeout
+	if not _check_capture(bool(game.get("ending_choice_pending")) and str(game.get("story_title").text).contains("LAST TERMINAL"), "final gate did not open the final choice in the fifth world"):
+		return
 	if not _save_viewport_image("12_final_choice.png"):
 		return
 	game.call("_on_story_alternative_pressed")
-	await create_timer(0.25).timeout
+	await process_frame
+	await create_timer(0.35).timeout
+	if not _check_capture(str(game.get("ending_decision")) == "release" and str(game.get("story_title").text).contains("MEMORY RELEASED"), "release choice did not show its distinct epilogue"):
+		return
 	if not _save_viewport_image("13_ending_release.png"):
 		return
 	game.set("ending_choice_pending", true)
 	game.call("_on_story_continue_pressed")
-	await create_timer(0.25).timeout
+	await process_frame
+	await create_timer(0.35).timeout
+	if not _check_capture(str(game.get("ending_decision")) == "restore" and str(game.get("story_title").text).contains("MEMORY RESTORED"), "restore choice did not show its distinct epilogue"):
+		return
 	if not _save_viewport_image("14_ending_restore.png"):
 		return
 
