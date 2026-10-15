@@ -473,7 +473,7 @@ def create_carriage():
     # Keep side tables on the aisle-facing edge, in the gaps between benches.
     # The previous wall-side placement hid the marble tops and lamps behind seat backs
     # in the actual first-person camera composition.
-    for z in (-2.05, 1.15, 4.30):
+    for z in (-2.05, 4.30):  # keep this legacy table out of the locked reference seating bay
         for side in (-1, 1):
             x = side * 1.20
             cube("Table | ivory marble top", (x, 0.76, z), (0.50, 0.085, 0.50), marble, 0.035, details)
@@ -588,8 +588,15 @@ def create_carriage():
 
     # Magnifying glass
     cylinder("Ref Props | magnifier handle", (seat_bay_x + 0.28, 0.83, 0.18), 0.012, 0.18, magnifier_brass, rotation=(0, math.radians(90), 0), vertices=10)
-    cylinder("Ref Props | magnifier rim", (seat_bay_x + 0.38, 0.83, 0.18), 0.055, 0.012, magnifier_brass, rotation=(math.radians(90), 0, 0), vertices=24)
-    bpy.ops.mesh.primitive_cylinder_add(vertices=24, radius=0.045, depth=0.006, location=(seat_bay_x + 0.38, 0.83, 0.18))
+    bpy.ops.mesh.primitive_torus_add(major_segments=32, minor_segments=8, location=(seat_bay_x + 0.38, 0.835, 0.18), major_radius=0.066, minor_radius=0.010)
+    magnifier_rim = bpy.context.object
+    magnifier_rim.name = "Ref Props | magnifier rim"
+    magnifier_rim.rotation_euler.x = math.radians(90)
+    assign(magnifier_rim, magnifier_brass)
+    for coll in list(magnifier_rim.users_collection):
+        coll.objects.unlink(magnifier_rim)
+    table_props.objects.link(magnifier_rim)
+    bpy.ops.mesh.primitive_cylinder_add(vertices=32, radius=0.057, depth=0.006, location=(seat_bay_x + 0.38, 0.833, 0.18))
     lens = bpy.context.object
     lens.name = "Ref Props | magnifier lens"
     lens.rotation_euler = (math.radians(90), 0, 0)
