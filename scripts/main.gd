@@ -1054,9 +1054,9 @@ func _build_story_overlay(root: Control) -> void:
 	var card := PanelContainer.new()
 	card.name = "StoryCard"
 	card.anchor_left = 0.15
-	card.anchor_top = 0.46
+	card.anchor_top = 0.08
 	card.anchor_right = 0.85
-	card.anchor_bottom = 0.93
+	card.anchor_bottom = 0.94
 	card.add_theme_stylebox_override("panel", _ui_panel_style(Color(0.027, 0.065, 0.082, 0.99), Color(0.72, 0.47, 0.19, 1.0), 18, 18))
 	story_overlay.add_child(card)
 
@@ -1265,7 +1265,7 @@ func _begin_intro_sequence() -> void:
 		return
 	_show_story_card(
 		"THE LOST THINGS EXPRESS",
-		"The train has no conductor, and the station outside appears on no map. A torn letter in your own handwriting warns: \"If the clock reaches the last chime, you will forget why you boarded.\" Beyond the windows, five worlds are frozen at the instant someone abandoned a promise. The brass key in your hand is warm.\n\nSomeone speaks through the empty carriage: \"You can still leave without remembering.\"\n\nWhen you are ready, find out what the train is keeping from you.",
+		"The train has no conductor, and the station outside appears on no map. A torn letter in your own handwriting warns: \"If the clock reaches the last chime, you will forget why you boarded.\" Beyond the windows, five worlds are frozen at the instant someone abandoned a promise. A brass key lies beneath the seats, impossibly warm.\n\nSomeone speaks through the empty carriage: \"You can still leave without remembering.\"\n\nWhen you are ready, find out what the train is keeping from you.",
 		"ENTER STAGE ONE"
 	)
 
