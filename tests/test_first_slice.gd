@@ -474,6 +474,8 @@ func _run_first_slice() -> void:
 	resumed_game.call("_interact")
 	if not _check(bool(resumed_game.get("world_transition_pending")) and str(resumed_game.get("story_title").text).contains("FIRST DEPARTURE"), "reading the second ticket did not unlock the train departure at the clock"):
 		return
+	if not _check(str(resumed_game.get("story_title").text).contains("STAGE ONE COMPLETE") and str(resumed_game.get("story_body").text).contains("You solved the first carriage mystery"), "first stage completion was not communicated after the clock deduction and second ticket gate"):
+		return
 	# Test the complete player-facing departure sequence and explicit arrival-button gate.
 	var departure_camera := resumed_game.get("camera") as Camera3D
 	if not _check(departure_camera != null, "departure sequence has no player camera to animate"):
