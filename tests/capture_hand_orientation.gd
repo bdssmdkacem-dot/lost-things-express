@@ -15,13 +15,14 @@ func _capture() -> void:
 		quit(1)
 		return
 
-	# Render directly in the SceneTree root viewport. A detached SubViewport can
-	# return a uniform clear-color image under headless/Xvfb even when the rig is valid.
+	# Size the actual root Window as well as its viewport. In --script mode the
+	# Window can otherwise remain at its tiny default size, producing a uniform capture.
 
 	var stage := Node3D.new()
 	stage.name = "HandOrientationStage"
 	root.add_child(stage)
 	current_scene = stage
+	root.size = Vector2i(1280, 720)
 	root.get_viewport().set_size(Vector2i(1280, 720))
 
 	var env_node := WorldEnvironment.new()
@@ -62,6 +63,8 @@ func _capture() -> void:
 	camera.position = center + Vector3(0.0, 0.0, radius * 2.4)
 	camera.look_at(center, Vector3.UP)
 	camera.make_current()
+	await process_frame
+	await RenderingServer.frame_post_draw
 
 	for angle in [0, 90, 180, 270]:
 		hand.rotation_degrees = Vector3(0.0, float(angle), 0.0)
