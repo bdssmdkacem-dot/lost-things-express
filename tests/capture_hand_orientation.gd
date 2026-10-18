@@ -62,9 +62,12 @@ func _capture() -> void:
 	var radius := maxf(bounds.size.length() * 0.72, 0.5)
 	camera.position = center + Vector3(0.0, 0.0, radius * 2.4)
 	camera.look_at(center, Vector3.UP)
-	camera.make_current()
+	camera.current = true
+	# Let Xvfb/Mesa complete the first visible frame after the camera becomes current.
+	await process_frame
 	await process_frame
 	await RenderingServer.frame_post_draw
+	await create_timer(0.8).timeout
 
 	for angle in [0, 90, 180, 270]:
 		hand.rotation_degrees = Vector3(0.0, float(angle), 0.0)
@@ -114,6 +117,7 @@ func _mesh_bounds(root_node: Node3D) -> AABB:
 	return combined
 
 func _save(filename: String) -> bool:
+	await process_frame
 	await RenderingServer.frame_post_draw
 	var image := root.get_viewport().get_texture().get_image()
 	if image == null or image.is_empty():
