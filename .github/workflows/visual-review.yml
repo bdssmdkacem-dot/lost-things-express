@@ -83,11 +83,12 @@ jobs:
           test -s build/hand_orientation_review/test_joint_pose.png
 
       - name: Upload imported hand orientation review
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: anatomical-hand-orientation-review
           path: build/hand_orientation_review/*.png
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
 
       - name: Capture real Godot scene states
