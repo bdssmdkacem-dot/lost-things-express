@@ -21,7 +21,6 @@ func _capture() -> void:
 	var stage := Node3D.new()
 	stage.name = "HandOrientationStage"
 	root.add_child(stage)
-	current_scene = stage
 	root.size = Vector2i(1280, 720)
 	root.get_viewport().set_size(Vector2i(1280, 720))
 
@@ -53,16 +52,20 @@ func _capture() -> void:
 	await process_frame
 	await process_frame
 
+	var mesh_nodes := hand.find_children("*", "MeshInstance3D", true, false)
+	print("HAND_CAPTURE_DIAGNOSTIC: mesh_nodes=%d viewport=%s window=%s" % [mesh_nodes.size(), str(root.get_viewport().get_visible_rect().size), str(root.size)])
 	var bounds := _mesh_bounds(hand)
 	if bounds.size.length() < 0.001:
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: imported hand mesh has empty bounds")
 		quit(1)
 		return
 	var center := bounds.get_center()
+	print("HAND_CAPTURE_DIAGNOSTIC: bounds_position=%s bounds_size=%s center=%s" % [str(bounds.position), str(bounds.size), str(center)])
 	var radius := maxf(bounds.size.length() * 0.72, 0.5)
 	camera.position = center + Vector3(0.0, 0.0, radius * 2.4)
 	camera.look_at(center, Vector3.UP)
-	camera.current = true
+	camera.make_current()
+	print("HAND_CAPTURE_DIAGNOSTIC: camera_current=%s camera_position=%s camera_target=%s" % [str(camera.current), str(camera.global_position), str(center)])
 	# Let Xvfb/Mesa complete the first visible frame after the camera becomes current.
 	await process_frame
 	await process_frame
