@@ -136,14 +136,17 @@ func _save(filename: String) -> bool:
 			sampled_colors[color.to_rgba32()] = true
 			if Vector3(color.r, color.g, color.b).distance_to(Vector3(background.r, background.g, background.b)) > 0.06:
 				non_background_pixels += 1
-	if sampled_colors.size() < 20 or non_background_pixels < 100:
-		push_error("HAND_ORIENTATION_CAPTURE_FAILED: image appears blank (" + str(sampled_colors.size()) + " colors, " + str(non_background_pixels) + " foreground samples): " + filename)
-		quit(1)
-		return false
+	# Persist the raw frame before validation so a failed render can still be
+	# inspected from the CI artifact instead of losing the evidence on exit.
 	var path := ProjectSettings.globalize_path(OUT.path_join(filename))
 	var err := image.save_png(path)
 	if err != OK:
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: could not save " + filename)
+		quit(1)
+		return false
+	print("HAND_CAPTURE_DIAGNOSTIC: saved_raw=%s size=%sx%s unique_sampled_colors=%d foreground_samples=%d" % [path, str(image.get_width()), str(image.get_height()), sampled_colors.size(), non_background_pixels])
+	if sampled_colors.size() < 20 or non_background_pixels < 100:
+		push_error("HAND_ORIENTATION_CAPTURE_FAILED: image appears blank (" + str(sampled_colors.size()) + " colors, " + str(non_background_pixels) + " foreground samples): " + filename)
 		quit(1)
 		return false
 	print("HAND_ORIENTATION_CAPTURE_SAVED: " + path + " (" + str(sampled_colors.size()) + " colors)")
