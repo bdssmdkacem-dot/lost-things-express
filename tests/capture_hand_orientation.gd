@@ -119,7 +119,7 @@ func _mesh_bounds(root_node: Node3D) -> AABB:
 func _save(filename: String) -> bool:
 	await process_frame
 	await RenderingServer.frame_post_draw
-	var image := root.get_viewport().get_texture().get_image()
+	var image := root.get_texture().get_image()
 	if image == null or image.is_empty():
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: empty main viewport image " + filename)
 		quit(1)
