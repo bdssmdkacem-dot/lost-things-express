@@ -18,11 +18,16 @@ func _capture() -> void:
 	# Size the actual root Window as well as its viewport. In --script mode the
 	# Window can otherwise remain at its tiny default size, producing a uniform capture.
 
+	root.size = Vector2i(1280, 720)
+	root.get_viewport().set_size(Vector2i(1280, 720))
+	# Give this isolated capture an explicit 3D world instead of relying on the
+	# SceneTree script's implicit viewport world. The previous frame was uniform
+	# background despite a valid camera and non-empty mesh bounds.
+	var viewport := root.get_viewport()
+	viewport.world_3d = World3D.new()
 	var stage := Node3D.new()
 	stage.name = "HandOrientationStage"
 	root.add_child(stage)
-	root.size = Vector2i(1280, 720)
-	root.get_viewport().set_size(Vector2i(1280, 720))
 
 	var env_node := WorldEnvironment.new()
 	var env := Environment.new()
@@ -61,10 +66,26 @@ func _capture() -> void:
 		return
 	var center := bounds.get_center()
 	print("HAND_CAPTURE_DIAGNOSTIC: bounds_position=%s bounds_size=%s center=%s" % [str(bounds.position), str(bounds.size), str(center)])
+	# Normalize the imported root's offset before aiming the camera. Some GLB
+	# exports store the hand mesh far from the root origin; centering the actual
+	# mesh bounds avoids camera/root transform disagreement.
+	hand.position -= center
+	await process_frame
+	bounds = _mesh_bounds(hand)
+	center = bounds.get_center()
 	var radius := maxf(bounds.size.length() * 0.72, 0.5)
+	camera.near = 0.01
+	camera.far = 100.0
 	camera.position = center + Vector3(0.0, 0.0, radius * 2.4)
 	camera.look_at(center, Vector3.UP)
 	camera.make_current()
+	var diagnostic_material := StandardMaterial3D.new()
+	diagnostic_material.albedo_color = Color(0.95, 0.38, 0.12)
+	diagnostic_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	diagnostic_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	for node in mesh_nodes:
+		(node as MeshInstance3D).material_override = diagnostic_material
+	print("HAND_CAPTURE_DIAGNOSTIC: normalized_bounds=%s center=%s camera_near=%s camera_far=%s" % [str(bounds.size), str(center), str(camera.near), str(camera.far)])
 	print("HAND_CAPTURE_DIAGNOSTIC: camera_current=%s camera_position=%s camera_target=%s" % [str(camera.current), str(camera.global_position), str(center)])
 	# Let Xvfb/Mesa complete the first visible frame after the camera becomes current.
 	await process_frame
