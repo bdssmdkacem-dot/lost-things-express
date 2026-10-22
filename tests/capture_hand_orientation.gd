@@ -18,11 +18,22 @@ func _capture() -> void:
 	# Size the actual root Window as well as its viewport. In --script mode the
 	# Window can otherwise remain at its tiny default size, producing a uniform capture.
 
-	var stage := Node3D.new()
-	stage.name = "HandOrientationStage"
-	root.add_child(stage)
 	root.size = Vector2i(1280, 720)
 	root.get_viewport().set_size(Vector2i(1280, 720))
+	# Give this isolated capture an explicit 3D world instead of relying on the
+	# SceneTree script's implicit viewport world. The previous frame was uniform
+	# background despite a valid camera and non-empty mesh bounds.
+	var capture_viewport := SubViewport.new()
+	capture_viewport.name = "HandCaptureViewport"
+	capture_viewport.size = Vector2i(1280, 720)
+	capture_viewport.disable_3d = false
+	capture_viewport.transparent_bg = false
+	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	capture_viewport.world_3d = World3D.new()
+	root.add_child(capture_viewport)
+	var stage := Node3D.new()
+	stage.name = "HandOrientationStage"
+	capture_viewport.add_child(stage)
 
 	var env_node := WorldEnvironment.new()
 	var env := Environment.new()
@@ -53,7 +64,7 @@ func _capture() -> void:
 	await process_frame
 
 	var mesh_nodes := hand.find_children("*", "MeshInstance3D", true, false)
-	print("HAND_CAPTURE_DIAGNOSTIC: mesh_nodes=%d viewport=%s window=%s" % [mesh_nodes.size(), str(root.get_viewport().get_visible_rect().size), str(root.size)])
+	print("HAND_CAPTURE_DIAGNOSTIC: mesh_nodes=%d viewport=%s window=%s" % [mesh_nodes.size(), str(capture_viewport.get_visible_rect().size), str(root.size)])
 	var bounds := _mesh_bounds(hand)
 	if bounds.size.length() < 0.001:
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: imported hand mesh has empty bounds")
@@ -61,10 +72,26 @@ func _capture() -> void:
 		return
 	var center := bounds.get_center()
 	print("HAND_CAPTURE_DIAGNOSTIC: bounds_position=%s bounds_size=%s center=%s" % [str(bounds.position), str(bounds.size), str(center)])
+	# Normalize the imported root's offset before aiming the camera. Some GLB
+	# exports store the hand mesh far from the root origin; centering the actual
+	# mesh bounds avoids camera/root transform disagreement.
+	hand.position -= center
+	await process_frame
+	bounds = _mesh_bounds(hand)
+	center = bounds.get_center()
 	var radius := maxf(bounds.size.length() * 0.72, 0.5)
+	camera.near = 0.01
+	camera.far = 100.0
 	camera.position = center + Vector3(0.0, 0.0, radius * 2.4)
 	camera.look_at(center, Vector3.UP)
 	camera.make_current()
+	var diagnostic_material := StandardMaterial3D.new()
+	diagnostic_material.albedo_color = Color(0.95, 0.38, 0.12)
+	diagnostic_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	diagnostic_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	for node in mesh_nodes:
+		(node as MeshInstance3D).material_override = diagnostic_material
+	print("HAND_CAPTURE_DIAGNOSTIC: normalized_bounds=%s center=%s camera_near=%s camera_far=%s" % [str(bounds.size), str(center), str(camera.near), str(camera.far)])
 	print("HAND_CAPTURE_DIAGNOSTIC: camera_current=%s camera_position=%s camera_target=%s" % [str(camera.current), str(camera.global_position), str(center)])
 	# Let Xvfb/Mesa complete the first visible frame after the camera becomes current.
 	await process_frame
@@ -122,7 +149,7 @@ func _mesh_bounds(root_node: Node3D) -> AABB:
 func _save(filename: String) -> bool:
 	await process_frame
 	await RenderingServer.frame_post_draw
-	var image := root.get_texture().get_image()
+	var image := capture_viewport.get_texture().get_image()
 	if image == null or image.is_empty():
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: empty main viewport image " + filename)
 		quit(1)
@@ -136,14 +163,17 @@ func _save(filename: String) -> bool:
 			sampled_colors[color.to_rgba32()] = true
 			if Vector3(color.r, color.g, color.b).distance_to(Vector3(background.r, background.g, background.b)) > 0.06:
 				non_background_pixels += 1
-	if sampled_colors.size() < 20 or non_background_pixels < 100:
-		push_error("HAND_ORIENTATION_CAPTURE_FAILED: image appears blank (" + str(sampled_colors.size()) + " colors, " + str(non_background_pixels) + " foreground samples): " + filename)
-		quit(1)
-		return false
+	# Persist the raw frame before validation so a failed render can still be
+	# inspected from the CI artifact instead of losing the evidence on exit.
 	var path := ProjectSettings.globalize_path(OUT.path_join(filename))
 	var err := image.save_png(path)
 	if err != OK:
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: could not save " + filename)
+		quit(1)
+		return false
+	print("HAND_CAPTURE_DIAGNOSTIC: saved_raw=%s size=%sx%s unique_sampled_colors=%d foreground_samples=%d" % [path, str(image.get_width()), str(image.get_height()), sampled_colors.size(), non_background_pixels])
+	if sampled_colors.size() < 20 or non_background_pixels < 100:
+		push_error("HAND_ORIENTATION_CAPTURE_FAILED: image appears blank (" + str(sampled_colors.size()) + " colors, " + str(non_background_pixels) + " foreground samples): " + filename)
 		quit(1)
 		return false
 	print("HAND_ORIENTATION_CAPTURE_SAVED: " + path + " (" + str(sampled_colors.size()) + " colors)")

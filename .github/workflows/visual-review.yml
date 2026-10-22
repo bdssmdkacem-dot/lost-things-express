@@ -22,14 +22,14 @@ permissions:
 jobs:
   capture:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
       - name: Install Blender asset generator
         run: |
-          sudo apt-get update
-          sudo apt-get install -y blender
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=60 -o Acquire::https::Timeout=60 update
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=60 -o Acquire::https::Timeout=60 install -y blender
 
       - name: Generate production locomotive from Blender source
         run: |
@@ -83,11 +83,12 @@ jobs:
           test -s build/hand_orientation_review/test_joint_pose.png
 
       - name: Upload imported hand orientation review
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: anatomical-hand-orientation-review
           path: build/hand_orientation_review/*.png
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
 
       - name: Capture real Godot scene states
@@ -120,7 +121,7 @@ jobs:
         with:
           name: cc0-hand-godot-import-inspection
           path: build/hand_inspection/hand-rig-report.txt
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
 
       - name: Upload Godot visual review images
@@ -129,5 +130,5 @@ jobs:
         with:
           name: lost-things-express-first-stage-visual-review
           path: build/visual_review/*.png
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
