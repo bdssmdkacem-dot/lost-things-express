@@ -23,11 +23,17 @@ func _capture() -> void:
 	# Give this isolated capture an explicit 3D world instead of relying on the
 	# SceneTree script's implicit viewport world. The previous frame was uniform
 	# background despite a valid camera and non-empty mesh bounds.
-	var viewport := root.get_viewport()
-	viewport.world_3d = World3D.new()
+	var capture_viewport := SubViewport.new()
+	capture_viewport.name = "HandCaptureViewport"
+	capture_viewport.size = Vector2i(1280, 720)
+	capture_viewport.disable_3d = false
+	capture_viewport.transparent_bg = false
+	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	capture_viewport.world_3d = World3D.new()
+	root.add_child(capture_viewport)
 	var stage := Node3D.new()
 	stage.name = "HandOrientationStage"
-	root.add_child(stage)
+	capture_viewport.add_child(stage)
 
 	var env_node := WorldEnvironment.new()
 	var env := Environment.new()
@@ -58,7 +64,7 @@ func _capture() -> void:
 	await process_frame
 
 	var mesh_nodes := hand.find_children("*", "MeshInstance3D", true, false)
-	print("HAND_CAPTURE_DIAGNOSTIC: mesh_nodes=%d viewport=%s window=%s" % [mesh_nodes.size(), str(root.get_viewport().get_visible_rect().size), str(root.size)])
+	print("HAND_CAPTURE_DIAGNOSTIC: mesh_nodes=%d viewport=%s window=%s" % [mesh_nodes.size(), str(capture_viewport.get_visible_rect().size), str(root.size)])
 	var bounds := _mesh_bounds(hand)
 	if bounds.size.length() < 0.001:
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: imported hand mesh has empty bounds")
@@ -143,7 +149,7 @@ func _mesh_bounds(root_node: Node3D) -> AABB:
 func _save(filename: String) -> bool:
 	await process_frame
 	await RenderingServer.frame_post_draw
-	var image := root.get_texture().get_image()
+	var image := capture_viewport.get_texture().get_image()
 	if image == null or image.is_empty():
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: empty main viewport image " + filename)
 		quit(1)
