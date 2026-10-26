@@ -3,6 +3,8 @@ extends SceneTree
 const ASSET_PATH := "res://assets/models/hand-posable.glb"
 const OUT := "res://build/hand_orientation_review"
 
+var capture_viewport: SubViewport
+
 
 func _initialize() -> void:
 	call_deferred("_capture")
@@ -23,7 +25,7 @@ func _capture() -> void:
 	# Give this isolated capture an explicit 3D world instead of relying on the
 	# SceneTree script's implicit viewport world. The previous frame was uniform
 	# background despite a valid camera and non-empty mesh bounds.
-	var capture_viewport := SubViewport.new()
+	capture_viewport = SubViewport.new()
 	capture_viewport.name = "HandCaptureViewport"
 	capture_viewport.size = Vector2i(1280, 720)
 	capture_viewport.disable_3d = false
@@ -149,7 +151,7 @@ func _mesh_bounds(root_node: Node3D) -> AABB:
 func _save(filename: String) -> bool:
 	await process_frame
 	await RenderingServer.frame_post_draw
-	var image := capture_viewport.get_texture().get_image()
+	var image: Image = capture_viewport.get_texture().get_image()
 	if image == null or image.is_empty():
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: empty main viewport image " + filename)
 		quit(1)
@@ -166,7 +168,7 @@ func _save(filename: String) -> bool:
 	# Persist the raw frame before validation so a failed render can still be
 	# inspected from the CI artifact instead of losing the evidence on exit.
 	var path := ProjectSettings.globalize_path(OUT.path_join(filename))
-	var err := image.save_png(path)
+	var err: Error = image.save_png(path)
 	if err != OK:
 		push_error("HAND_ORIENTATION_CAPTURE_FAILED: could not save " + filename)
 		quit(1)
