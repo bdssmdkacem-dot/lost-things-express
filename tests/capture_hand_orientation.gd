@@ -32,7 +32,16 @@ func _capture() -> void:
 	capture_viewport.transparent_bg = false
 	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	capture_viewport.world_3d = World3D.new()
-	root.add_child(capture_viewport)
+	# A SubViewport that is never drawn by a SubViewportContainer can stay
+	# unrendered in headless --script mode even while UPDATE_ALWAYS is set.
+	# Put it into a visible container so Godot schedules its 3D render pass.
+	var capture_container := SubViewportContainer.new()
+	capture_container.name = "HandCaptureContainer"
+	capture_container.stretch = true
+	capture_container.size = Vector2(1280, 720)
+	capture_container.position = Vector2.ZERO
+	root.add_child(capture_container)
+	capture_container.add_child(capture_viewport)
 	var stage := Node3D.new()
 	stage.name = "HandOrientationStage"
 	capture_viewport.add_child(stage)
