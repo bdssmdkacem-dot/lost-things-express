@@ -3,7 +3,7 @@ extends SceneTree
 const ASSET_PATH := "res://assets/models/hand-posable.glb"
 const OUT := "res://build/hand_orientation_review"
 
-var capture_viewport: SubViewport
+var capture_viewport: Viewport
 
 
 func _initialize() -> void:
@@ -22,29 +22,14 @@ func _capture() -> void:
 
 	root.size = Vector2i(1280, 720)
 	root.get_viewport().set_size(Vector2i(1280, 720))
-	# Give this isolated capture an explicit 3D world instead of relying on the
-	# SceneTree script's implicit viewport world. The previous frame was uniform
-	# background despite a valid camera and non-empty mesh bounds.
-	capture_viewport = SubViewport.new()
-	capture_viewport.name = "HandCaptureViewport"
-	capture_viewport.size = Vector2i(1280, 720)
-	capture_viewport.disable_3d = false
-	capture_viewport.transparent_bg = false
-	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	capture_viewport.world_3d = World3D.new()
-	# A SubViewport that is never drawn by a SubViewportContainer can stay
-	# unrendered in headless --script mode even while UPDATE_ALWAYS is set.
-	# Put it into a visible container so Godot schedules its 3D render pass.
-	var capture_container := SubViewportContainer.new()
-	capture_container.name = "HandCaptureContainer"
-	capture_container.stretch = true
-	capture_container.size = Vector2(1280, 720)
-	capture_container.position = Vector2.ZERO
-	root.add_child(capture_container)
-	capture_container.add_child(capture_viewport)
+	# Render the test directly in the real root viewport. In headless --script
+	# mode, nested SubViewport textures can remain unrendered even when marked
+	# UPDATE_ALWAYS, so use the actual window viewport for both rendering/capture.
+	capture_viewport = root.get_viewport()
+	capture_viewport.set_size(Vector2i(1280, 720))
 	var stage := Node3D.new()
 	stage.name = "HandOrientationStage"
-	capture_viewport.add_child(stage)
+	root.add_child(stage)
 
 	var env_node := WorldEnvironment.new()
 	var env := Environment.new()
