@@ -12,6 +12,8 @@ on:
       - "tests/test_first_slice.gd"
       - "tests/test_hand_asset_rig.gd"
       - "tests/capture_hand_orientation.gd"
+      - "tests/capture_hand_orientation_scene.gd"
+      - "tests/capture_hand_orientation_scene.tscn"
       - "docs/ART_DIRECTION.md"
       - "README.md"
       - ".github/workflows/visual-review.yml"
