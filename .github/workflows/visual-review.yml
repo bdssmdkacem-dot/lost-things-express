@@ -75,7 +75,7 @@ jobs:
       - name: Capture imported hand orientation and test joint pose
         run: |
           set -euxo pipefail
-          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --script tests/capture_hand_orientation.gd
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s "-screen 0 1280x720x24" godot --path . res://tests/capture_hand_orientation_scene.tscn --rendering-method gl_compatibility --quit-after 240
           test -s build/hand_orientation_review/yaw_000.png
           test -s build/hand_orientation_review/yaw_090.png
           test -s build/hand_orientation_review/yaw_180.png
