@@ -61,8 +61,31 @@ func _run_capture() -> void:
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	for node in meshes:
-		(node as MeshInstance3D).material_override = mat
+		var mesh_instance := node as MeshInstance3D
+		mesh_instance.material_override = mat
+		print("HAND_MESH_DIAGNOSTIC: path=%s visible=%s mesh=%s surfaces=%d skin=%s skeleton_path=%s global=%s local_aabb=%s" % [
+			str(mesh_instance.get_path()), str(mesh_instance.is_visible_in_tree()),
+			str(mesh_instance.mesh), mesh_instance.mesh.get_surface_count() if mesh_instance.mesh != null else -1,
+			str(mesh_instance.skin != null), str(mesh_instance.skeleton),
+			str(mesh_instance.global_transform), str(mesh_instance.get_aabb())
+		])
+	print("HAND_CAMERA_DIAGNOSTIC: bounds=%s camera=%s looking_at=%s" % [str(bounds), str(camera.global_position), str(bounds.get_center())])
+	var probe_mesh := SphereMesh.new()
+	probe_mesh.radius = maxf(bounds.size.length() * 0.08, 0.025)
+	probe_mesh.height = probe_mesh.radius * 2.0
+	var probe := MeshInstance3D.new()
+	probe.mesh = probe_mesh
+	var probe_mat := StandardMaterial3D.new()
+	probe_mat.albedo_color = Color(0.1, 1.0, 0.2)
+	probe_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	probe.material_override = probe_mat
+	probe.position = bounds.get_center()
+	add_child(probe)
 	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	if not await _save("camera_probe.png"):
+		return
+	probe.queue_free()
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	for angle in [0, 90, 180, 270]:
