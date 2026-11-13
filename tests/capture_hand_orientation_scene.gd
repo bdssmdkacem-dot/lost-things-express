@@ -69,16 +69,17 @@ func _run_capture() -> void:
 		hand.rotation_degrees = Vector3(0.0, float(angle), 0.0)
 		await get_tree().process_frame
 		await RenderingServer.frame_post_draw
-		if not _save("yaw_%03d.png" % angle):
+		if not await _save("yaw_%03d.png" % angle):
 			return
-	skeleton = hand.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D if hand.find_children("*", "Skeleton3D", true, false).size() == 1 else null
+	var skeletons := hand.find_children("*", "Skeleton3D", true, false)
+	skeleton = skeletons[0] as Skeleton3D if skeletons.size() == 1 else null
 	if skeleton == null:
 		_fail("expected exactly one Skeleton3D")
 		return
 	var i := skeleton.find_bone("index_01_r")
 	var m := skeleton.find_bone("middle_01_r")
 	var t := skeleton.find_bone("thumb_01_r")
-	if min(i, m, t) < 0:
+	if min(i, min(m, t)) < 0:
 		_fail("finger bones missing")
 		return
 	skeleton.set_bone_pose_rotation(i, Quaternion(Vector3.RIGHT, deg_to_rad(28.0)))
@@ -86,7 +87,7 @@ func _run_capture() -> void:
 	skeleton.set_bone_pose_rotation(t, Quaternion(Vector3.UP, deg_to_rad(22.0)))
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
-	if not _save("test_joint_pose.png"):
+	if not await _save("test_joint_pose.png"):
 		return
 	print("HAND_ORIENTATION_CAPTURE_COMPLETE: scene-based main-viewport renders saved.")
 	get_tree().quit(0)
