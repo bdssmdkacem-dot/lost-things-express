@@ -73,8 +73,8 @@ func _run_capture() -> void:
 		if resolved_skeleton != null and mesh_instance.skin != null:
 			for bind_index in range(mesh_instance.skin.get_bind_count()):
 				var bind_bone := mesh_instance.skin.get_bind_bone(bind_index)
-				print("HAND_SKIN_BIND: index=%d bone=%d name=%s pose=%s" % [
-					bind_index, bind_bone,
+				print("HAND_SKIN_BIND: index=%d bone=%d bind_name=%s resolved_name=%s pose=%s" % [
+					bind_index, bind_bone, mesh_instance.skin.get_bind_name(bind_index),
 					resolved_skeleton.get_bone_name(bind_bone) if bind_bone >= 0 and bind_bone < resolved_skeleton.get_bone_count() else "<invalid>",
 					str(mesh_instance.skin.get_bind_pose(bind_index))
 				])
