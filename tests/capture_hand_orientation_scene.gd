@@ -63,6 +63,21 @@ func _run_capture() -> void:
 	for node in meshes:
 		var mesh_instance := node as MeshInstance3D
 		mesh_instance.material_override = mat
+		var resolved_skeleton := mesh_instance.get_node_or_null(mesh_instance.skeleton) as Skeleton3D if mesh_instance.skeleton != NodePath() else null
+		print("HAND_SKIN_BIND_DIAGNOSTIC: skeleton_resolved=%s skeleton_global=%s bind_count=%d mesh_global=%s" % [
+			str(resolved_skeleton != null),
+			str(resolved_skeleton.global_transform) if resolved_skeleton != null else "<null>",
+			mesh_instance.skin.get_bind_count() if mesh_instance.skin != null else -1,
+			str(mesh_instance.global_transform)
+		])
+		if resolved_skeleton != null and mesh_instance.skin != null:
+			for bind_index in range(mesh_instance.skin.get_bind_count()):
+				var bind_bone := mesh_instance.skin.get_bind_bone(bind_index)
+				print("HAND_SKIN_BIND: index=%d bone=%d name=%s pose=%s" % [
+					bind_index, bind_bone,
+					resolved_skeleton.get_bone_name(bind_bone) if bind_bone >= 0 and bind_bone < resolved_skeleton.get_bone_count() else "<invalid>",
+					str(mesh_instance.skin.get_bind_pose(bind_index))
+				])
 		print("HAND_MESH_DIAGNOSTIC: path=%s visible=%s mesh=%s surfaces=%d skin=%s skeleton_path=%s global=%s local_aabb=%s" % [
 			str(mesh_instance.get_path()), str(mesh_instance.is_visible_in_tree()),
 			str(mesh_instance.mesh), mesh_instance.mesh.get_surface_count() if mesh_instance.mesh != null else -1,
