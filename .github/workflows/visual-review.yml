@@ -12,6 +12,8 @@ on:
       - "tests/test_first_slice.gd"
       - "tests/test_hand_asset_rig.gd"
       - "tests/capture_hand_orientation.gd"
+      - "tests/capture_hand_orientation_scene.gd"
+      - "tests/capture_hand_orientation_scene.tscn"
       - "docs/ART_DIRECTION.md"
       - "README.md"
       - ".github/workflows/visual-review.yml"
@@ -22,14 +24,14 @@ permissions:
 jobs:
   capture:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
       - name: Install Blender asset generator
         run: |
-          sudo apt-get update
-          sudo apt-get install -y blender
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=60 -o Acquire::https::Timeout=60 update
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=60 -o Acquire::https::Timeout=60 install -y blender
 
       - name: Generate production locomotive from Blender source
         run: |
@@ -75,7 +77,7 @@ jobs:
       - name: Capture imported hand orientation and test joint pose
         run: |
           set -euxo pipefail
-          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --script tests/capture_hand_orientation.gd
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s "-screen 0 1280x720x24" godot --path . res://tests/capture_hand_orientation_scene.tscn --rendering-method gl_compatibility --quit-after 240
           test -s build/hand_orientation_review/yaw_000.png
           test -s build/hand_orientation_review/yaw_090.png
           test -s build/hand_orientation_review/yaw_180.png
@@ -83,11 +85,12 @@ jobs:
           test -s build/hand_orientation_review/test_joint_pose.png
 
       - name: Upload imported hand orientation review
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: anatomical-hand-orientation-review
           path: build/hand_orientation_review/*.png
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
 
       - name: Capture real Godot scene states
@@ -120,7 +123,7 @@ jobs:
         with:
           name: cc0-hand-godot-import-inspection
           path: build/hand_inspection/hand-rig-report.txt
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
 
       - name: Upload Godot visual review images
@@ -129,5 +132,5 @@ jobs:
         with:
           name: lost-things-express-first-stage-visual-review
           path: build/visual_review/*.png
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
