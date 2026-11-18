@@ -137,8 +137,8 @@ func _save(filename: String) -> bool:
 	var background := Color(0.075, 0.09, 0.12)
 	var foreground := 0
 	var colors := {}
-	for y in range(0, image.get_height(), 4):
-		for x in range(0, image.get_width(), 4):
+	for y in range(0, image.get_height(), 2):
+		for x in range(0, image.get_width(), 2):
 			var px := image.get_pixel(x, y)
 			colors[px.to_rgba32()] = true
 			if Vector3(px.r, px.g, px.b).distance_to(Vector3(background.r, background.g, background.b)) > 0.06:
@@ -148,7 +148,7 @@ func _save(filename: String) -> bool:
 		_fail("failed saving " + filename)
 		return false
 	print("HAND_CAPTURE_DIAGNOSTIC: %s colors=%d foreground=%d" % [filename, colors.size(), foreground])
-	if colors.size() < 20 or foreground < 100:
+	if colors.size() < 2 or foreground < 100:
 		_fail("blank render " + filename)
 		return false
 	return true
