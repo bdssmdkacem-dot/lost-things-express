@@ -70,6 +70,30 @@ func _run_capture() -> void:
 			str(mesh_instance.global_transform), str(mesh_instance.get_aabb())
 		])
 	print("HAND_CAMERA_DIAGNOSTIC: bounds=%s camera=%s looking_at=%s" % [str(bounds), str(camera.global_position), str(bounds.get_center())])
+	# Diagnostic only: duplicate the imported surface without skinning to isolate whether
+	# the blank render is caused by the imported mesh geometry or its Skin/Skeleton binding.
+	var source_mesh := meshes[0] as MeshInstance3D
+	var raw_mesh := ArrayMesh.new()
+	if source_mesh.mesh != null:
+		for surface_index in range(source_mesh.mesh.get_surface_count()):
+			var arrays := source_mesh.mesh.surface_get_arrays(surface_index)
+			raw_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+			var raw_material := StandardMaterial3D.new()
+			raw_material.albedo_color = Color(0.95, 0.38, 0.12)
+			raw_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			raw_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+			raw_mesh.surface_set_material(surface_index, raw_material)
+	var raw_instance := MeshInstance3D.new()
+	raw_instance.mesh = raw_mesh
+	raw_instance.global_transform = source_mesh.global_transform
+	add_child(raw_instance)
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	if not await _save("unskinned_mesh_probe.png"):
+		return
+	raw_instance.queue_free()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
 	var probe_mesh := SphereMesh.new()
 	probe_mesh.radius = maxf(bounds.size.length() * 0.08, 0.025)
 	probe_mesh.height = probe_mesh.radius * 2.0
